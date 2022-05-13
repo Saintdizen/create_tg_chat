@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   build_on_linux:
@@ -14,6 +14,6 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@master
     - name: install dependencies
-      run: npm install --legacy-peer-deps
+      run: npm install --legacy-peer-deps --force
     - name: build
       run: npm run linux
