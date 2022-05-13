@@ -1,0 +1,106 @@
+{
+  "name": "yandex-services",
+  "productName": "Yandex Services",
+  "description": "Yandex Services описание",
+  "version": "0.1.6",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "debs": "npm install --save --legacy-peer-deps --force",
+    "postinstall": "electron-builder install-app-deps",
+    "linux": "electron-builder --linux --publish always",
+    "win": "electron-builder --win --publish always",
+    "mac": "electron-builder --mac --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saintdizen/yandex-services.git"
+  },
+  "keywords": [
+    "Yandex",
+    "Music",
+    "Video"
+  ],
+  "build": {
+    "asar": true,
+    "publish": {
+      "provider": "github",
+      "owner": "Saintdizen",
+      "private": false,
+      "repo": "yandex-services",
+      "releaseType": "release"
+    },
+    "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
+    "electronDownload": {
+      "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
+    },
+    "appId": "com.yandex.services",
+    "linux": {
+      "category": "AudioVideo",
+      "target": [
+        "deb",
+        "AppImage",
+        "rpm"
+      ]
+    },
+    "win": {
+      "icon": "resources/icons/app/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "differentialPackage": false,
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": false,
+      "deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": false,
+      "installerHeaderIcon": "resources/icons/app/icon.ico",
+      "installerIcon": "resources/icons/app/icon.ico",
+      "uninstallerIcon": "resources/icons/app/icon.ico",
+      "artifactName": "${name}-${os}-x32-x64-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "resources/icons/app/icon.icns"
+    },
+    "dmg": {
+      "writeUpdateInfo": false
+    },
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "resources/**/*",
+      "app/**/*"
+    ]
+  },
+  "author": {
+    "name": "Chuvakhin Ivan",
+    "email": "saintdizen@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Saintdizen/yandex-services/issues"
+  },
+  "homepage": "https://github.com/Saintdizen/yandex-services#readme",
+  "devDependencies": {
+    "electron-builder": "~22.10.5"
+  },
+  "dependencies": {
+    "chui-electron": "^1.1.3"
+  }
+}
