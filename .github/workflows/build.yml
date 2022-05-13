@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 jobs:
   build_on_linux:
@@ -13,10 +13,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@master
-      with:
-        github_token: ${{ secrets.github_token }}
-        args: "-p always"
-        release: ${{ startsWith(github.ref, 'refs/tags/v') }}
     - name: install dependencies
       run: npm install --legacy-peer-deps
     - name: build
