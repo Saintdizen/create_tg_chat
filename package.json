@@ -1,9 +1,7 @@
-
-
 {
   "name": "create_tg_chat",
-  "productName": "Yandex Services",
-  "description": "Yandex Services описание",
+  "productName": "Создание чата в Telegram",
+  "description": "Создание чата в Telegram",
   "version": "0.0.1",
   "main": "main.js",
   "scripts": {
