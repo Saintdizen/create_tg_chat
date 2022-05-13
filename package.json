@@ -1,8 +1,10 @@
+
+
 {
-  "name": "yandex-services",
+  "name": "create_tg_chat",
   "productName": "Yandex Services",
   "description": "Yandex Services описание",
-  "version": "0.1.6",
+  "version": "0.0.1",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -14,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Saintdizen/yandex-services.git"
+    "url": "git+https://github.com/Saintdizen/create_tg_chat.git"
   },
   "keywords": [
     "Yandex",
@@ -27,7 +29,7 @@
       "provider": "github",
       "owner": "Saintdizen",
       "private": false,
-      "repo": "yandex-services",
+      "repo": "create_tg_chat",
       "releaseType": "release"
     },
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
@@ -94,13 +96,15 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Saintdizen/yandex-services/issues"
+    "url": "https://github.com/Saintdizen/create_tg_chat/issues"
   },
-  "homepage": "https://github.com/Saintdizen/yandex-services#readme",
+  "homepage": "https://github.com/Saintdizen/create_tg_chat#readme",
   "devDependencies": {
     "electron-builder": "~22.10.5"
   },
   "dependencies": {
-    "chui-electron": "^1.1.3"
+    "chui-electron": "^1.2.3",
+    "googleapis": "^100.0.0",
+    "telegram": "^2.6.13"
   }
 }
