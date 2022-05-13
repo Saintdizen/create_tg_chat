@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  GITHUB_TOKEN: ${{ github.token }}
+  repo_token: "${{ secrets.GITHUB_TOKEN }}"
 
 jobs:
   build_on_linux:

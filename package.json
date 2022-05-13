@@ -17,9 +17,7 @@
     "url": "git+https://github.com/Saintdizen/create_tg_chat.git"
   },
   "keywords": [
-    "Yandex",
-    "Music",
-    "Video"
+    "Monitoring"
   ],
   "build": {
     "asar": true,
@@ -36,11 +34,9 @@
     },
     "appId": "com.yandex.services",
     "linux": {
-      "category": "AudioVideo",
+      "category": "Monitoring",
       "target": [
-        "deb",
-        "AppImage",
-        "rpm"
+        "deb"
       ]
     },
     "win": {
