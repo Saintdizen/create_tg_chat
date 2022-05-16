@@ -105,5 +105,5 @@ dist
 # TernJS port file
 .tern-port
 
-.idea
+.idea/
 create_tg_chat/
