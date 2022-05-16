@@ -1,31 +1,28 @@
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
     NotificationStyle, Image
 } = require('chui-electron');
-const appData = require('electron').remote.app.getPath('userData');
-const fs = require('fs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleDrive = new GoogleDrive();
 const lists = [];
 
+let QRCode_block = undefined;
+
 class CreateChatTG extends Page {
     constructor() {
         super();
         this.setTitle('Создание чата в Telegram');
         this.setMain(true);
-        let block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
+        enableLogsNotification();
+        QRCode_block = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.WRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
         block.setWidth("-webkit-fill-available")
-        ipcRenderer.send('getTokenForQRCode')
-        ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
-            QRCode.toDataURL(text).then(src => {
-                const img = new Image(src, "280px", "280px")
-                this.add(img)
-            })
-        })
+        //QR_CODE
+        generateQRCode(this);
 
         //ФОРМЫ
-        let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.NOWRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
+        let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
         googleSheets.getLists().then(values => {
             for (let list of values.data.sheets) {
                 const check = new CheckBox({
@@ -33,7 +30,7 @@ class CreateChatTG extends Page {
                     changeListener: (e) => {
                         if (e.target.checked) {
                             googleSheets.read(`${check.getTitle()}!A1:A`).then(values => {
-                                lists.push(values)
+                                lists.push(values.filter(data => data.length !== 0))
                             }).finally(() => {
                                 new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                             })
@@ -50,26 +47,6 @@ class CreateChatTG extends Page {
             }
         })
         //
-        let phone = new TextInput({
-            title: 'Номер телефона',
-            placeholder: '+79998887766',
-            width: '200px',
-            height: '300px',
-            required: false
-        });
-        let code = new TextInput({
-            title: 'Код подтверждения',
-            placeholder: 'XXXXX',
-            width: '200px',
-            height: '300px',
-            required: false
-        });
-        //КОД
-        let button_send_code = new Button('Выслать код', () => {
-            this.remove(phone, button_send_code)
-            this.add(code)
-        });
-                //
         let inc_num = new TextInput({
             title: 'Номер инцидента',
             placeholder: 'Номер инцидента',
@@ -112,7 +89,6 @@ class CreateChatTG extends Page {
                 }
                 new Notification('Клонирование документа с отчетом...').show()
                 let date_STRING = format(new Date());
-                console.log(date_STRING)
                 googleDrive.copyDocument({
                     title: `${date_STRING} - ${inc_num.getValue()}`,
                     parentFolderId: '1DXi665zgxm-pFMPs1kg3uhw4QuVfuugJ',
@@ -128,22 +104,39 @@ class CreateChatTG extends Page {
         });
         block.add(block_radios, inc_num, desc, pin_message, label_1, label_2, label_3, button_c_chat)
         //
-        let session_key = require('path').join(appData, "tg_session_string.txt");
-        try {
-            if (fs.existsSync(session_key)) {
+        ipcRenderer.on('sendAuthStatus', (e, status) => {
+            if (status) {
+                this.remove(QRCode_block)
                 this.add(block)
-                ipcRenderer.on('log_tg', (e, text) => {
-                    new Notification(text).show()
-                })
-            } else {
-                this.add(phone, button_send_code)
             }
-        } catch(err) {
-            console.error(err)
-        }
+        })
     }
 }
 
+function generateQRCode(page) {
+    page.add(QRCode_block)
+    QRCode_block.setWidth("-webkit-fill-available")
+    ipcRenderer.send('getTokenForQRCode')
+    ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
+        QRCode.toDataURL(text).then(src => {
+            QRCode_block.clear()
+            QRCode_block.add(new Image(src, "280px", "280px"))
+            new Notification('QR-код изменен', NotificationStyle.WARNING).show()
+        })
+    })
+}
+
+function enableLogsNotification() {
+    ipcRenderer.on('sendLog', (e, type, message) => {
+        if (type === "success") {
+            new Notification(message, NotificationStyle.SUCCESS).show()
+        } else if (type === 'error') {
+            new Notification(message, NotificationStyle.ERROR).show()
+        } else if (type === undefined) {
+            new Notification(message).show()
+        }
+    })
+}
 function format(date) {
     let day = date.getDate()
     let month = date.getMonth() + 1
@@ -153,5 +146,4 @@ function format(date) {
     if (month < 10) { month = "0" + month }
     return String(day + "-" + month + "-" + year)
 }
-
 exports.CreateChatTG = CreateChatTG
