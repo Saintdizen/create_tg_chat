@@ -1,9 +1,10 @@
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle
+    NotificationStyle, Image
 } = require('chui-electron');
 const appData = require('electron').remote.app.getPath('userData');
 const fs = require('fs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
+const QRCode = require("qrcode");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleDrive = new GoogleDrive();
 const lists = [];
@@ -15,11 +16,13 @@ class CreateChatTG extends Page {
         this.setMain(true);
         let block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
         block.setWidth("-webkit-fill-available")
-        let button_auth = new Button('Авторизоваться', () => {
-            ipcRenderer.send('tg_auth', phone.getValue(), code.getValue(), appData)
-            this.remove(code, button_auth)
-            this.add(block)
-        });
+        ipcRenderer.send('getTokenForQRCode')
+        ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
+            QRCode.toDataURL(text).then(src => {
+                const img = new Image(src, "280px", "280px")
+                this.add(img)
+            })
+        })
 
         //ФОРМЫ
         let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.NOWRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
@@ -64,8 +67,7 @@ class CreateChatTG extends Page {
         //КОД
         let button_send_code = new Button('Выслать код', () => {
             this.remove(phone, button_send_code)
-            ipcRenderer.send('tg_send_code', phone.getValue())
-            this.add(code, button_auth)
+            this.add(code)
         });
                 //
         let inc_num = new TextInput({

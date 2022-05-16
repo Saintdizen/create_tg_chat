@@ -1,39 +1,25 @@
 //
 const { Api, TelegramClient } = require("telegram");
-const { StringSession  } = require("telegram/sessions");
+const { StringSession, StoreSession} = require("telegram/sessions");
 const fs = require('fs');
 const path = require('path');
 const appData = require('electron').app.getPath('userData');
-let SystemNotification = require('electron').Notification;
+const SystemNotification = require('electron').Notification;
+const electron = require('electron')
+const base64url = require("base64url");
 //
 const api_id = 12415990;
 const api_hash = '240958bf7eb5068290dff67cb3c73b1f';
-const client = new TelegramClient(new StringSession(""), api_id, api_hash, { connectionRetries: 5 });
-
-const firstAuth = async (phone) => {
-  await client.connect();
-  await client.invoke(
-    new Api.auth.SendCode({
-      phoneNumber: phone,
-      apiId: api_id,
-      apiHash: api_hash,
-      settings: new Api.CodeSettings({
-        allowFlashcall: true,
-        currentNumber: true,
-        allowAppHash: true,
-      }),
-    })
-  );
-}
-exports.firstAuth = firstAuth
+let client = null //new TelegramClient(new StringSession(""), api_id, api_hash, {});
+//
 const auth = async (phone, code, appData) => {
-  await client.start({
-    phoneNumber: async () => await phone,
-    password: async () => await code,
-    phoneCode: async () => await code,
-    onError: (err) => console.log(err),
-  });
-  try { 
+  try {
+    await client.start({
+      phoneNumber: async () => await phone,
+      password: async () => await code,
+      phoneCode: async () => await code,
+      onError: (err) => sendLog(err),
+    });
     fs.writeFileSync(path.join(appData, 'tg_session_string.txt'), client.session.save(), 'utf-8');
   }
   catch(e) { alert('Failed to save the file !'); }
@@ -96,10 +82,12 @@ const createChat = async (userList, pin_message, inc_num, desc, doc_link) => {
 }
 exports.createChat = createChat
 
+async function senndQRCode(text) {
 
+}
 
 async function sendLog(text) {
-  require('electron').BrowserWindow.getAllWindows().filter(b => {
+  electron.BrowserWindow.getAllWindows().filter(b => {
      b.webContents.send('log_tg', text)
   })
 }

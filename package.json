@@ -2,7 +2,7 @@
   "name": "create_tg_chat",
   "productName": "Создание чата в Telegram",
   "description": "Создание чата в Telegram",
-  "version": "0.0.5",
+  "version": "0.0.4",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -20,7 +20,7 @@
     "Monitoring"
   ],
   "build": {
-    "asar": true,
+    "asar": false,
     "publish": {
       "provider": "github",
       "owner": "Saintdizen",
@@ -97,8 +97,11 @@
     "electron-builder": "~22.10.5"
   },
   "dependencies": {
+    "base64-arraybuffer": "^1.0.2",
+    "base64url": "^3.0.1",
     "chui-electron": "^1.2.3",
     "googleapis": "^100.0.0",
-    "telegram": "^2.6.13"
+    "qrcode": "^1.5.0",
+    "telegram": "^2.7.32"
   }
 }
