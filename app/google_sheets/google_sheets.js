@@ -81,7 +81,7 @@ class GoogleDrive {
         })
         return response.data.id;
      } catch (e) {
-        console.log(e);
+        throw e
      }
   }
 }

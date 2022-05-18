@@ -1,15 +1,20 @@
+'use strict';
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle, Image
+    NotificationStyle, Image, Dialog, ProgressBar, Label
 } = require('chui-electron');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
+let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
 const lists = [];
-
+const report = {
+    folder_id: String(undefined),
+    file_id: String(undefined)
+}
 let QRCode_block = undefined;
 
-class CreateChatTG extends Page {
+ class CreateChatTG extends Page {
     constructor() {
         super();
         this.setTitle('Создание чата в Telegram');
@@ -20,31 +25,64 @@ class CreateChatTG extends Page {
         block.setWidth("-webkit-fill-available")
         //QR_CODE
         generateQRCode(this);
+        //Статус выполнения
+        let progressBlock = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        progressBlock.setWidth("-webkit-fill-available")
+        let modal = new Dialog({
+            width: "80%",
+            height: "max-content",
+        })
+        let progressBar = new ProgressBar(100);
+        progressBar.setWidth("-webkit-fill-available")
+        progressBar.setValue(0)
+        progressBlock.add(progressBar)
+        modal.addToBody(progressBlock)
+        this.add(modal)
+        //
 
         //ФОРМЫ
         let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
-        googleSheets.getLists().then(values => {
-            for (let list of values.data.sheets) {
-                const check = new CheckBox({
-                    title: list.properties.title,
-                    changeListener: (e) => {
-                        if (e.target.checked) {
-                            googleSheets.read(`${check.getTitle()}!A1:A`).then(values => {
-                                lists.push(values.filter(data => data.length !== 0))
-                            }).finally(() => {
-                                new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
-                            })
-                        } else {
-                            googleSheets.read(`${check.getTitle()}!A1:A`).then(values => {
-                                lists.splice(lists.indexOf(values), 1)
-                            }).finally(() => {
-                                new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
-                            })
+        googleSheets.getLists().then(async values => {
+            ipcRenderer.on('user_data', (e, TAG_TG, ROLE, GROUP) => {
+                for (let list of values.data.sheets) {
+                    const check = new CheckBox({
+                        title: list.properties.title.replace(` (${GROUP})`, ''),
+                        changeListener: (e) => {
+                            if (e.target.checked) {
+                                googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
+                                    lists.push(values.filter(data => data.length !== 0))
+                                }).finally(async () => {
+                                    await googleSheets_DB.read(`REPORTS!A1:D`).then(res => {
+                                        res.filter(val => {
+                                            if (val[1].includes(check.getTitle())) {
+                                                report.folder_id = val[2]
+                                                report.file_id = val[3]
+                                            }
+                                        })
+                                    })
+                                    new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
+                                })
+                            } else {
+                                googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
+                                    lists.splice(lists.indexOf(values), 1)
+                                    report.folder_id = undefined
+                                    report.file_id = undefined
+                                }).finally(() => {
+                                    new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
+                                })
+                            }
                         }
+                    });
+                    if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
+                        block_radios.add(check);
                     }
-                });
-                block_radios.add(check);
-            }
+                    if (list.properties.title.includes(GROUP)) {
+                        block_radios.add(check);
+                    } else if (GROUP.includes("*")) {
+                        block_radios.add(check);
+                    }
+                }
+            })
         })
         //
         let inc_num = new TextInput({
@@ -79,25 +117,54 @@ class CreateChatTG extends Page {
         let label_2 = new Badge('Дата и номер инцидента будут добалвены автоматически', BadgeStyle.WARNING);
         let label_3 = new Badge('Добавьте в чат снимок экрана с зафиксированной ошибкой', BadgeStyle.WARNING);
 
-        let button_c_chat = new Button('Создать чат', () => {
+        let button_c_chat = new Button('Создать чат', async () => {
             if (lists.length !== 0) {
+                modal.open()
                 const finish_list = [];
                 for (let list of lists) {
                     for (let userName of list) {
                         finish_list.push(userName[0])
                     }
                 }
-                new Notification('Клонирование документа с отчетом...').show()
+                progressBar.setProgressText('Клонирование документа с отчетом...')
                 let date_STRING = format(new Date());
-                googleDrive.copyDocument({
-                    title: `${date_STRING} - ${inc_num.getValue()}`,
-                    parentFolderId: '1DXi665zgxm-pFMPs1kg3uhw4QuVfuugJ',
-                    fileId: '1lQBfpUqDw8S6jv3nk0gNjLMQqrqIyPjC'
-                }).then(id => {
-                    let link = `https://docs.google.com/document/d/${id}/edit`;
-                    new Notification('Создание чата...').show()
-                    ipcRenderer.send('tg_crt_chat', finish_list, pin_message.getValue(), inc_num.getValue(), desc.getValue(), link)
-                })
+                try {
+                    await googleDrive.copyDocument({
+                        title: `${date_STRING} - ${inc_num.getValue()}`,
+                        parentFolderId: report.folder_id,
+                        fileId: report.file_id
+                    }).then(id => {
+                        if (id !== undefined) {
+                            progressBar.setValue(10)
+                            let link = `https://docs.google.com/document/d/${id}/edit`;
+                            progressBar.setProgressText('Создание чата...')
+                            ipcRenderer.on('setProgressValue', (e, value) => {
+                                progressBar.setValue(value)
+                            })
+                            ipcRenderer.on('setProgressText', (e, text) => {
+                                progressBar.setProgressText(text)
+                            })
+                            ipcRenderer.on('setProgressLogText', (e, text) => {
+                                progressBlock.add(new Label(text))
+                            })
+                            ipcRenderer.on('closeDialog', () => {
+                                modal.addToFooter(new Button('Закрыть', () => {
+                                    modal.close()
+                                    progressBar.setProgressText("")
+                                    progressBar.setValue(0)
+                                }))
+                            })
+                            ipcRenderer.send('tg_crt_chat', finish_list, pin_message.getValue(), inc_num.getValue(), desc.getValue(), link)
+                        }
+                    })
+                } catch (e) {
+                    progressBlock.add(new Label(e))
+                    modal.addToFooter(new Button('Закрыть', () => {
+                        modal.close()
+                        progressBar.setProgressText("")
+                        progressBar.setValue(0)
+                    }))
+                }
             } else {
                 new Notification('Выберите список пользователей!').show()
             }

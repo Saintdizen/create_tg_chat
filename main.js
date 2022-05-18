@@ -1,5 +1,7 @@
 const { Main, MenuItem, ipcMain } = require('chui-electron');
 const electron = require("electron");
+const { GoogleSheets } = require('./app/google_sheets/google_sheets')
+let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 //
 const { TelegramClient, Api } = require("telegram");
 const api_id = 12415990;
@@ -51,18 +53,21 @@ ipcMain.on('getTokenForQRCode', async () => {
         ).then(async (user) => {
             await sendAuthStatus(true);
             await sendLog('success', `Онлайн: ${user.firstName} ${user.lastName}`);
+            await createUserData(`@${user.username}`)
         });
     } else {
         const me = await client.getMe();
         await sendAuthStatus(true);
         await sendLog('success', `Онлайн: ${me.firstName} ${me.lastName}`);
+        await createUserData(`@${me.username}`)
     }
 })
 //
 ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_link) => {
     try {
         //Создать группу
-        await sendLog(undefined, `Создание группы...`)
+        await setProgressText('Создание группы...')
+        await setProgressValue(25)
         let date_STRING = format(new Date());
         const res_cr_chat = await client.invoke(new Api.channels.CreateChannel({
             megagroup: true,
@@ -72,21 +77,24 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         let chat_id = res_cr_chat.updates[2].channelId.value;
 
         //Получение ссылки на приглашение в чат
-        await sendLog(undefined, `Получение ссылки на приглашение в чат...`)
+        await setProgressText('Получение ссылки на приглашение в чат...')
+        await setProgressValue(40)
         const invite_link = await client.invoke(new Api.messages.ExportChatInvite({
             peer: chat_id,
         }));
         let tg_link = invite_link.link;
 
         //Корректировка сообщения
-        await sendLog(undefined, `Корректировка сообщения...`)
+        await setProgressText('Корректировка сообщения...')
+        await setProgressValue(55)
         let message = pin_message.split('\n');
         message[1] = `<b><a href="${doc_link}">Ссылка</a></b>  на отчет по инциденту`
         message.push(`\nПриглашение в оперативный чат: ${tg_link}`)
         const new_message = message.join('\n')
 
         //Отправка сообщения
-        await sendLog(undefined, `Отправка и закрепление сообщения...`)
+        await setProgressText('Отправка и закрепление сообщения...')
+        await setProgressValue(70)
         await client.sendMessage(chat_id, {
             message: new_message,
             parseMode: 'html',
@@ -96,19 +104,25 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         })
 
         //Добавить людей
-        await sendLog(undefined, `Добавление пользователей в чат...`)
+        await setProgressText('Добавление пользователей в чат...')
+        await setProgressValue(85)
         for (let user of userList) {
             await client.invoke(new Api.channels.InviteToChannel({
                 channel: chat_id,
                 users: [`${user}`],
-            })).catch(async (e) => {
-                await sendLog('error', `Пользователь с ником ${user} не найден\n(${e})`)
+            })).catch(async () => {
+                await setProgressLogText(`Пользователь с ником ${user} не найден`)
             });
         }
         const { Notification } = require('electron')
+        await setProgressText('Чат успешно создан!')
+        await setProgressValue(100)
+        await closeDialog()
         new Notification({title: 'Создание чата в Telegram', body: 'Чат успешно создан!'}).show()
     } catch (e) {
-        await sendLog('error', e.message)
+        await closeDialog()
+        await setProgressLogText(e.message)
+        await console.log(e.message)
     }
 })
 
@@ -122,6 +136,39 @@ async function sendLog(type = String(undefined), message = String(undefined)) {
 async function sendAuthStatus(status = Boolean(undefined)) {
     electron.BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('sendAuthStatus', status)
+    })
+}
+// Конфигурация пользователя
+async function createUserData(tag_tg = String(undefined)) {
+    let USERS = await googleSheets.read('USERS!A1:C')
+    for (let user of USERS) {
+        if (tag_tg.includes(user[0])) {
+            electron.BrowserWindow.getAllWindows().filter(b => {
+                b.webContents.send('user_data', user[0], user[1], user[2])
+            })
+        }
+    }
+    await sendLog('success', `Конфигурация загружена`)
+}
+// Прогресс бар
+async function setProgressValue(value = Number(undefined)) {
+    electron.BrowserWindow.getAllWindows().filter(b => {
+        b.webContents.send('setProgressValue', value)
+    })
+}
+async function setProgressText(text = String(undefined)) {
+    electron.BrowserWindow.getAllWindows().filter(b => {
+        b.webContents.send('setProgressText', text)
+    })
+}
+async function setProgressLogText(text = String(undefined)) {
+    electron.BrowserWindow.getAllWindows().filter(b => {
+        b.webContents.send('setProgressLogText', text)
+    })
+}
+async function closeDialog() {
+    electron.BrowserWindow.getAllWindows().filter(b => {
+        b.webContents.send('closeDialog')
     })
 }
 //Формат даты
