@@ -7,7 +7,7 @@ let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_E
 // TelegramClient
 const { TelegramClient, Api } = require("telegram");
 const client = new TelegramClient("create_tg_chat", 12415990, "240958bf7eb5068290dff67cb3c73b1f", {
-    appVersion: '0.0.9',
+    appVersion: '0.1.0',
     deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()} ${os.arch().toString()}`,
     langCode: 'ru',
     systemVersion: os.release().toString(),
@@ -88,7 +88,7 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         await setProgressValue(55)
         let message = pin_message.split('\n');
         message[1] = `<b><a href="${doc_link}">Ссылка</a></b>  на отчет по инциденту`
-        message.push(`\nПриглашение в оперативный чат: ${tg_link}`)
+        message.push(`\n<b>Приглашение в оперативный чат:</b> ${tg_link}`)
         const new_message = message.join('\n')
 
         //Отправка сообщения
