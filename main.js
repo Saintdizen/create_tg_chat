@@ -7,7 +7,7 @@ let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_E
 // TelegramClient
 const { TelegramClient, Api } = require("telegram");
 const client = new TelegramClient("create_tg_chat", 12415990, "240958bf7eb5068290dff67cb3c73b1f", {
-    appVersion: '0.1.0',
+    appVersion: '0.1.1',
     deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()} ${os.arch().toString()}`,
     langCode: 'ru',
     systemVersion: os.release().toString(),
@@ -105,7 +105,7 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         //Добавить людей
         await setProgressText('Добавление пользователей в чат...')
         await setProgressValue(85)
-        for (let user of userList) {
+        for (let user of Array.from(new Set(userList))) {
             await client.invoke(new Api.channels.InviteToChannel({
                 channel: chat_id,
                 users: [`${user}`],
