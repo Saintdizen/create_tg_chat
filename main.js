@@ -1,19 +1,20 @@
-const { Main, MenuItem, ipcMain } = require('chui-electron');
+const os = require("os");
 const electron = require("electron");
+const { Main, MenuItem, ipcMain } = require('chui-electron');
+// GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
-//
+// TelegramClient
 const { TelegramClient, Api } = require("telegram");
-const api_id = 12415990;
-const api_hash = '240958bf7eb5068290dff67cb3c73b1f';
-const dc_id = 2;
-const port = 443;
-const ip = "149.154.167.41";
-const ses_name = "create_tg_chat"
-//
-const client = new TelegramClient(ses_name, api_id, api_hash, {});
-client.session.setDC(dc_id, ip, port);
-//
+const client = new TelegramClient("create_tg_chat", 12415990, "240958bf7eb5068290dff67cb3c73b1f", {
+    appVersion: '0.0.9',
+    deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()} ${os.arch().toString()}`,
+    langCode: 'ru',
+    systemVersion: os.release().toString(),
+    systemLangCode: 'ru'
+});
+client.session.setDC(2, "149.154.167.41", 443);
+// Main
 let main = new Main({
     name: "Создание чата в Telegram",
     width: 600,
@@ -23,7 +24,6 @@ let main = new Main({
     menuBarVisible: false,
     icon: `${__dirname}/resources/icons/app/icon.png`
 });
-//
 main.start({
     hideOnClose: false,
     tray: [
@@ -34,7 +34,7 @@ main.start({
         new MenuItem().quit('Выход')
     ]
 })
-//
+// ipcMain
 ipcMain.on('getTokenForQRCode', async () => {
     await client.connect();
     if (!await client.checkAuthorization()) {
@@ -62,7 +62,6 @@ ipcMain.on('getTokenForQRCode', async () => {
         await createUserData(`@${me.username}`)
     }
 })
-//
 ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_link) => {
     try {
         //Создать группу
@@ -125,7 +124,7 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         await console.log(e.message)
     }
 })
-
+// ФУНКЦИИ
 // Отправка логов
 async function sendLog(type = String(undefined), message = String(undefined)) {
     electron.BrowserWindow.getAllWindows().filter(b => {
