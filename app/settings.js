@@ -1,4 +1,4 @@
-const { Page } = require('chui-electron');
+let { Page } = require('chui-electron');
 
 class Settings extends Page {
     constructor() {
