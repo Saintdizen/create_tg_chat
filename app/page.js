@@ -7,7 +7,7 @@ let QRCode = require("qrcode");
 //
 const path = require('path')
 let user_data_path = path.join(app.getPath('userData'), 'user_data.json')
-const {TGApis} = require("../apis");
+const {TGApis} = require("./apis");
 const api = new TGApis(user_data_path)
 //GOOGLE
 let { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')

@@ -5,7 +5,7 @@ const sleep_time = 1000;
 class TGApis {
     #api_id = 12415990;
     #api_hash = "240958bf7eb5068290dff67cb3c73b1f";
-    #json = require('./package.json');
+    #json = require('../package.json');
     constructor(storagePath = String(undefined)) {
         this.client = new MTProto({
             api_id: this.#api_id, api_hash: this.#api_hash,

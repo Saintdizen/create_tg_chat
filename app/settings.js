@@ -1,7 +1,7 @@
 const {app} = require('electron').remote;
 const path = require('path')
 let user_data_path = path.join(app.getPath('userData'), 'user_data.json')
-const {TGApis} = require("../apis");
+const {TGApis} = require("./apis");
 const api = new TGApis(user_data_path)
 
 let { Page, Button, TextInput, ContentBlock, Styles, Label} = require('chui-electron');
