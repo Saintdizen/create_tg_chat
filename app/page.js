@@ -189,7 +189,8 @@ async function createDataUser(tag_tg = String(undefined)) {
                                         if (users.length !== 0) {
                                             lists.push({
                                                 _: 'inputUser',
-                                                user_id: Number(users[1])
+                                                user_id: users[1],
+                                                access_hash: ""
                                             })
                                         }
                                     })
