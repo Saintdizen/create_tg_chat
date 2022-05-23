@@ -1,13 +1,20 @@
+const {app} = require('electron').remote;
+//CHUI
 let { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
     NotificationStyle, Image, Dialog, ProgressBar, Label
 } = require('chui-electron');
-let { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 let QRCode = require("qrcode");
+//
+const path = require('path')
+let user_data_path = path.join(app.getPath('userData'), 'user_data.json')
 const {TGApis} = require("../apis");
-const api = new TGApis('/home/saint/data/HOME/apps/SCRIPTS/create_tg_chat/data/1.json')
+const api = new TGApis(user_data_path)
+//GOOGLE
+let { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
+//
 let lists = [];
 let report = {
     folder_id: String(undefined),
@@ -80,12 +87,6 @@ class CreateChatTG extends Page {
         let button_c_chat = new Button('Создать чат', async () => {
             if (lists.length !== 0) {
                 modal.open()
-                let finish_list = [];
-                for (let list of lists) {
-                    for (let userName of list) {
-                        finish_list.push(userName[0])
-                    }
-                }
                 progressBar.setProgressText('Клонирование документа с отчетом...')
                 let date_STRING = format(new Date());
                 try {
@@ -131,19 +132,8 @@ class CreateChatTG extends Page {
                                 //Добавить людей
                                 progressBar.setProgressText('Добавление пользователей в чат...')
                                 progressBar.setValue(85)
-                                let users_list = [
-                                    {
-                                        _: 'inputUser',
-                                        user_id: Number('723042809'),
-                                        access_hash: Number('7040464928161707996')
-                                    },
-                                    {
-                                        _: 'inputUser',
-                                        user_id: Number('1062662628'),
-                                        access_hash: Number('15981179283551899529')
-                                    }
-                                ]
-                                const inv = await api.inviteToChannel(chat_id, access_hash, users_list).catch((reason) => console.log(reason));
+
+                                const inv = await api.inviteToChannel(chat_id, access_hash, lists).catch((reason) => console.log(reason));
                                 console.log(inv)
 
                                 //Чат успешно создан!
@@ -186,14 +176,25 @@ async function createDataUser(tag_tg = String(undefined)) {
     let USERS = await googleSheets_DB.read('USERS!A1:C')
     for (let user of USERS) {
         if (tag_tg.includes(user[0])) {
-            googleSheets.getLists().then(async values => {
+            await googleSheets.getLists().then(async values => {
                 for (let list of values.data.sheets) {
                     let check = new CheckBox({
                         title: list.properties.title.replace(` (${user[2]})`, ''),
                         changeListener: (e) => {
                             if (e.target.checked) {
-                                googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
-                                    lists.push(values.filter(data => data.length !== 0))
+                                googleSheets.read(`${list.properties.title}!A1:C`).then(values => {
+                                    let users_list = values.filter(data => data.length !== 0);
+                                    users_list.forEach(users => {
+                                        if (users_list.indexOf(users) !== 0) {
+                                            if (users.length !== 0) {
+                                                lists.push({
+                                                    _: 'inputUser',
+                                                    user_id: Number(users[1]),
+                                                    access_hash: Number(users[2])
+                                                })
+                                            }
+                                        }
+                                    })
                                 }).finally(async () => {
                                     await googleSheets_DB.read(`REPORTS!A1:D`).then(res => {
                                         res.filter(val => {
@@ -203,14 +204,16 @@ async function createDataUser(tag_tg = String(undefined)) {
                                             }
                                         })
                                     })
+                                    console.log(lists)
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
                             } else {
-                                googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
-                                    lists.splice(lists.indexOf(values), 1)
+                                googleSheets.read(`${list.properties.title}!A1:C`).then(values => {
+                                    lists = []
                                     report.folder_id = undefined
                                     report.file_id = undefined
                                 }).finally(() => {
+                                    console.log(lists)
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
                             }
