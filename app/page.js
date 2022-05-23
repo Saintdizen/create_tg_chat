@@ -181,19 +181,16 @@ async function createDataUser(tag_tg = String(undefined)) {
                 for (let list of values.data.sheets) {
                     let check = new CheckBox({
                         title: list.properties.title.replace(` (${user[2]})`, ''),
-                        changeListener: (e) => {
+                        changeListener: async (e) => {
                             if (e.target.checked) {
-                                googleSheets.read(`${list.properties.title}!A1:C`).then(values => {
+                                await googleSheets.read(`${list.properties.title}!A1:C`).then(values => {
                                     let users_list = values.filter(data => data.length !== 0);
-                                    users_list.forEach(users => {
-                                        if (users_list.indexOf(users) !== 0) {
-                                            if (users.length !== 0) {
-                                                lists.push({
-                                                    _: 'inputUser',
-                                                    user_id: Number(users[1]),
-                                                    access_hash: Number(users[2])
-                                                })
-                                            }
+                                     users_list.forEach(users => {
+                                        if (users.length !== 0) {
+                                            lists.push({
+                                                _: 'inputUser',
+                                                user_id: Number(users[1])
+                                            })
                                         }
                                     })
                                 }).finally(async () => {
