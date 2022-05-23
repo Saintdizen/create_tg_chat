@@ -103,7 +103,10 @@ class CreateChatTG extends Page {
                                 // Создание группы
                                 progressBar.setProgressText('Создание группы...')
                                 progressBar.setValue(25)
-                                let date_STRING = format(new Date());
+                                let users = await api.getUserInfo(lists).catch(e => console.log(e))
+                                console.log(users)
+
+                                /*let date_STRING = format(new Date());
                                 let channel = await api.createChannel(
                                     `${date_STRING} - ${desc.getValue()} - ${inc_num.getValue()}`,
                                     `Создан чат по проблеме ${date_STRING} - ${desc.getValue()} - ${inc_num.getValue()}`
@@ -145,7 +148,7 @@ class CreateChatTG extends Page {
                                     progressBar.setProgressText("")
                                     progressBar.setValue(0)
                                 })
-                                modal.addToFooter(close)
+                                modal.addToFooter(close)*/
                             } catch (e) {
                                 progressBlock.add(new Label(e.message))
                                 let close = new Button('Закрыть', () => {
@@ -190,7 +193,7 @@ async function createDataUser(tag_tg = String(undefined)) {
                                             lists.push({
                                                 _: 'inputUser',
                                                 user_id: users[1],
-                                                access_hash: ""
+                                                access_hash: users[2]
                                             })
                                         }
                                     })
