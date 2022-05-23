@@ -107,7 +107,7 @@ class CreateChatTG extends Page {
                                 let channel = await api.createChannel(
                                     `${date_STRING} - ${desc.getValue()} - ${inc_num.getValue()}`,
                                     `Создан чат по проблеме ${date_STRING} - ${desc.getValue()} - ${inc_num.getValue()}`
-                                ).catch(async (error) => progressBar.setProgressText(error.error_message))
+                                ).catch(e => console.log(e))
                                 let chat_id = String(channel.chats[0].id)
                                 let access_hash = String(channel.chats[0].access_hash)
                                 console.log(channel)
@@ -115,25 +115,26 @@ class CreateChatTG extends Page {
                                 //Получение ссылки на приглашение в чат
                                 progressBar.setProgressText('Получение ссылки на приглашение в чат...')
                                 progressBar.setValue(40)
-                                const invite = await api.exportChatInvite(chat_id, access_hash).catch(async (error) => progressBar.setProgressText(error.error_message));
+                                const invite = await api.exportChatInvite(chat_id, access_hash).catch(e => console.log(e));
                                 let invite_link = invite.link
 
                                 //Отправка сообщения
                                 progressBar.setProgressText('Отправка сообщения...')
                                 progressBar.setValue(55)
-                                const mes = await api.sendMessage(chat_id, access_hash, pin_message.getValue(), link, invite_link).catch(async (error) => progressBar.setProgressText(error.error_message));
+                                const mes = await api.sendMessage(chat_id, access_hash, pin_message.getValue(), link, invite_link).catch(e => console.log(e));
                                 let message_to_pin = mes.updates[0].id
 
                                 //Закрепление сообщения
                                 progressBar.setProgressText('Закрепление сообщения...')
                                 progressBar.setValue(70)
-                                await api.updatePinnedMessage(chat_id, access_hash, message_to_pin).catch(async (error) => progressBar.setProgressText(error.error_message));
+                                await api.updatePinnedMessage(chat_id, access_hash, message_to_pin).catch(e => console.log(e));
 
                                 //Добавить людей
                                 progressBar.setProgressText('Добавление пользователей в чат...')
                                 progressBar.setValue(85)
 
-                                const inv = await api.inviteToChannel(chat_id, access_hash, lists).catch((reason) => console.log(reason));
+                                let no_dubl = Array.from(new Set(lists))
+                                const inv = await api.inviteToChannel(chat_id, access_hash, no_dubl).catch(e => console.log(e));
                                 console.log(inv)
 
                                 //Чат успешно создан!
@@ -204,6 +205,11 @@ async function createDataUser(tag_tg = String(undefined)) {
                                             }
                                         })
                                     })
+                                    lists = lists.filter((values, index) => {
+                                        return index === lists.findIndex(obj => {
+                                            return JSON.stringify(obj) === JSON.stringify(values);
+                                        });
+                                    })
                                     console.log(lists)
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
@@ -213,7 +219,7 @@ async function createDataUser(tag_tg = String(undefined)) {
                                     report.folder_id = undefined
                                     report.file_id = undefined
                                 }).finally(() => {
-                                    console.log(lists)
+                                    console.log(Array.from(new Set(lists)))
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
                             }
