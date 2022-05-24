@@ -1,6 +1,6 @@
-let { AppLayout, render } = require('chui-electron');
-let { CreateChatTG } = require('./page');
-let { Settings } = require('./settings');
+const { AppLayout, render } = require('chui-electron');
+const { CreateChatTG } = require('./page');
+const { Settings } = require('./settings');
 
 class App extends AppLayout {
     constructor() {
