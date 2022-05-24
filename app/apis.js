@@ -3,8 +3,11 @@ let MTProto = require('@mtproto/core');
 const sleep_time = 1000;
 
 class TGApis {
-    #api_id = 5030579;
-    #api_hash = "c414e180e62df5a8d8078b8e263be014";
+    #api_id = 12415990;
+    #api_hash = "240958bf7eb5068290dff67cb3c73b1f";
+
+    // #api_id = 5030579;
+    // #api_hash = "c414e180e62df5a8d8078b8e263be014";
     #json = require('../package.json');
     constructor(storagePath = String(undefined)) {
         this.client = new MTProto({

@@ -103,8 +103,6 @@ class CreateChatTG extends Page {
                                 // Создание группы
                                 progressBar.setProgressText('Создание группы...')
                                 progressBar.setValue(25)
-                                let users = await api.getUserInfo(lists).catch(e => console.log(e))
-                                console.log(users)
 
                                 let date_STRING = format(new Date());
                                 let channel = await api.createChannel(
@@ -191,9 +189,9 @@ async function createDataUser(tag_tg = String(undefined)) {
                                      users_list.forEach(users => {
                                         if (users.length !== 0) {
                                             lists.push({
-                                                _: 'inputUser',
-                                                user_id: Number(users[1]),
-                                                access_hash: users[2]
+                                                "_": "inputUser",
+                                                "user_id": users[1],
+                                                "access_hash": users[2]
                                             })
                                         }
                                     })
@@ -206,12 +204,9 @@ async function createDataUser(tag_tg = String(undefined)) {
                                             }
                                         })
                                     })
-                                    lists = lists.filter((values, index) => {
-                                        return index === lists.findIndex(obj => {
-                                            return JSON.stringify(obj) === JSON.stringify(values);
-                                        });
-                                    })
                                     console.log(lists)
+                                    let users = await api.getUserInfo(lists).catch(e => console.log(e))
+                                    console.log(users)
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
                             } else {
@@ -220,7 +215,6 @@ async function createDataUser(tag_tg = String(undefined)) {
                                     report.folder_id = undefined
                                     report.file_id = undefined
                                 }).finally(() => {
-                                    console.log(Array.from(new Set(lists)))
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
                             }
