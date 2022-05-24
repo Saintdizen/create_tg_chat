@@ -1,5 +1,5 @@
 const os = require("os");
-const electron = require("electron");
+const { BrowserWindow } = require("electron");
 const { Main, MenuItem, ipcMain } = require('chui-electron');
 // GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
@@ -7,13 +7,14 @@ let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_E
 // TelegramClient
 const { TelegramClient, Api } = require("telegram");
 const json = require('./package.json')
-const client = new TelegramClient("create_tg_chat", 12415990, "240958bf7eb5068290dff67cb3c73b1f", {
+const client = new TelegramClient("create_tg_chat", 5030579, "c414e180e62df5a8d8078b8e263be014", {
     appVersion: json.version,
-    deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()} ${os.arch().toString()}`,
+    deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()}`,
     langCode: 'ru',
     systemVersion: os.release().toString(),
     systemLangCode: 'ru'
 });
+
 client.session.setDC(2, "149.154.167.41", 443);
 // Main
 let main = new Main({
@@ -46,7 +47,7 @@ ipcMain.on('getTokenForQRCode', async () => {
                     return true;
                 },
                 qrCode: async (code) => {
-                    electron.BrowserWindow.getAllWindows().filter(async b => {
+                    BrowserWindow.getAllWindows().filter(async b => {
                         await b.webContents.send('generatedTokenForQRCode', `tg://login?token=${code.token.toString("base64")}`)
                     })
                 }
@@ -135,46 +136,48 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
 // ФУНКЦИИ
 // Отправка логов
 async function sendLog(type = String(undefined), message = String(undefined)) {
-    electron.BrowserWindow.getAllWindows().filter(b => {
+    BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('sendLog', type, message)
     })
 }
 // Отправить статус авторизации
 async function sendAuthStatus(status = Boolean(undefined)) {
-    electron.BrowserWindow.getAllWindows().filter(b => {
+    BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('sendAuthStatus', status)
     })
 }
 // Конфигурация пользователя
 async function createUserData(tag_tg = String(undefined)) {
-    let USERS = await googleSheets.read('USERS!A1:C')
-    for (let user of USERS) {
-        if (tag_tg.includes(user[0])) {
-            electron.BrowserWindow.getAllWindows().filter(b => {
-                b.webContents.send('user_data', user[0], user[1], user[2])
-            })
-        }
-    }
-    await sendLog('success', `Конфигурация загружена`)
+    await sleep(1000)
+    await googleSheets.read('USERS!A1:C').then(async (users) => {
+        users.forEach(user => {
+            if (tag_tg.includes(user[0])) {
+                BrowserWindow.getAllWindows().filter(b => {
+                    b.webContents.send('user_data', user[0], user[1], user[2])
+                })
+            }
+        })
+        await sendLog('success', `Конфигурация загружена`)
+    })
 }
 // Прогресс бар
 async function setProgressValue(value = Number(undefined)) {
-    electron.BrowserWindow.getAllWindows().filter(b => {
+    BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('setProgressValue', value)
     })
 }
 async function setProgressText(text = String(undefined)) {
-    electron.BrowserWindow.getAllWindows().filter(b => {
+    BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('setProgressText', text)
     })
 }
 async function setProgressLogText(text = String(undefined)) {
-    electron.BrowserWindow.getAllWindows().filter(b => {
+    BrowserWindow.getAllWindows().forEach(b => {
         b.webContents.send('setProgressLogText', text)
     })
 }
 async function closeDialog() {
-    electron.BrowserWindow.getAllWindows().filter(b => {
+    BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('closeDialog')
     })
 }
@@ -187,4 +190,8 @@ function format(date) {
     if (day < 10) { day = "0" + day }
     if (month < 10) { month = "0" + month }
     return String(day + "-" + month + "-" + year)
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

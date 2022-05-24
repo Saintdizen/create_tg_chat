@@ -7,7 +7,7 @@ const QRCode = require("qrcode");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
-const lists = [];
+let lists = [];
 const report = {
     folder_id: String(undefined),
     file_id: String(undefined)
@@ -47,11 +47,11 @@ let QRCode_block = undefined;
                 for (let list of values.data.sheets) {
                     const check = new CheckBox({
                         title: list.properties.title.replace(` (${GROUP})`, ''),
-                        changeListener: (e) => {
+                        changeListener: async (e) => {
                             if (e.target.checked) {
-                                googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
+                                await googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
                                     lists.push(values.filter(data => data.length !== 0))
-                                }).finally(async () => {
+                                }).then(async () => {
                                     await googleSheets_DB.read(`REPORTS!A1:D`).then(res => {
                                         res.filter(val => {
                                             if (val[1].includes(check.getTitle())) {
@@ -63,13 +63,10 @@ let QRCode_block = undefined;
                                     new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                                 })
                             } else {
-                                googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
-                                    lists.splice(lists.indexOf(values), 1)
-                                    report.folder_id = undefined
-                                    report.file_id = undefined
-                                }).finally(() => {
-                                    new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
-                                })
+                                lists = []
+                                report.folder_id = undefined
+                                report.file_id = undefined
+                                new Notification('Список пользователей очищен', NotificationStyle.WARNING).show()
                             }
                         }
                     });
@@ -102,7 +99,7 @@ let QRCode_block = undefined;
             title: 'Закрепленное сообщение',
             placeholder: 'Закрепленное сообщение',
             width: '-webkit-fill-available',
-            height: '300px',
+            height: '182px',
             required: false
         });
         pin_message.setValue(`<b>Описание инцидента:</b>
@@ -213,4 +210,5 @@ function format(date) {
     if (month < 10) { month = "0" + month }
     return String(day + "-" + month + "-" + year)
 }
+
 exports.CreateChatTG = CreateChatTG
