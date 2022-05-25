@@ -15,10 +15,12 @@ const client = new TelegramClient("create_tg_chat", 5030579, "c414e180e62df5a8d8
     systemLangCode: 'ru'
 });
 
+const appName = 'Создание чата в Telegram'
+
 client.session.setDC(2, "149.154.167.41", 443);
 // Main
 let main = new Main({
-    name: "Создание чата в Telegram",
+    name: appName,
     width: 600,
     height: 780,
     render: `${__dirname}/app/app.js`,
@@ -126,7 +128,7 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         await setProgressText('Чат успешно создан!')
         await setProgressValue(100)
         await closeDialog()
-        new Notification({title: 'Создание чата в Telegram', body: 'Чат успешно создан!'}).show()
+        new Notification({title: appName, body: 'Чат успешно создан!'}).show()
     } catch (e) {
         await closeDialog()
         await setProgressLogText(e.message)

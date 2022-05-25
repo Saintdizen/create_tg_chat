@@ -1,6 +1,6 @@
 'use strict';
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle, Image, Dialog, ProgressBar, Label
+    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup
 } = require('chui-electron');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
@@ -42,45 +42,55 @@ let QRCode_block = undefined;
 
         //ФОРМЫ
         let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let radioGroup = new RadioGroup({
+            styles: {
+                direction: Styles.DIRECTION.ROW,
+                wrap: Styles.WRAP.WRAP,
+                align: Styles.ALIGN.CENTER,
+                justify: Styles.JUSTIFY.CENTER,
+                width: Styles.WIDTH.WEBKIT_FILL
+            }
+        });
+        let radio_groups = [];
         googleSheets.getLists().then(async values => {
             ipcRenderer.on('user_data', (e, TAG_TG, ROLE, GROUP) => {
                 for (let list of values.data.sheets) {
-                    const check = new CheckBox({
-                        title: list.properties.title.replace(` (${GROUP})`, ''),
-                        changeListener: async (e) => {
-                            if (e.target.checked) {
-                                await googleSheets.read(`${list.properties.title}!A1:A`).then(values => {
-                                    lists.push(values.filter(data => data.length !== 0))
-                                }).then(async () => {
-                                    await googleSheets_DB.read(`REPORTS!A1:D`).then(res => {
-                                        res.filter(val => {
-                                            if (val[1].includes(check.getTitle())) {
-                                                report.folder_id = val[2]
-                                                report.file_id = val[3]
-                                            }
-                                        })
-                                    })
-                                    new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
-                                })
-                            } else {
-                                lists = []
-                                report.folder_id = undefined
-                                report.file_id = undefined
-                                new Notification('Список пользователей очищен', NotificationStyle.WARNING).show()
-                            }
-                        }
-                    });
                     if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
-                        block_radios.add(check);
-                    }
-                    if (list.properties.title.includes(GROUP)) {
-                        block_radios.add(check);
-                    } else if (GROUP.includes("*")) {
-                        block_radios.add(check);
+                        radio_groups.push(list.properties.title);
+                    } else {
+                        if (list.properties.title.includes(GROUP)) {
+                            radio_groups.push(list.properties.title)
+                        } else if (GROUP.includes("*")) {
+                            radio_groups.push(list.properties.title)
+                        }
                     }
                 }
+                radioGroup.addOptions(radio_groups)
+                radioGroup.addChangeListener(async (e) => {
+                    await googleSheets.read(`${e.target.value}!A1:A`).then(values => {
+                        lists = []
+                        values.forEach(val => {
+                            if (val.length !== 0) {
+                                lists.push(val[0])
+                            }
+                        })
+                    }).then(async () => {
+                        await googleSheets_DB.read(`REPORTS!A1:D`).then(res => {
+                            res.filter(val => {
+                                if (e.target.value.includes(val[1])) {
+                                    report.folder_id = val[2]
+                                    report.file_id = val[3]
+                                }
+                            })
+                        })
+                        console.log(lists)
+                        console.log(report)
+                        new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
+                    })
+                })
             })
         })
+        block_radios.add(radioGroup)
         //
         let inc_num = new TextInput({
             title: 'Номер инцидента',
@@ -117,12 +127,6 @@ let QRCode_block = undefined;
         let button_c_chat = new Button('Создать чат', async () => {
             if (lists.length !== 0) {
                 modal.open()
-                const finish_list = [];
-                for (let list of lists) {
-                    for (let userName of list) {
-                        finish_list.push(userName[0])
-                    }
-                }
                 progressBar.setProgressText('Клонирование документа с отчетом...')
                 let date_STRING = format(new Date());
                 try {
@@ -151,7 +155,7 @@ let QRCode_block = undefined;
                                     progressBar.setValue(0)
                                 }))
                             })
-                            ipcRenderer.send('tg_crt_chat', finish_list, pin_message.getValue(), inc_num.getValue(), desc.getValue(), link)
+                            ipcRenderer.send('tg_crt_chat', lists, pin_message.getValue(), inc_num.getValue(), desc.getValue(), link)
                         }
                     })
                 } catch (e) {
