@@ -4,7 +4,6 @@ const { CreateChatTG } = require('./page');
 class App extends AppLayout {
     constructor() {
         super();
-        this.setDarkMode();
         this.setRoute(new CreateChatTG());
     }
 }
