@@ -5,7 +5,7 @@ const { Main, MenuItem, ipcMain } = require('chui-electron');
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 // TelegramClient
-const { TelegramClient, Api } = require("telegram");
+const { TelegramClient, Api, password} = require("telegram");
 const json = require('./package.json')
 const client = new TelegramClient("create_tg_chat", 5030579, "c414e180e62df5a8d8078b8e263be014", {
     appVersion: json.version,
@@ -59,6 +59,7 @@ ipcMain.on('getTokenForQRCode', async () => {
             await sendLog('success', `Онлайн: ${user.firstName} ${user.lastName}`);
             await createUserData(`@${user.username}`)
         });
+
     } else {
         const me = await client.getMe();
         await sendAuthStatus(true);
