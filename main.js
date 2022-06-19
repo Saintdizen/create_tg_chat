@@ -1,6 +1,6 @@
 const os = require("os");
 const { BrowserWindow } = require("electron");
-const { Main, MenuItem, ipcMain } = require('chui-electron');
+const { Main, MenuItem, ipcMain } = require('chuijs');
 // GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');

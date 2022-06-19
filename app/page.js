@@ -1,7 +1,7 @@
 'use strict';
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
     NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup
-} = require('chui-electron');
+} = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');

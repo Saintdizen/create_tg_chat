@@ -1,4 +1,4 @@
-const { AppLayout, render } = require('chui-electron');
+const { AppLayout, render } = require('chuijs');
 const { CreateChatTG } = require('./page');
 
 class App extends AppLayout {
