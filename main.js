@@ -80,6 +80,19 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         }));
         let chat_id = res_cr_chat.updates[2].channelId.value;
 
+        //Изменение разрешений группы
+        await client.invoke(
+            new Api.messages.EditChatDefaultBannedRights({
+                peer: chat_id,
+                bannedRights: new Api.ChatBannedRights({
+                    untilDate: 0,
+                    changeInfo: true,
+                    inviteUsers: true,
+                    pinMessages: true,
+                }),
+            })
+        );
+
         //Получение ссылки на приглашение в чат
         await setProgressText('Получение ссылки на приглашение в чат...')
         await setProgressValue(40)
@@ -116,6 +129,26 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
                     channel: chat_id,
                     users: [`${user}`],
                 }))
+                await client.invoke(
+                    new Api.channels.EditAdmin({
+                        channel: chat_id,
+                        userId: user,
+                        adminRights: new Api.ChatAdminRights({
+                            changeInfo: true,
+                            postMessages: true,
+                            editMessages: true,
+                            deleteMessages: true,
+                            banUsers: true,
+                            inviteUsers: true,
+                            pinMessages: true,
+                            addAdmins: true,
+                            anonymous: false,
+                            manageCall: true,
+                            other: true,
+                        }),
+                        rank: "Администратор",
+                    })
+                );
             } catch (e) {
                 if (e.message.includes("A wait of ")) {
                     await setProgressLogText(e.message)
