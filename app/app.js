@@ -8,4 +8,6 @@ class App extends AppLayout {
     }
 }
 
-render(() => { new App(); })
+render(() => {
+    new App();
+}).then( r => console.log("Загружено!"))

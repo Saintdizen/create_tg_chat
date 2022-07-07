@@ -22,7 +22,7 @@ client.session.setDC(2, "149.154.167.41", 443);
 let main = new Main({
     name: appName,
     width: 600,
-    height: 780,
+    height: 700,
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,
@@ -30,10 +30,17 @@ let main = new Main({
 });
 main.start({
     hideOnClose: false,
+    menuBar: [
+        new MenuItem().submenu("Меню", [
+            new MenuItem().button('Скрыть', () => { main.hideAndShow() }),
+            new MenuItem().separator(),
+            new MenuItem().toggleDevTools('Консоль'),
+            new MenuItem().separator(),
+            new MenuItem().quit('Выход')
+        ])
+    ],
     tray: [
         new MenuItem().button('Показать \\ Скрыть', () => { main.hideAndShow() }),
-        new MenuItem().separator(),
-        new MenuItem().toggleDevTools('Консоль разработчика'),
         new MenuItem().separator(),
         new MenuItem().quit('Выход')
     ]

@@ -1,6 +1,6 @@
 'use strict';
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup
+    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize
 } = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
@@ -42,6 +42,8 @@ let QRCode_block = undefined;
 
         //ФОРМЫ
         let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        block_radios.setWidth(Styles.WIDTH.WEBKIT_FILL)
+        let spinner = new Spinner(SpinnerSize.STANDART, '8px auto');
         let radioGroup = new RadioGroup({
             styles: {
                 direction: Styles.DIRECTION.ROW,
@@ -51,6 +53,7 @@ let QRCode_block = undefined;
                 width: Styles.WIDTH.WEBKIT_FILL
             }
         });
+        block_radios.add(spinner)
         let radio_groups = [];
         googleSheets.getLists().then(async values => {
             ipcRenderer.on('user_data', (e, TAG_TG, ROLE, GROUP) => {
@@ -83,14 +86,14 @@ let QRCode_block = undefined;
                                 }
                             })
                         })
-                        console.log(lists)
-                        console.log(report)
                         new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
                     })
                 })
+                block_radios.clear()
+                block_radios.add(radioGroup)
             })
         })
-        block_radios.add(radioGroup)
+        //block_radios.add(radioGroup)
         //
         let inc_num = new TextInput({
             title: 'Номер инцидента',
@@ -124,6 +127,13 @@ let QRCode_block = undefined;
         let label_2 = new Badge('Дата и номер инцидента будут добалвены автоматически', BadgeStyle.WARNING);
         let label_3 = new Badge('Добавьте в чат снимок экрана с зафиксированной ошибкой', BadgeStyle.WARNING);
 
+        let button_close = new Button('Закрыть', () => {
+            modal.close()
+            progressBar.setProgressText("")
+            progressBar.setValue(0)
+        })
+        modal.addToFooter(button_close)
+
         let button_c_chat = new Button('Создать чат', async () => {
             if (lists.length !== 0) {
                 modal.open()
@@ -148,29 +158,38 @@ let QRCode_block = undefined;
                             ipcRenderer.on('setProgressLogText', (e, text) => {
                                 progressBlock.add(new Label(text))
                             })
-                            ipcRenderer.on('closeDialog', () => {
-                                modal.addToFooter(new Button('Закрыть', () => {
-                                    modal.close()
-                                    progressBar.setProgressText("")
-                                    progressBar.setValue(0)
-                                }))
-                            })
                             ipcRenderer.send('tg_crt_chat', lists, pin_message.getValue(), inc_num.getValue(), desc.getValue(), link)
                         }
                     })
                 } catch (e) {
                     progressBlock.add(new Label(e))
-                    modal.addToFooter(new Button('Закрыть', () => {
-                        modal.close()
-                        progressBar.setProgressText("")
-                        progressBar.setValue(0)
-                    }))
                 }
             } else {
                 new Notification('Выберите список пользователей!').show()
             }
         });
-        block.add(block_radios, inc_num, desc, pin_message, label_1, label_2, label_3, button_c_chat)
+        let info_block = new Details({
+            title: "Памятка",
+            direction: Styles.DIRECTION.COLUMN,
+            width: Styles.WIDTH.WEBKIT_FILL
+        })
+        let text1 = new Label(`1) Выберите список пользователей`, {
+            width: Styles.WIDTH.MAX_CONTENT
+        })
+        let text2 = new Label(`2) Заполните поле: "Номер инцидента"`, {
+            width: Styles.WIDTH.MAX_CONTENT
+        })
+        let text3 = new Label(`3) Заполните поле: "Описание"`, {
+            width: Styles.WIDTH.MAX_CONTENT
+        })
+        let text4 = new Label(`4) При необходимости измените поле: "Закрепленное сообщение"`, {
+            width: Styles.WIDTH.MAX_CONTENT
+        })
+        let text5 = new Label(`5) Нажмите кнопку: "Создать чат"`, {
+            width: Styles.WIDTH.MAX_CONTENT
+        })
+        info_block.add(text1, text2, text3, text4, text5, label_1, label_2, label_3)
+        block.add(info_block, block_radios, inc_num, desc, pin_message, button_c_chat)
         //
         ipcRenderer.on('sendAuthStatus', (e, status) => {
             if (status) {
