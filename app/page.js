@@ -1,6 +1,6 @@
 'use strict';
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize
+    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize, PasswordInput
 } = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
@@ -20,7 +20,7 @@ let QRCode_block = undefined;
         this.setTitle('Создание чата в Telegram');
         this.setMain(true);
         enableLogsNotification();
-        QRCode_block = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        QRCode_block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
         let block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.WRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
         block.setWidth("-webkit-fill-available")
         //QR_CODE
@@ -39,7 +39,6 @@ let QRCode_block = undefined;
         modal.addToBody(progressBlock)
         this.add(modal)
         //
-
         //ФОРМЫ
         let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
         block_radios.setWidth(Styles.WIDTH.WEBKIT_FILL)
@@ -201,16 +200,36 @@ let QRCode_block = undefined;
 }
 
 function generateQRCode(page) {
-    page.add(QRCode_block)
     QRCode_block.setWidth("-webkit-fill-available")
-    ipcRenderer.send('getTokenForQRCode')
-    ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
-        QRCode.toDataURL(text).then(src => {
-            QRCode_block.clear()
-            QRCode_block.add(new Image(src, "280px", "280px"))
-            new Notification('QR-код изменен', NotificationStyle.WARNING).show()
-        })
+    page.add(QRCode_block)
+    //Проверка авторизации
+    ipcRenderer.send("getAuth")
+    ipcRenderer.on("checkAuthorization", (e, auth) => {
+        console.log(auth)
+        if (auth) {
+            ipcRenderer.send('getTokenForQRCode', "")
+        } else {
+            let input_pass = new PasswordInput({
+                title: "Пароль",
+                width: "232.81px"
+            })
+            let generate = new Button("Сгенерировать QR-код", () => {
+                ipcRenderer.send('getTokenForQRCode', input_pass.getValue())
+                ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
+                    QRCode.toDataURL(text).then(src => {
+                        QRCode_block.clear()
+                        QRCode_block.add(new Image(src, "280px", "280px"))
+                        new Notification('QR-код изменен', NotificationStyle.WARNING).show()
+                    })
+                })
+            })
+            QRCode_block.add(input_pass, generate)
+        }
     })
+
+
+
+
 }
 
 function enableLogsNotification() {

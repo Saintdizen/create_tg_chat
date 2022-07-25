@@ -1,11 +1,11 @@
 const os = require("os");
 const { BrowserWindow } = require("electron");
-const { Main, MenuItem, ipcMain } = require('chuijs');
+const { Main, MenuItem, ipcMain, ipcRenderer} = require('chuijs');
 // GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 // TelegramClient
-const { TelegramClient, Api, password} = require("telegram");
+const { TelegramClient, Api} = require("telegram");
 const json = require('./package.json')
 const client = new TelegramClient("create_tg_chat", 5030579, "c414e180e62df5a8d8078b8e263be014", {
     appVersion: json.version,
@@ -45,9 +45,17 @@ main.start({
         new MenuItem().quit('Выход')
     ]
 })
-// ipcMain
-ipcMain.on('getTokenForQRCode', async () => {
+
+ipcMain.on("getAuth", async () => {
     await client.connect();
+    BrowserWindow.getAllWindows().filter(async b => {
+        await b.webContents.send('checkAuthorization', await client.checkAuthorization())
+    })
+})
+
+// ipcMain
+ipcMain.on('getTokenForQRCode', async (event, password) => {
+    //await client.connect();
     if (!await client.checkAuthorization()) {
         await client.signInUserWithQrCode({apiId: client.apiId, apiHash: client.apiHash},
             {
@@ -59,6 +67,10 @@ ipcMain.on('getTokenForQRCode', async () => {
                     BrowserWindow.getAllWindows().filter(async b => {
                         await b.webContents.send('generatedTokenForQRCode', `tg://login?token=${code.token.toString("base64")}`)
                     })
+                },
+                password: async (hint) => {
+                    console.log(hint)
+                    return password;
                 }
             }
         ).then(async (user) => {
@@ -66,7 +78,6 @@ ipcMain.on('getTokenForQRCode', async () => {
             await sendLog('success', `Онлайн: ${user.firstName} ${user.lastName}`);
             await createUserData(`@${user.username}`)
         });
-
     } else {
         const me = await client.getMe();
         await sendAuthStatus(true);
