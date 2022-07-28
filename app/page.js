@@ -1,6 +1,7 @@
 'use strict';
 const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize, PasswordInput
+    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize, PasswordInput,
+    TextEditor
 } = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
@@ -107,7 +108,36 @@ let QRCode_block = undefined;
             width: '-webkit-fill-available',
             required: false
         });
-        let pin_message = new TextArea({
+        let pin_message = new TextEditor(Styles.WIDTH.WEBKIT_FILL, {
+            UNDO_REDO: true,
+            BLOCK_FORMAT: false,
+            FONT_SIZE: false,
+            REMOVE_FORMAT: false,
+            BOLD: true,
+            ITALIC: true,
+            STRIKE_THROUGH: true,
+            UNDERLINE: true,
+            SUBSCRIPT: false,
+            SUPERSCRIPT: false,
+            JUSTIFY_LEFT: false,
+            JUSTIFY_CENTER: false,
+            JUSTIFY_RIGHT: false,
+            JUSTIFY_FULL: false,
+            LISTS: false,
+            INSERT_LINK: false,
+            INSERT_TABLE: false,
+            INSERT_IMAGE: false,
+            LINE_BREAK: false,
+            CONTENT_CONTROLS: false
+        })
+        pin_message.setValueAsHTML("<p><b>Описание инцидента:</b></p>\n" +
+            "<p>--- Данная строка будет автоматически изменена ---</p>\n" +
+            "<p><b>Отвественный:</b></p>\n" +
+            "<p><b><br></b></p>\n" +
+            "<p><b>Время начала:</b></p>\n" +
+            "<p><b>Время окончания:</b></p>\n" +
+            "<p><b>Статус:</b></p>")
+        /*let pin_message = new TextArea({
             title: 'Закрепленное сообщение',
             placeholder: 'Закрепленное сообщение',
             width: '-webkit-fill-available',
@@ -120,7 +150,7 @@ let QRCode_block = undefined;
         
 <b>Время начала:</b>
 <b>Время окончания:</b>
-<b>Статус:</b>`)
+<b>Статус:</b>`)*/
 
         let label_1 = new Badge('Наименование чата сформируется по шаблону:\nДД.ММ.ГГГГ - Описание - № Инцидента', BadgeStyle.WARNING);
         let label_2 = new Badge('Дата и номер инцидента будут добалвены автоматически', BadgeStyle.WARNING);
@@ -157,7 +187,7 @@ let QRCode_block = undefined;
                             ipcRenderer.on('setProgressLogText', (e, text) => {
                                 progressBlock.add(new Label(text))
                             })
-                            ipcRenderer.send('tg_crt_chat', lists, pin_message.getValue(), inc_num.getValue(), desc.getValue(), link)
+                            ipcRenderer.send('tg_crt_chat', lists, pin_message.getValueAsHTML(), inc_num.getValue(), desc.getValue(), link)
                         }
                     })
                 } catch (e) {

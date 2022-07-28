@@ -122,7 +122,7 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         //Корректировка сообщения
         await setProgressText('Корректировка сообщения...')
         await setProgressValue(55)
-        let message = pin_message.split('\n');
+        let message = pin_message.toString().replaceAll("<p>", "").replaceAll("</p>", "").split('\n');
         message[1] = `<b><a href="${doc_link}">Ссылка</a></b>  на отчет по инциденту`
         message.push(`\n<b>Приглашение в оперативный чат:</b> ${tg_link}`)
         const new_message = message.join('\n')
