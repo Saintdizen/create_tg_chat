@@ -1,5 +1,8 @@
 const os = require("os");
 let username = os.userInfo().username
+const { transliterate } = require('transliteration');
+let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_')
+
 const { BrowserWindow } = require("electron");
 const { Main, MenuItem, ipcMain, ipcRenderer} = require('chuijs');
 // GoogleSheets
@@ -8,7 +11,8 @@ let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_E
 // TelegramClient
 const { TelegramClient, Api} = require("telegram");
 const json = require('./package.json')
-const client = new TelegramClient(`${username}_create_tg_chat`, 5030579, "c414e180e62df5a8d8078b8e263be014", {
+
+const client = new TelegramClient(`${transliterate(username_new).toLowerCase()}_create_tg_chat`, 5030579, "c414e180e62df5a8d8078b8e263be014", {
     appVersion: json.version,
     deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()}`,
     langCode: 'ru',
