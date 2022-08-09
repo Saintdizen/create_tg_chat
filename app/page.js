@@ -109,26 +109,29 @@ let QRCode_block = undefined;
             required: false
         });
         let pin_message = new TextEditor(Styles.WIDTH.WEBKIT_FILL, {
-            UNDO_REDO: true,
-            BLOCK_FORMAT: false,
-            FONT_SIZE: false,
-            REMOVE_FORMAT: false,
-            BOLD: true,
-            ITALIC: true,
-            STRIKE_THROUGH: true,
-            UNDERLINE: true,
-            SUBSCRIPT: false,
-            SUPERSCRIPT: false,
-            JUSTIFY_LEFT: false,
-            JUSTIFY_CENTER: false,
-            JUSTIFY_RIGHT: false,
-            JUSTIFY_FULL: false,
-            LISTS: false,
-            INSERT_LINK: false,
-            INSERT_TABLE: false,
-            INSERT_IMAGE: false,
-            LINE_BREAK: false,
-            CONTENT_CONTROLS: false
+            title: "Закрепленное сообщение",
+            controls: {
+                UNDO_REDO: true,
+                BLOCK_FORMAT: false,
+                FONT_SIZE: false,
+                REMOVE_FORMAT: false,
+                BOLD: true,
+                ITALIC: true,
+                STRIKE_THROUGH: true,
+                UNDERLINE: true,
+                SUBSCRIPT: false,
+                SUPERSCRIPT: false,
+                JUSTIFY_LEFT: false,
+                JUSTIFY_CENTER: false,
+                JUSTIFY_RIGHT: false,
+                JUSTIFY_FULL: false,
+                LISTS: false,
+                INSERT_LINK: false,
+                INSERT_TABLE: false,
+                INSERT_IMAGE: false,
+                LINE_BREAK: false,
+                CONTENT_CONTROLS: false
+            }
         })
         pin_message.setValueAsHTML("<p><b>Описание инцидента:</b></p>\n" +
             "<p>--- Данная строка будет автоматически изменена ---</p>\n" +
