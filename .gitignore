@@ -106,4 +106,4 @@ dist
 .tern-port
 
 .idea/
-create_tg_chat/
+*_create_tg_chat/
