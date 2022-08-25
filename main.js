@@ -80,13 +80,13 @@ ipcMain.on('getTokenForQRCode', async (event, password) => {
             }
         ).then(async (user) => {
             await sendAuthStatus(true);
-            await sendLog('success', `Онлайн: ${user.firstName} ${user.lastName}`);
+            await sendLog('success', "Авторизация", `${user.firstName} ${user.lastName}`);
             await createUserData(`@${user.username}`)
         });
     } else {
         const me = await client.getMe();
         await sendAuthStatus(true);
-        await sendLog('success', `Онлайн: ${me.firstName} ${me.lastName}`);
+        await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
         await createUserData(`@${me.username}`)
     }
 })
@@ -194,9 +194,9 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
 })
 // ФУНКЦИИ
 // Отправка логов
-async function sendLog(type = String(undefined), message = String(undefined)) {
+async function sendLog(type = String(undefined), title = String(undefined), message = String(undefined)) {
     BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('sendLog', type, message)
+        b.webContents.send('sendLog', type, title, message)
     })
 }
 // Отправить статус авторизации
@@ -216,7 +216,7 @@ async function createUserData(tag_tg = String(undefined)) {
                 })
             }
         })
-        await sendLog('success', `Конфигурация загружена`)
+        await sendLog('success', `Настройки пользователя`, `Настройки загружены`)
     })
 }
 // Прогресс бар

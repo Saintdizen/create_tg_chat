@@ -1,5 +1,5 @@
 'use strict';
-const { Page, Button, TextInput, ContentBlock, Styles, CheckBox, Badge, TextArea, Notification, BadgeStyle, ipcRenderer,
+const { Page, Button, TextInput, ContentBlock, Styles, Badge, Notification, BadgeStyle, ipcRenderer,
     NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize, PasswordInput,
     TextEditor
 } = require('chuijs');
@@ -86,7 +86,11 @@ let QRCode_block = undefined;
                                 }
                             })
                         })
-                        new Notification('Список пользователей обновлен', NotificationStyle.SUCCESS).show()
+                        new Notification({
+                            title: 'Список пользователей', text: "Обновлен",
+                            style: NotificationStyle.SUCCESS,
+                            showTime: 3000
+                        }).show()
                     })
                 })
                 block_radios.clear()
@@ -197,7 +201,11 @@ let QRCode_block = undefined;
                     progressBlock.add(new Label(e))
                 }
             } else {
-                new Notification('Выберите список пользователей!').show()
+                new Notification({
+                    title: 'Создание чата', text: 'Выберите список пользователей',
+                    style: NotificationStyle.ERROR,
+                    showTime: 3000
+                }).show()
             }
         });
         let info_block = new Details({
@@ -252,7 +260,11 @@ function generateQRCode(page) {
                     QRCode.toDataURL(text).then(src => {
                         QRCode_block.clear()
                         QRCode_block.add(new Image(src, "280px", "280px"))
-                        new Notification('QR-код изменен', NotificationStyle.WARNING).show()
+                        new Notification({
+                            title: "Авторизация", text: "QR-код изменен",
+                            style: NotificationStyle.WARNING,
+                            showTime: 3000
+                        }).show()
                     })
                 })
             })
@@ -266,13 +278,19 @@ function generateQRCode(page) {
 }
 
 function enableLogsNotification() {
-    ipcRenderer.on('sendLog', (e, type, message) => {
+    ipcRenderer.on('sendLog', (e, type, title, message) => {
         if (type === "success") {
-            new Notification(message, NotificationStyle.SUCCESS).show()
+            new Notification({
+                title: title, text: message, style: NotificationStyle.SUCCESS, showTime: 3000
+            }).show()
         } else if (type === 'error') {
-            new Notification(message, NotificationStyle.ERROR).show()
+            new Notification({
+                title: title, text: message, style: NotificationStyle.ERROR, showTime: 3000
+            }).show()
         } else if (type === undefined) {
-            new Notification(message).show()
+            new Notification({
+                title: title, text: message, showTime: 3000
+            }).show()
         }
     })
 }
