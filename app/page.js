@@ -1,7 +1,9 @@
 'use strict';
-const { Page, Button, TextInput, ContentBlock, Styles, Badge, Notification, BadgeStyle, ipcRenderer,
-    NotificationStyle, Image, Dialog, ProgressBar, Label, RadioGroup, Details, Spinner, SpinnerSize, PasswordInput,
-    TextEditor
+const {
+    Page, Button, TextInput, ContentBlock, Styles, Badge,
+    Notification, BadgeStyle, ipcRenderer, NotificationStyle,
+    Image, Dialog, ProgressBar, Label, RadioGroup, Details,
+    Spinner, SpinnerSize, PasswordInput, TextEditor
 } = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
