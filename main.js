@@ -51,13 +51,24 @@ main.start({
     ]
 })
 
-ipcMain.on("getAuth", async () => {
+ipcMain.on("getUser", async () => {
     await client.connect();
+    try {
+        const me = await client.getMe();
+        await sendAuthStatus(true);
+        await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
+        await createUserData(`@${me.username}`)
+    } catch (e) {
+        await sendAuthStatus(false);
+        await sendLog('error', `Авторизация`, e.message)
+    }
+})
+
+ipcMain.on("getAuth", async () => {
     BrowserWindow.getAllWindows().filter(async b => {
         await b.webContents.send('checkAuthorization', await client.checkAuthorization())
     })
 })
-
 // ipcMain
 ipcMain.on('getTokenForQRCode', async (event, password) => {
     //await client.connect();
@@ -82,6 +93,34 @@ ipcMain.on('getTokenForQRCode', async (event, password) => {
             await sendAuthStatus(true);
             await sendLog('success', "Авторизация", `${user.firstName} ${user.lastName}`);
             await createUserData(`@${user.username}`)
+        });
+    } else {
+        const me = await client.getMe();
+        await sendAuthStatus(true);
+        await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
+        await createUserData(`@${me.username}`)
+    }
+})
+
+ipcMain.on('loginInPhone', async () => {
+    //await client.connect();
+    if (!await client.checkAuthorization()) {
+        await client.start({
+            phoneNumber: async () => await new Promise((resolve) => {
+                ipcMain.on("channel_phone", async (event, code) => resolve(code))
+            }),
+            phoneCode: async () => await new Promise((resolve) => {
+                ipcMain.on("channel_code", async (event, code) => resolve(code))
+            }),
+            password: async () => await new Promise((resolve) => {
+                ipcMain.on("channel_pass", async (event, code) => resolve(code))
+            }),
+            onError: async (err) => console.log(err),
+        }).then(async () => {
+            const me = await client.getMe();
+            await sendAuthStatus(true);
+            await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
+            await createUserData(`@${me.username}`)
         });
     } else {
         const me = await client.getMe();
