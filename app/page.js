@@ -25,7 +25,7 @@ const report = {
         super();
         // Настройки страницы
         this.setTitle('Создание чата в Telegram');
-        this.setMain(true);
+        this.setMain(false);
         this.setFullWidth();
         // ===
         this.#enableLogsNotification();
@@ -107,7 +107,11 @@ const report = {
                     ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
                         QRCode.toDataURL(text).then(src => {
                             QRCode_block.clear()
-                            QRCode_block.add(new Image(src, "280px", "280px"))
+                            QRCode_block.add(new Image({
+                                base64: src,
+                                width: "280px",
+                                height: "280px"
+                            }))
                             new Notification({
                                 title: "Авторизация", text: "QR-код изменен",
                                 style: NotificationStyle.WARNING,
@@ -294,7 +298,7 @@ const report = {
         })
         modal.addToFooter(button_close)
         //Добавление компонентов на форму
-        block.add(CreateChatTG.#infoBlock(), block_radios, inc_num, desc, pin_message, button_c_chat)
+        block.add(block_radios, inc_num, desc, pin_message, button_c_chat)
         return block;
     }
     #enableLogsNotification() {
@@ -314,33 +318,6 @@ const report = {
             }
         })
     }
-    static #infoBlock() {
-         let info_block = new Details({
-             title: "Памятка",
-             direction: Styles.DIRECTION.COLUMN,
-             width: Styles.WIDTH.WEBKIT_FILL
-         })
-         let label_1 = new Badge('Наименование чата сформируется по шаблону:\nДД.ММ.ГГГГ - Описание - № Инцидента', BadgeStyle.WARNING);
-         let label_2 = new Badge('Дата и номер инцидента будут добалвены автоматически', BadgeStyle.WARNING);
-         let label_3 = new Badge('Добавьте в чат снимок экрана с зафиксированной ошибкой', BadgeStyle.WARNING);
-         let text1 = new Label(`1) Выберите список пользователей`, {
-             width: Styles.WIDTH.MAX_CONTENT
-         })
-         let text2 = new Label(`2) Заполните поле: "Номер инцидента"`, {
-             width: Styles.WIDTH.MAX_CONTENT
-         })
-         let text3 = new Label(`3) Заполните поле: "Описание"`, {
-             width: Styles.WIDTH.MAX_CONTENT
-         })
-         let text4 = new Label(`4) При необходимости измените поле: "Закрепленное сообщение"`, {
-             width: Styles.WIDTH.MAX_CONTENT
-         })
-         let text5 = new Label(`5) Нажмите кнопку: "Создать чат"`, {
-             width: Styles.WIDTH.MAX_CONTENT
-         })
-         info_block.add(text1, text2, text3, text4, text5, label_1, label_2, label_3)
-         return info_block;
-     }
     static #format(date) {
         let day = date.getDate()
         let month = date.getMonth() + 1
