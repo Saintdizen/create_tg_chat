@@ -1,12 +1,11 @@
 'use strict';
 const {
-    Page, Button, TextInput, ContentBlock, Styles, Badge,
-    Notification, BadgeStyle, ipcRenderer, NotificationStyle,
-    Image, Dialog, ProgressBar, Label, RadioGroup, Details,
-    Spinner, SpinnerSize, PasswordInput, TextEditor
+    Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, NotificationStyle,
+    Image, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, PasswordInput, TextEditor
 } = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
 const QRCode = require("qrcode");
+const {AuthHelpDialog, CreateHelpDialog} = require("./page_help");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
@@ -16,8 +15,9 @@ const report = {
     file_id: String(undefined)
 }
 //
-
- class CreateChatTG extends Page {
+class CreateChatTG extends Page {
+    #help_auth_dialog = new AuthHelpDialog();
+    #help_create_dialog = new CreateHelpDialog();
     #tabs_block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
     #qr = undefined;
     #phone = undefined;
@@ -25,10 +25,12 @@ const report = {
         super();
         // Настройки страницы
         this.setTitle('Создание чата в Telegram');
-        this.setMain(false);
+        this.setMain(true);
         this.setFullWidth();
         // ===
         this.#enableLogsNotification();
+        this.add(this.#help_auth_dialog)
+        this.add(this.#help_create_dialog)
         //
         this.#tabs_block.setWidth(Styles.WIDTH.WEBKIT_FILL)
         this.#tabs_block.add(
@@ -49,8 +51,10 @@ const report = {
             if (status) {
                 this.remove(this.#tabs_block)
                 this.add(this.#mainBlock())
+                this.#help_create_dialog.open()
             } else {
                 this.add(this.#tabs_block)
+                //this.#help_auth_dialog.open()
             }
         })
     }
@@ -166,8 +170,8 @@ const report = {
         inc_num.setValue('IM')
         // Описение инцидента
         let desc = new TextInput({
-            title: 'Описание',
-            placeholder: 'Описание',
+            title: 'Описание инцидента',
+            placeholder: 'Описание инцидента',
             width: '-webkit-fill-available',
             required: false
         });

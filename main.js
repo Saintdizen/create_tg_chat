@@ -4,12 +4,12 @@ const { transliterate } = require('transliteration');
 let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_')
 
 const { BrowserWindow } = require("electron");
-const { Main, MenuItem, ipcMain, ipcRenderer} = require('chuijs');
+const { Main, MenuItem, ipcMain } = require('chuijs');
 // GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 // TelegramClient
-const { TelegramClient, Api} = require("telegram");
+const { TelegramClient, Api } = require("telegram");
 const json = require('./package.json')
 
 const client = new TelegramClient(`${transliterate(username_new).toLowerCase()}_create_tg_chat`, 5030579, "c414e180e62df5a8d8078b8e263be014", {
