@@ -54,7 +54,7 @@ class CreateChatTG extends Page {
                 this.#help_create_dialog.open()
             } else {
                 this.add(this.#tabs_block)
-                //this.#help_auth_dialog.open()
+                this.#help_auth_dialog.open()
             }
         })
     }
