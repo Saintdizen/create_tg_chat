@@ -10,7 +10,7 @@ let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
 let lists = [];
-const report = {
+let report = {
     folder_id: String(undefined),
     file_id: String(undefined)
 }

@@ -26,8 +26,8 @@ client.session.setDC(2, "149.154.167.41", 443);
 // Main
 let main = new Main({
     name: appName,
-    width: 1090,
-    height: 700,
+    width: 815,
+    height: 750,
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,
