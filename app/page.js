@@ -1,6 +1,6 @@
 'use strict';
 const {
-    Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, NotificationStyle,
+    Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer,
     Image, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, PasswordInput, TextEditor
 } = require('chuijs');
 const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
@@ -18,7 +18,7 @@ let report = {
 class CreateChatTG extends Page {
     #help_auth_dialog = new AuthHelpDialog();
     #help_create_dialog = new CreateHelpDialog();
-    #tabs_block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+    #tabs_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
     #qr = undefined;
     #phone = undefined;
     constructor() {
@@ -59,7 +59,7 @@ class CreateChatTG extends Page {
         })
     }
     #phoneBlock() {
-        let main = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         main.setWidth(Styles.WIDTH.WEBKIT_FILL)
         ipcRenderer.send("loginInPhone")
         let block_phone = this.#addBlockTest("Телефон", "Отправить", "channel_phone", () => {
@@ -75,7 +75,7 @@ class CreateChatTG extends Page {
         return main;
     }
     #addBlockTest(inoutTitle, buttonTitle, channel, listener = () => {}) {
-        let block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         block.setWidth(Styles.WIDTH.WEBKIT_FILL)
         let input = undefined;
         if (inoutTitle.includes("Пароль")) {
@@ -91,9 +91,9 @@ class CreateChatTG extends Page {
         return block
     }
     #qrCodeBlock() {
-        let main = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         main.setWidth(Styles.WIDTH.WEBKIT_FILL)
-        let QRCode_block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.NOWRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let QRCode_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         QRCode_block.setWidth("-webkit-fill-available")
         main.add(QRCode_block)
         //Проверка авторизации
@@ -118,7 +118,7 @@ class CreateChatTG extends Page {
                             }))
                             new Notification({
                                 title: "Авторизация", text: "QR-код изменен",
-                                style: NotificationStyle.WARNING,
+                                style: Notification.STYLE.WARNING,
                                 showTime: 3000
                             }).show()
                         })
@@ -130,13 +130,13 @@ class CreateChatTG extends Page {
         return main;
     }
     #mainBlock() {
-        let block = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.WRAP, Styles.ALIGN.BASELINE, Styles.JUSTIFY.START);
+        let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.BASELINE, justify: Styles.JUSTIFY.START });
         block.setWidth("-webkit-fill-available")
         //
-        let block_radios = new ContentBlock(Styles.DIRECTION.ROW, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let block_radios = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         block_radios.setWidth(Styles.WIDTH.WEBKIT_FILL);
         //
-        let progressBlock = new ContentBlock(Styles.DIRECTION.COLUMN, Styles.WRAP.WRAP, Styles.ALIGN.CENTER, Styles.JUSTIFY.CENTER);
+        let progressBlock = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         progressBlock.setWidth("-webkit-fill-available")
         //
         let modal = new Dialog({
@@ -248,7 +248,7 @@ class CreateChatTG extends Page {
             } else {
                 new Notification({
                     title: 'Создание чата', text: 'Выберите список пользователей',
-                    style: NotificationStyle.ERROR,
+                    style: Notification.STYLE.ERROR,
                     showTime: 3000
                 }).show()
             }
@@ -291,7 +291,7 @@ class CreateChatTG extends Page {
                         })
                         new Notification({
                             title: 'Список пользователей', text: "Обновлен",
-                            style: NotificationStyle.SUCCESS,
+                            style: Notification.STYLE.SUCCESS,
                             showTime: 3000
                         }).show()
                     })
@@ -309,11 +309,11 @@ class CreateChatTG extends Page {
         ipcRenderer.on('sendLog', (e, type, title, message) => {
             if (type === "success") {
                 new Notification({
-                    title: title, text: message, style: NotificationStyle.SUCCESS, showTime: 3000
+                    title: title, text: message, style: Notification.STYLE.SUCCESS, showTime: 3000
                 }).show()
             } else if (type === 'error') {
                 new Notification({
-                    title: title, text: message, style: NotificationStyle.ERROR, showTime: 3000
+                    title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000
                 }).show()
             } else if (type === undefined) {
                 new Notification({
