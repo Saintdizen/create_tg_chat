@@ -1,5 +1,4 @@
-const {Page, Label, ProgressBar, Button, Styles, ContentBlock, ipcRenderer} = require('chuijs');
-const path = require("path");
+const {Page, Label, ProgressBar, Button, Styles, ContentBlock, ipcRenderer, shell} = require('chuijs');
 
 class UpdateAppPage extends Page {
     constructor(options = {
@@ -42,30 +41,16 @@ class UpdateAppPage extends Page {
                 },
             });
             try {
-                await downloader.download();
-                if (options.platform.includes("win32")) {
-                    let exec = require('child_process').execFile;
-                    exec(require('path').join(home_dir, options.name), (err, data) => {
-                        console.log(err)
-                        console.log(data.toString());
-                    });
-                    ipcRenderer.send("closeForUpdate")
-                }
+                await downloader.download().then(file => shell.showItemInFolder(file.filePath));
+                let button = new Button("Закрыть приложение", () => ipcRenderer.send("closeForUpdate"));
+                block.add(button)
             } catch (error) {
                 console.log(error);
             }
         })
 
-        block.add(
-            label_version,
-            label_platform,
-            label_download_path,
-            progress,
-            button
-        )
-        this.add(
-            block
-        )
+        block.add(label_version, label_platform, label_download_path, progress, button)
+        this.add(block)
     }
 }
 
