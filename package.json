@@ -97,7 +97,7 @@
     "electron-builder": "~23.3.3"
   },
   "dependencies": {
-    "chuijs": "~0.4.4",
+    "chuijs": "~0.4.5",
     "googleapis": "~107.0.0",
     "nodejs-file-downloader": "^4.10.2",
     "qrcode": "~1.5.1",

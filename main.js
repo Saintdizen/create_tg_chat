@@ -51,6 +51,10 @@ main.start({
     ]
 })
 
+ipcMain.on("closeForUpdate", () => {
+    main.stop();
+})
+
 ipcMain.on("getUser", async () => {
     await client.connect();
     try {
