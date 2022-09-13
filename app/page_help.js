@@ -1,4 +1,4 @@
-const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView} = require("chuijs");
+const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, ProgressBar} = require("chuijs");
 
 class AuthHelpDialog {
     #dialog = new Dialog({ width: "95%", height: "95%", closeOutSideClick: false })
