@@ -12,15 +12,15 @@ class UpdateAppPage extends Page {
         this.setTitle(`Обновление приложения ${options.version}`)
         this.setFullWidth();
         this.setFullHeight()
-        let home_dir = require('os').homedir();
+        let updates_path = require('path').join(require('os').homedir(), "updates_create_tg_chat");
 
         let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         block.setWidth(Styles.WIDTH.WEBKIT_FILL)
         block.setHeight(Styles.HEIGHT.WEBKIT_FILL)
 
-        let label_version = new Label(`Версия: ${options.version}`);
-        let label_platform = new Label(`Платформа: ${options.platform}`);
-        let label_download_path = new Label(`Путь до файла: ${require('path').join(home_dir, options.name)}`);
+        let label_version = new Label({ text: `Версия: ${options.version}` });
+        let label_platform = new Label({ text: `Платформа: ${options.platform}` });
+        let label_download_path = new Label({ text: `Путь до файла: ${require('path').join(updates_path, options.name)}` });
         let progress = new ProgressBar(100);
         progress.setWidth(Styles.WIDTH.WEBKIT_FILL);
         progress.setProgressText(`Загрузка ${options.name}`)
@@ -33,7 +33,7 @@ class UpdateAppPage extends Page {
             const downloader = new Downloader({
                 url: options.link,
                 fileName: options.name,
-                directory: home_dir,
+                directory: updates_path,
                 onProgress: (percentage, chunk, remainingSize) => {
                     let test = `(${remainingSize.toString()})`;
                     progress.setProgressCountText(`${percentage}%`)
@@ -41,7 +41,10 @@ class UpdateAppPage extends Page {
                 },
             });
             try {
-                await downloader.download().then(file => shell.showItemInFolder(file.filePath));
+                await downloader.download();
+                await shell.openExternal(`file://${updates_path}`, {
+                    workingDirectory: updates_path
+                })
                 let button = new Button("Закрыть приложение", () => ipcRenderer.send("closeForUpdate"));
                 block.add(button)
             } catch (error) {

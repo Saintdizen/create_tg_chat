@@ -138,6 +138,7 @@ class CreateChatTG extends Page {
         //
         let progressBlock = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         progressBlock.setWidth("-webkit-fill-available")
+        progressBlock.disableMarginChild();
         //
         let modal = new Dialog({
             width: "80%",
