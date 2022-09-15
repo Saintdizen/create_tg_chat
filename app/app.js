@@ -1,6 +1,6 @@
 const { AppLayout, render, Notification } = require('chuijs');
 const { CreateChatTG } = require('./page');
-const { UpdateAppPage } = require('./page_update_app');
+const {UpdateAppDialog} = require("./page_help");
 const request = require('request');
 const package_json = require('../package.json');
 
@@ -36,12 +36,17 @@ class App extends AppLayout {
                 if (package_json.version < json.version) {
                     for (let pack of json.packages) {
                         if (pack.platform.includes(process.platform)) {
-                            app.setRoute(new UpdateAppPage({
+                            let dialog = new UpdateAppDialog({
+                                title: `Доступна новая версия!`,
                                 name: pack.name,
                                 link: `https://updates.chuijs.ru/updates/create_tg_chat/${pack.name}`,
                                 version: json.version,
                                 platform: `${process.platform} (${pack.platform})`,
-                            }))
+                            })
+                            app.addComponentToAppLayout({
+                                center: [ dialog ],
+                                headerRight: [ AppLayout.BUTTON(`Доступна новая версия! ${json.version}`, () => dialog.open()) ]
+                            })
                             new Notification({ title: `Доступна новая версия!`, markdownText: `Обновите приложение до версии **${json.version}**`, style: Notification.STYLE.WARNING, showTime: 5000 }).show();
                         }
                     }

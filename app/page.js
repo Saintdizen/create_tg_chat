@@ -32,7 +32,7 @@ class CreateChatTG extends Page {
         this.add(this.#help_auth_dialog)
         this.add(this.#help_create_dialog)
         //
-        this.#tabs_block.setWidth(Styles.WIDTH.WEBKIT_FILL)
+        this.#tabs_block.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#tabs_block.add(
             new Button("Авторизация по QR-коду", () => {
                 this.#qr = this.#qrCodeBlock();
@@ -60,7 +60,7 @@ class CreateChatTG extends Page {
     }
     #phoneBlock() {
         let main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        main.setWidth(Styles.WIDTH.WEBKIT_FILL)
+        main.setWidth(Styles.SIZE.WEBKIT_FILL)
         ipcRenderer.send("loginInPhone")
         let block_phone = this.#addBlockTest("Телефон", "Отправить", "channel_phone", () => {
             main.clear()
@@ -76,7 +76,7 @@ class CreateChatTG extends Page {
     }
     #addBlockTest(inoutTitle, buttonTitle, channel, listener = () => {}) {
         let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        block.setWidth(Styles.WIDTH.WEBKIT_FILL)
+        block.setWidth(Styles.SIZE.WEBKIT_FILL)
         let input = undefined;
         if (inoutTitle.includes("Пароль")) {
             input = new PasswordInput({ title: inoutTitle, width: "225px" })
@@ -92,7 +92,7 @@ class CreateChatTG extends Page {
     }
     #qrCodeBlock() {
         let main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        main.setWidth(Styles.WIDTH.WEBKIT_FILL)
+        main.setWidth(Styles.SIZE.WEBKIT_FILL)
         let QRCode_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         QRCode_block.setWidth("-webkit-fill-available")
         main.add(QRCode_block)
@@ -134,7 +134,7 @@ class CreateChatTG extends Page {
         block.setWidth("-webkit-fill-available")
         //
         let block_radios = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        block_radios.setWidth(Styles.WIDTH.WEBKIT_FILL);
+        block_radios.setWidth(Styles.SIZE.WEBKIT_FILL);
         //
         let progressBlock = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
         progressBlock.setWidth("-webkit-fill-available")
@@ -157,7 +157,7 @@ class CreateChatTG extends Page {
                 wrap: Styles.WRAP.WRAP,
                 align: Styles.ALIGN.CENTER,
                 justify: Styles.JUSTIFY.CENTER,
-                width: Styles.WIDTH.WEBKIT_FILL
+                width: Styles.SIZE.WEBKIT_FILL
             }
         });
         let radio_groups = [];
@@ -177,7 +177,7 @@ class CreateChatTG extends Page {
             required: false
         });
         // Закрепленное сообщение
-        let pin_message = new TextEditor(Styles.WIDTH.WEBKIT_FILL, {
+        let pin_message = new TextEditor(Styles.SIZE.WEBKIT_FILL, {
             title: "Закрепленное сообщение",
             controls: {
                 UNDO_REDO: true,
