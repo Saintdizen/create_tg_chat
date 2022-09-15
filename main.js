@@ -4,7 +4,7 @@ const { transliterate } = require('transliteration');
 let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_')
 
 const { BrowserWindow } = require("electron");
-const { Main, MenuItem, ipcMain } = require('chuijs');
+const { Main, MenuItem, ipcMain, app} = require('chuijs');
 // GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
@@ -26,8 +26,8 @@ client.session.setDC(2, "149.154.167.41", 443);
 // Main
 let main = new Main({
     name: appName,
-    width: 815,
-    height: 755,
+    width: 900,
+    height: 735,
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,
@@ -59,13 +59,19 @@ ipcMain.on("getUser", async () => {
     await client.connect();
     try {
         const me = await client.getMe();
+        await sendUserData(me);
         await sendAuthStatus(true);
         await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
         await createUserData(`@${me.username}`)
     } catch (e) {
         await sendAuthStatus(false);
-        await sendLog('error', `Авторизация`, e.message)
+        //await sendLog('error', `Авторизация`, e.message)
     }
+})
+
+ipcMain.on("LOGOUT", async () => {
+    await client.invoke(new Api.auth.LogOut({}));
+    main.restart();
 })
 
 ipcMain.on("getAuth", async () => {
@@ -94,12 +100,14 @@ ipcMain.on('getTokenForQRCode', async (event, password) => {
                 }
             }
         ).then(async (user) => {
+            await sendUserData(user)
             await sendAuthStatus(true);
             await sendLog('success', "Авторизация", `${user.firstName} ${user.lastName}`);
             await createUserData(`@${user.username}`)
         });
     } else {
         const me = await client.getMe();
+        await sendUserData(me);
         await sendAuthStatus(true);
         await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
         await createUserData(`@${me.username}`)
@@ -122,12 +130,14 @@ ipcMain.on('loginInPhone', async () => {
             onError: async (err) => console.log(err),
         }).then(async () => {
             const me = await client.getMe();
+            await sendUserData(me)
             await sendAuthStatus(true);
             await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
             await createUserData(`@${me.username}`)
         });
     } else {
         const me = await client.getMe();
+        await sendUserData(me)
         await sendAuthStatus(true);
         await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
         await createUserData(`@${me.username}`)
@@ -281,6 +291,11 @@ async function setProgressLogText(text = String(undefined)) {
 async function closeDialog() {
     BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('closeDialog')
+    })
+}
+async function sendUserData(user) {
+    BrowserWindow.getAllWindows().filter(b => {
+        b.webContents.send('sendUserData', user)
     })
 }
 //Формат даты

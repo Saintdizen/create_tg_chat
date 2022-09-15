@@ -1,4 +1,4 @@
-const { AppLayout, render, Notification } = require('chuijs');
+const { AppLayout, render, Notification, Dialog, ipcRenderer} = require('chuijs');
 const { CreateChatTG } = require('./page');
 const {UpdateAppDialog} = require("./page_help");
 const request = require('request');
@@ -12,6 +12,17 @@ class App extends AppLayout {
         setInterval(() => {
             this.#check_new_version_app_notification();
         }, 1200000);
+        let profile = new Dialog({ width: "500px", height: "500px", closeOutSideClick: true })
+        ipcRenderer.on("sendUserData", (e, user) => {
+            this.addComponentToAppLayout({
+                center: [ profile ],
+                headerRight: [
+                    AppLayout.USER_PROFILE(`${user.firstName} ${user.lastName}`,[
+                        AppLayout.USER_DD_ITEM("Выход", () => ipcRenderer.send("LOGOUT")),
+                    ])
+                ]
+            })
+        })
     }
     #check_new_version_app_notification() {
         request('https://updates_create_tg_chat:PZG3mrSZ0HDjqXm5yu8eHfavWBdCZh@updates.chuijs.ru/updates/create_tg_chat/', function (error, response, body) {
