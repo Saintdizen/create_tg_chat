@@ -3,9 +3,9 @@ const {
     Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer,
     Image, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, PasswordInput, TextEditor
 } = require('chuijs');
-const { GoogleSheets, GoogleDrive } = require('./google_sheets/google_sheets')
+const { GoogleSheets, GoogleDrive } = require('../google_sheets/google_sheets')
 const QRCode = require("qrcode");
-const {AuthHelpDialog, CreateHelpDialog} = require("./page_help");
+const {AuthHelpDialog, CreateHelpDialog} = require("../dialogs/dialogs");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();

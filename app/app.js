@@ -1,6 +1,6 @@
-const { AppLayout, render, Notification, Dialog, ipcRenderer} = require('chuijs');
-const { CreateChatTG } = require('./page');
-const {UpdateAppDialog} = require("./page_help");
+const { AppLayout, render, Notification, Dialog, ipcRenderer, Icon, Icons} = require('chuijs');
+const { CreateChatTG } = require('./pages/page');
+const {UpdateAppDialog} = require("./dialogs/dialogs");
 const request = require('request');
 const package_json = require('../package.json');
 
@@ -12,14 +12,18 @@ class App extends AppLayout {
         setInterval(() => {
             this.#check_new_version_app_notification();
         }, 1200000);
-        let profile = new Dialog({ width: "500px", height: "500px", closeOutSideClick: true })
         ipcRenderer.on("sendUserData", (e, user) => {
             this.addComponentToAppLayout({
-                center: [ profile ],
                 headerRight: [
-                    AppLayout.USER_PROFILE(`${user.firstName} ${user.lastName}`,[
-                        AppLayout.USER_DD_ITEM("Выход", () => ipcRenderer.send("LOGOUT")),
-                    ])
+                    AppLayout.USER_PROFILE({
+                        username: `${user.firstName} ${user.lastName}`,
+                        items: [
+                            AppLayout.USER_DD_ITEM({
+                                title: "Выход",
+                                clickEvent: () => { ipcRenderer.send("LOGOUT") }
+                            })
+                        ]
+                    })
                 ]
             })
         })
@@ -56,7 +60,14 @@ class App extends AppLayout {
                             })
                             app.addComponentToAppLayout({
                                 center: [ dialog ],
-                                headerRight: [ AppLayout.BUTTON(`Доступна новая версия! ${json.version}`, () => dialog.open()) ]
+                                headerRight: [
+                                    AppLayout.BUTTON({
+                                        title: `${json.version}`,
+                                        icon: new Icon(Icons.ACTIONS.SYSTEM_UPDATE_ALT, "20px"),
+                                        reverse: true,
+                                        clickEvent: () => { dialog.open() }
+                                    }),
+                                ]
                             })
                             new Notification({ title: `Доступна новая версия!`, markdownText: `Обновите приложение до версии **${json.version}**`, style: Notification.STYLE.WARNING, showTime: 5000 }).show();
                         }

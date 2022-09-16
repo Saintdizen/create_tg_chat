@@ -27,28 +27,28 @@ class AuthHelpDialog {
                     title: "Авторизация по QR-коду",
                     components: [
                         new Label({ markdownText: "1) Нажать кнопку: **Авторизоваться по QR-коду**" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_qr/1_auth.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_qr/1_auth.png`, width: "-webkit-fill-available" }),
                         new Label({ markdownText: "2) Ввести пороль **двуэтапной вторизации** (1)" }),
                         new Label({ markdownText: "3) Нажать кнопку: **Сгенерировать QR-код** (2)" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_qr/auth_1_2.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_qr/auth_1_2.png`, width: "-webkit-fill-available" }),
                         new Label({ markdownText: "3) Отсканировать **QR-код** приложением **Telegram** (3)" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_qr/auth_1_3.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_qr/auth_1_3.png`, width: "-webkit-fill-available" }),
                     ]
                 }),
                 TreeView.ExpandButton({
                     title: "Авторизация по телефону",
                     components: [
                         new Label({ markdownText: "1) Нажать кнопку: **Авторизация по телефону**" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_phone/auth_2.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_phone/auth_2.png`, width: "-webkit-fill-available" }),
                         new Label({ markdownText: "2) Ввести в поле: **Телефон** номер телефона от учетной записи (1)" }),
                         new Label({ markdownText: "3) Нажать кнопку: **Отправить** (2)" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_phone/auth_2_1.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_phone/auth_2_1.png`, width: "-webkit-fill-available" }),
                         new Label({ markdownText: "4) Ввести в поле: **Проверочный код** 5-ти значный код, который должен прийти в **Telegram** (3)", wordBreak: "break-all", width: Styles.SIZE.WEBKIT_FILL }),
                         new Label({ markdownText: "5) Нажать кнопку: **Отправить** (4)" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_phone/auth_2_2.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_phone/auth_2_2.png`, width: "-webkit-fill-available" }),
                         new Label({ markdownText: "6) Ввести пороль **двуэтапной вторизации** (5)" }),
                         new Label({ markdownText: "7) Нажать кнопку: **Авторизоваться** (6)" }),
-                        new Image({ path: `${__dirname}/../resources/images/auth/auth_phone/auth_2_3.png`, width: "-webkit-fill-available" }),
+                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_phone/auth_2_3.png`, width: "-webkit-fill-available" }),
                     ]
                 }),
             ]
@@ -66,19 +66,19 @@ class CreateHelpDialog {
         this.#content.setHeight(Styles.SIZE.MAX_CONTENT)
         this.#content.add(
             new Label({ markdownText: "1) Выбрать **список пользователей**" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/1.png`, width: "-webkit-fill-available" }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/1.png`, width: "-webkit-fill-available" }),
             new Label({ markdownText: "**Дождаться появления уведомления**" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/1_2.png`, }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/1_2.png`, }),
             new Label({ markdownText: "2) Заполнить поле: **Номер инцидента**" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/2.png`, width: "-webkit-fill-available" }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/2.png`, width: "-webkit-fill-available" }),
             new Label({ markdownText: "3) Заполнить поле: **Описание инцидента**" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/3.png`, width: "-webkit-fill-available" }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/3.png`, width: "-webkit-fill-available" }),
             new Label({ markdownText: "4) Заполнить поле: **Закрепленное сообщение** при необходимости" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/4.png`, width: "-webkit-fill-available" }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/4.png`, width: "-webkit-fill-available" }),
             new Label({ markdownText: "5) Нажать кнопку: **Создать чат**" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/5.png`, }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/5.png`, }),
             new Label({ markdownText: "6) Дождаться заполнения **прогресс бара** и появления сообщения: **Чат успешно создан!**" }),
-            new Image({ path: `${__dirname}/../resources/images/create_chat/6.png`, width: "-webkit-fill-available" }),
+            new Image({ path: `${__dirname}/../../resources/images/create_chat/6.png`, width: "-webkit-fill-available" }),
             new Label({ markdownText: "7) Нажать кнопку: **Закрыть** и проверить создание чата в **Telegram**" }),
         )
         this.#header_dialog.add(new Label({ markdownText: "**Создание чата**" }), new Button("Закрыть", () => this.#dialog.close()))

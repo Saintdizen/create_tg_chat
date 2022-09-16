@@ -188,14 +188,26 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
         //Отправка сообщения
         await setProgressText('Отправка и закрепление сообщения...')
         await setProgressValue(70)
-        await client.sendMessage(chat_id, {
-            message: new_message,
-            parseMode: 'html',
-            linkPreview: false
-        }).then(async (e) => {
-            await client.pinMessage(chat_id, e.id, {notify: false})
-        })
-
+        try {
+            await client.sendMessage(chat_id, {
+                message: new_message,
+                parseMode: 'html',
+                linkPreview: false
+            }).then(async (e) => {
+                await client.pinMessage(chat_id, e.id, {notify: false})
+            })
+            let today = new Date();
+            await client.sendMessage(chat_id, {
+                message: `В ближайшее время будет произведены архивация и удаление чата`,
+                schedule: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7, 8, 0).getTime() / 1000
+            })
+        } catch (e) {
+            if (e.message.includes("A wait of ")) {
+                await setProgressLogText(e.message)
+            } else {
+                await setProgressLogText(e.message)
+            }
+        }
         //Добавить людей
         await setProgressText('Добавление пользователей в чат...')
         await setProgressValue(85)
