@@ -306,9 +306,7 @@ async function closeDialog() {
     })
 }
 async function sendUserData(user) {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('sendUserData', user)
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendUserData', user))
 }
 //Формат даты
 function format(date) {

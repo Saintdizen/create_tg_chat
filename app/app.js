@@ -1,4 +1,4 @@
-const { AppLayout, render, Notification, Dialog, ipcRenderer, Icon, Icons} = require('chuijs');
+const { AppLayout, render, Notification, Dialog, ipcRenderer, Icon, Icons, Image} = require('chuijs');
 const { CreateChatTG } = require('./pages/page');
 const {UpdateAppDialog} = require("./dialogs/dialogs");
 const request = require('request');
@@ -17,6 +17,9 @@ class App extends AppLayout {
                 headerRight: [
                     AppLayout.USER_PROFILE({
                         username: `${user.firstName} ${user.lastName}`,
+                        image: {
+                            noImage: true
+                        },
                         items: [
                             AppLayout.USER_DD_ITEM({
                                 title: "Выход",
