@@ -110,7 +110,9 @@ class UpdateAppDialog {
         this.#content.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#content.setHeight(Styles.SIZE.MAX_CONTENT)
         //
-        let progress = new ProgressBar(100);
+        let progress = new ProgressBar({
+            max: 100
+        });
         progress.setWidth(Styles.SIZE.WEBKIT_FILL);
         progress.setProgressText(`Загрузка: ${options.name}`)
         progress.setProgressCountText(`0%`)

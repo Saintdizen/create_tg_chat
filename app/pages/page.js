@@ -145,7 +145,7 @@ class CreateChatTG extends Page {
             height: "max-content",
         })
         //
-        let progressBar = new ProgressBar(100);
+        let progressBar = new ProgressBar({ max: 100 });
         progressBar.setWidth("-webkit-fill-available")
         progressBar.setValue(0)
         //
