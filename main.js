@@ -1,18 +1,28 @@
 const os = require("os");
 let username = os.userInfo().username
 const { transliterate } = require('transliteration');
-let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_')
+let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_');
+let sessionPath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
+let sessionFile = `${transliterate(username_new).toLowerCase()}.json`;
+let fullSessionPath = require("path").join(sessionPath, sessionFile);
 
 const { BrowserWindow } = require("electron");
-const { Main, MenuItem, ipcMain, app} = require('chuijs');
+const { Main, MenuItem, ipcMain } = require('chuijs');
 // GoogleSheets
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 // TelegramClient
 const { TelegramClient, Api } = require("telegram");
-const json = require('./package.json')
+// StringSession
+const {StringSession} = require("telegram/sessions");
+// JSON
+const json = require('./package.json');
+const fs = require("fs");
 
-const client = new TelegramClient(`${transliterate(username_new).toLowerCase()}_create_tg_chat`, 5030579, "c414e180e62df5a8d8078b8e263be014", {
+let stringSession = new StringSession("");
+if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
+
+const client = new TelegramClient(stringSession, 5030579, "c414e180e62df5a8d8078b8e263be014", {
     appVersion: json.version,
     deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()}`,
     langCode: 'ru',
@@ -71,6 +81,7 @@ ipcMain.on("getUser", async () => {
 
 ipcMain.on("LOGOUT", async () => {
     await client.invoke(new Api.auth.LogOut({}));
+    if (fs.existsSync(fullSessionPath)) fs.unlinkSync(fullSessionPath);
     main.restart();
 })
 
@@ -104,6 +115,7 @@ ipcMain.on('getTokenForQRCode', async (event, password) => {
             await sendAuthStatus(true);
             await sendLog('success', "Авторизация", `${user.firstName} ${user.lastName}`);
             await createUserData(`@${user.username}`)
+            await saveSession(client);
         });
     } else {
         const me = await client.getMe();
@@ -134,6 +146,7 @@ ipcMain.on('loginInPhone', async () => {
             await sendAuthStatus(true);
             await sendLog('success', "Авторизация", `${me.firstName} ${me.lastName}`);
             await createUserData(`@${me.username}`)
+            await saveSession(client);
         });
     } else {
         const me = await client.getMe();
@@ -270,6 +283,31 @@ async function sendAuthStatus(status = Boolean(undefined)) {
         b.webContents.send('sendAuthStatus', status)
     })
 }
+
+async function saveSession(client) {
+    let sessionString = await client.session.save();
+    fs.access(sessionPath, (error) => {
+        // Создание папки сессии
+        if (error) {
+            fs.mkdir(sessionPath, { recursive: true }, async (err) => {
+                if (err) await sendLog('error', `Сохранение сессии`, `Ошибка: ${err}`);
+            });
+        }
+        // Создание файла сессии
+        let json = `{ 
+    "session": "${sessionString}"
+}`
+        //
+        fs.writeFile(fullSessionPath, json, async (err) => {
+            if (err) {
+                await sendLog('error', `Сохранение сессии`, `Ошибка: ${err}`)
+            } else {
+                await sendLog('success', `Сохранение сессии`, `Сессия успешно сохранена!`)
+            }
+        })
+    });
+}
+
 // Конфигурация пользователя
 async function createUserData(tag_tg = String(undefined)) {
     await sleep(1000)
