@@ -93,10 +93,10 @@ class CreateHelpDialog {
 }
 exports.CreateHelpDialog = CreateHelpDialog
 
-class UpdateAppDialog {
-    #dialog = new Dialog({ width: "85%", height: Styles.SIZE.MAX_CONTENT, closeOutSideClick: false })
-    #header_dialog = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.SPACE_BEETWEEN });
+class UpdateApp {
     #content = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER });
+    #desc = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
+    #control = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
     constructor(options = {
         title: String(undefined),
         name: String(undefined),
@@ -107,8 +107,10 @@ class UpdateAppDialog {
         //
         let updates_path = require('path').join(require('os').homedir(), "updates_create_tg_chat");
         //
-        this.#content.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#content.setHeight(Styles.SIZE.MAX_CONTENT)
+        this.#content.setWidth(Styles.SIZE.WEBKIT_FILL);
+        this.#content.setHeight(Styles.SIZE.MAX_CONTENT);
+        this.#desc.setWidth(Styles.SIZE.WEBKIT_FILL);
+        this.#control.setWidth(Styles.SIZE.WEBKIT_FILL);
         //
         let progress = new ProgressBar({
             max: 100
@@ -118,7 +120,7 @@ class UpdateAppDialog {
         progress.setProgressCountText(`0%`)
         //
         let button = new Button('Начать загрузку', async () => {
-            this.#content.remove(button);
+            this.#control.remove(button);
             progress.setProgressText(`Загрузка ${options.name}`)
             const Downloader = require("nodejs-file-downloader");
             const downloader = new Downloader({
@@ -137,26 +139,19 @@ class UpdateAppDialog {
                     workingDirectory: updates_path
                 })
                 let button = new Button("Закрыть приложение", () => ipcRenderer.send("closeForUpdate"));
-                this.#content.add(button)
+                this.#control.add(button)
             } catch (error) {
                 console.log(error);
             }
         })
         //
-        this.#content.add(
+        this.#desc.add(
             new Label({ text: `Версия: ${options.version}_${options.platform}` }),
-            new Label({ text: `Путь до файла: ${require('path').join(updates_path)}`, wordBreak: "break-all" }),
-            progress,
-            button
+            new Label({ text: `Директория: ${require('path').join(updates_path)}`, wordBreak: "break-all" })
         )
-        this.#header_dialog.add(new Label({ markdownText: `**${options.title} ${options.version}**` }), new Button("Закрыть", () => this.#dialog.close()))
-        this.#header_dialog.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#header_dialog.disableMarginChild();
-        this.#header_dialog.setPadding("0px 0px 0px 10px");
-        this.#dialog.addToHeader(this.#header_dialog)
-        this.#dialog.addToBody(this.#content)
-        return this.#dialog;
+        this.#control.add(progress, button);
+        this.#content.add(this.#desc, this.#control);
+        return this.#content;
     }
-    open() { this.#dialog.open() }
 }
-exports.UpdateAppDialog = UpdateAppDialog
+exports.UpdateApp = UpdateApp

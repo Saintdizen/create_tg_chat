@@ -1,6 +1,6 @@
-const { AppLayout, render, Notification, Dialog, ipcRenderer, Icon, Icons, Image} = require('chuijs');
+const { AppLayout, render, Notification, ipcRenderer, Icon, Icons, Styles} = require('chuijs');
 const { CreateChatTG } = require('./pages/page');
-const {UpdateAppDialog} = require("./dialogs/dialogs");
+const {UpdateApp} = require("./dialogs/dialogs");
 const request = require('request');
 const package_json = require('../package.json');
 
@@ -21,7 +21,7 @@ class App extends AppLayout {
                             noImage: true
                         },
                         items: [
-                            AppLayout.USER_DD_ITEM({
+                            AppLayout.USER_PROFILE_ITEM({
                                 title: "Выход",
                                 clickEvent: () => { ipcRenderer.send("LOGOUT") }
                             })
@@ -54,21 +54,35 @@ class App extends AppLayout {
                 if (package_json.version < json.version) {
                     for (let pack of json.packages) {
                         if (pack.platform.includes(process.platform)) {
-                            let dialog = new UpdateAppDialog({
+                            let updateApp = new UpdateApp({
                                 title: `Доступна новая версия!`,
                                 name: pack.name,
                                 link: `https://updates.chuijs.ru/updates/create_tg_chat/${pack.name}`,
                                 version: json.version,
                                 platform: `${process.platform} (${pack.platform})`,
-                            })
+                            });
                             app.addComponentToAppLayout({
-                                center: [ dialog ],
                                 headerRight: [
-                                    AppLayout.BUTTON({
+                                    AppLayout.DIALOG({
                                         title: `${json.version}`,
                                         icon: new Icon(Icons.ACTIONS.SYSTEM_UPDATE_ALT, "20px"),
-                                        reverse: true,
-                                        clickEvent: () => { dialog.open() }
+                                        reverse: false,
+                                        dialogOptions: {
+                                            width: "650px",
+                                            height: "max-content",
+                                            closeOutSideClick: true,
+                                            header: {
+                                                title: `Загрузка новой версии: ${json.version}`,
+                                                closeButtonTitle: "Закрыть",
+                                            },
+                                            body: {
+                                                direction: Styles.DIRECTION.COLUMN,
+                                                wrap: Styles.WRAP.NOWRAP,
+                                                align: Styles.ALIGN.CENTER,
+                                                justify: Styles.JUSTIFY.CENTER,
+                                                components: [ updateApp ]
+                                            }
+                                        }
                                     }),
                                 ]
                             })
