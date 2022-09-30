@@ -41,19 +41,9 @@ let main = new Main({
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,
-    icon: `${__dirname}/resources/icons/app/icon.png`
+    icon: `${__dirname}/resources/icons/app/icon.png`,
 });
 main.start({
-    hideOnClose: false,
-    menuBar: [
-        new MenuItem().submenu("Меню", [
-            new MenuItem().button('Скрыть', () => { main.hideAndShow() }),
-            new MenuItem().separator(),
-            new MenuItem().toggleDevTools('Консоль'),
-            new MenuItem().separator(),
-            new MenuItem().quit('Выход')
-        ])
-    ],
     tray: [
         new MenuItem().button('Показать \\ Скрыть', () => { main.hideAndShow() }),
         new MenuItem().separator(),

@@ -1,4 +1,4 @@
-const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, ProgressBar, shell, ipcRenderer} = require("chuijs");
+const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, ProgressBar, shell, ipcRenderer, Icons} = require("chuijs");
 
 class AuthHelpDialog {
     #dialog = new Dialog({ width: "85%", height: "85%", closeOutSideClick: false })
@@ -10,7 +10,10 @@ class AuthHelpDialog {
         this.#content.add(AuthHelpDialog.#tree())
         this.#content.disableMarginChild()
         //
-        this.#header_dialog.add(new Label({ markdownText: "**Авторизация**" }), new Button("Закрыть", () => this.#dialog.close()))
+        this.#header_dialog.add(new Label({ markdownText: "**Авторизация**" }), new Button({
+            icon: Icons.NAVIGATION.CLOSE,
+            clickEvent: () => this.#dialog.close()
+        }))
         this.#header_dialog.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#header_dialog.disableMarginChild()
         this.#header_dialog.setPadding("0px 0px 0px 10px");
@@ -81,7 +84,10 @@ class CreateHelpDialog {
             new Image({ path: `${__dirname}/../../resources/images/create_chat/6.png`, width: "-webkit-fill-available" }),
             new Label({ markdownText: "7) Нажать кнопку: **Закрыть** и проверить создание чата в **Telegram**" }),
         )
-        this.#header_dialog.add(new Label({ markdownText: "**Создание чата**" }), new Button("Закрыть", () => this.#dialog.close()))
+        this.#header_dialog.add(new Label({ markdownText: "**Создание чата**" }), new Button({
+            icon: Icons.NAVIGATION.CLOSE,
+            clickEvent: () => this.#dialog.close()
+        }))
         this.#header_dialog.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#header_dialog.disableMarginChild();
         this.#header_dialog.setPadding("0px 0px 0px 10px");
@@ -138,7 +144,10 @@ class UpdateApp {
                 await shell.openExternal(`file://${updates_path}`, {
                     workingDirectory: updates_path
                 })
-                let button = new Button("Закрыть приложение", () => ipcRenderer.send("closeForUpdate"));
+                let button = new Button({
+                    title: "Закрыть приложение",
+                    clickEvent: () => ipcRenderer.send("closeForUpdate")
+                })
                 this.#control.add(button)
             } catch (error) {
                 console.log(error);

@@ -34,15 +34,21 @@ class CreateChatTG extends Page {
         //
         this.#tabs_block.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#tabs_block.add(
-            new Button("Авторизация по QR-коду", () => {
-                this.#qr = this.#qrCodeBlock();
-                this.#tabs_block.clear();
-                this.#tabs_block.add(this.#qr)
+            new Button({
+                title: "Авторизация по QR-коду",
+                clickEvent: () => {
+                    this.#qr = this.#qrCodeBlock();
+                    this.#tabs_block.clear();
+                    this.#tabs_block.add(this.#qr)
+                }
             }),
-            new Button("Авторизация по телефону", () => {
-                this.#phone = this.#phoneBlock();
-                this.#tabs_block.clear();
-                this.#tabs_block.add(this.#phone)
+            new Button({
+                title: "Авторизация по телефону",
+                clickEvent: () => {
+                    this.#phone = this.#phoneBlock();
+                    this.#tabs_block.clear();
+                    this.#tabs_block.add(this.#phone)
+                }
             })
         );
         //
@@ -83,9 +89,12 @@ class CreateChatTG extends Page {
         } else {
             input = new TextInput({ title: inoutTitle, width: "225px" })
         }
-        let button = new Button(buttonTitle, () => {
-            ipcRenderer.send(channel, input.getValue())
-            listener()
+        let button = new Button({
+            title: buttonTitle,
+            clickEvent: () => {
+                ipcRenderer.send(channel, input.getValue())
+                listener()
+            }
         })
         block.add(input, button)
         return block
@@ -106,23 +115,26 @@ class CreateChatTG extends Page {
                     title: "Пароль",
                     width: "225px"
                 })
-                let generate = new Button("Сгенерировать QR-код", () => {
-                    ipcRenderer.send('getTokenForQRCode', input_pass.getValue())
-                    ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
-                        QRCode.toDataURL(text).then(src => {
-                            QRCode_block.clear()
-                            QRCode_block.add(new Image({
-                                base64: src,
-                                width: "280px",
-                                height: "280px"
-                            }))
-                            new Notification({
-                                title: "Авторизация", text: "QR-код изменен",
-                                style: Notification.STYLE.WARNING,
-                                showTime: 3000
-                            }).show()
+                let generate = new Button({
+                    title: "Сгенерировать QR-код",
+                    clickEvent: () => {
+                        ipcRenderer.send('getTokenForQRCode', input_pass.getValue())
+                        ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
+                            QRCode.toDataURL(text).then(src => {
+                                QRCode_block.clear()
+                                QRCode_block.add(new Image({
+                                    base64: src,
+                                    width: "280px",
+                                    height: "280px"
+                                }))
+                                new Notification({
+                                    title: "Авторизация", text: "QR-код изменен",
+                                    style: Notification.STYLE.WARNING,
+                                    showTime: 3000
+                                }).show()
+                            })
                         })
-                    })
+                    }
                 })
                 QRCode_block.add(input_pass, generate)
             }
@@ -210,50 +222,56 @@ class CreateChatTG extends Page {
             "<p><b>Время окончания:</b></p>\n" +
             "<p><b>Статус:</b></p>")
         // Кнопка закрытия модала
-        let button_close = new Button('Закрыть', () => {
-            modal.close()
-            progressBar.setProgressText("")
-            progressBar.setValue(0)
+        let button_close = new Button({
+            title: "Закрыть",
+            clickEvent: () => {
+                modal.close()
+                progressBar.setProgressText("")
+                progressBar.setValue(0)
+            }
         })
         // Кнопка создания чата
-        let button_c_chat = new Button('Создать чат', async () => {
-            if (lists.length !== 0) {
-                modal.open()
-                progressBar.setProgressText('Клонирование документа с отчетом...')
-                let date_STRING = CreateChatTG.#format(new Date());
-                try {
-                    await googleDrive.copyDocument({
-                        title: `${date_STRING} - ${inc_num.getValue()}`,
-                        parentFolderId: report.folder_id,
-                        fileId: report.file_id
-                    }).then(id => {
-                        if (id !== undefined) {
-                            progressBar.setValue(10)
-                            let link = `https://docs.google.com/document/d/${id}/edit`;
-                            progressBar.setProgressText('Создание чата...')
-                            ipcRenderer.on('setProgressValue', (e, value) => {
-                                progressBar.setValue(value)
-                            })
-                            ipcRenderer.on('setProgressText', (e, text) => {
-                                progressBar.setProgressText(text)
-                            })
-                            ipcRenderer.on('setProgressLogText', (e, text) => {
-                                progressBlock.add(new Label(text))
-                            })
-                            ipcRenderer.send('tg_crt_chat', lists, pin_message.getValueAsHTML(), inc_num.getValue(), desc.getValue(), link)
-                        }
-                    })
-                } catch (e) {
-                    progressBlock.add(new Label(e))
+        let button_c_chat = new Button({
+            title: "Создать чат",
+            clickEvent: async () => {
+                if (lists.length !== 0) {
+                    modal.open()
+                    progressBar.setProgressText('Клонирование документа с отчетом...')
+                    let date_STRING = CreateChatTG.#format(new Date());
+                    try {
+                        await googleDrive.copyDocument({
+                            title: `${date_STRING} - ${inc_num.getValue()}`,
+                            parentFolderId: report.folder_id,
+                            fileId: report.file_id
+                        }).then(id => {
+                            if (id !== undefined) {
+                                progressBar.setValue(10)
+                                let link = `https://docs.google.com/document/d/${id}/edit`;
+                                progressBar.setProgressText('Создание чата...')
+                                ipcRenderer.on('setProgressValue', (e, value) => {
+                                    progressBar.setValue(value)
+                                })
+                                ipcRenderer.on('setProgressText', (e, text) => {
+                                    progressBar.setProgressText(text)
+                                })
+                                ipcRenderer.on('setProgressLogText', (e, text) => {
+                                    progressBlock.add(new Label(text))
+                                })
+                                ipcRenderer.send('tg_crt_chat', lists, pin_message.getValueAsHTML(), inc_num.getValue(), desc.getValue(), link)
+                            }
+                        })
+                    } catch (e) {
+                        progressBlock.add(new Label(e))
+                    }
+                } else {
+                    new Notification({
+                        title: 'Создание чата', text: 'Выберите список пользователей',
+                        style: Notification.STYLE.ERROR,
+                        showTime: 3000
+                    }).show()
                 }
-            } else {
-                new Notification({
-                    title: 'Создание чата', text: 'Выберите список пользователей',
-                    style: Notification.STYLE.ERROR,
-                    showTime: 3000
-                }).show()
             }
-        });
+        })
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)

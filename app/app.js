@@ -1,4 +1,4 @@
-const { AppLayout, render, Notification, ipcRenderer, Icon, Icons, Styles} = require('chuijs');
+const { AppLayout, render, Notification, ipcRenderer, Icons, Styles} = require('chuijs');
 const { CreateChatTG } = require('./pages/page');
 const {UpdateApp} = require("./dialogs/dialogs");
 const request = require('request');
@@ -65,23 +65,20 @@ class App extends AppLayout {
                                 headerRight: [
                                     AppLayout.DIALOG({
                                         title: `${json.version}`,
-                                        icon: new Icon(Icons.ACTIONS.SYSTEM_UPDATE_ALT, "20px"),
+                                        icon: Icons.ACTIONS.SYSTEM_UPDATE_ALT,
                                         reverse: false,
                                         dialogOptions: {
-                                            width: "650px",
-                                            height: "max-content",
+                                            title: `Загрузка новой версии: ${json.version}`,
                                             closeOutSideClick: true,
-                                            header: {
-                                                title: `Загрузка новой версии: ${json.version}`,
-                                                closeButtonTitle: "Закрыть",
-                                            },
-                                            body: {
+                                            style: {
+                                                width: "650px",
+                                                height: "max-content",
                                                 direction: Styles.DIRECTION.COLUMN,
                                                 wrap: Styles.WRAP.NOWRAP,
                                                 align: Styles.ALIGN.CENTER,
                                                 justify: Styles.JUSTIFY.CENTER,
-                                                components: [ updateApp ]
-                                            }
+                                            },
+                                            components: [ updateApp ]
                                         }
                                     }),
                                 ]
