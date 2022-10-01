@@ -120,16 +120,10 @@ ipcMain.on('loginInPhone', async () => {
     //await client.connect();
     if (!await client.checkAuthorization()) {
         await client.start({
-            phoneNumber: async () => await new Promise((resolve) => {
-                ipcMain.on("channel_phone", async (event, code) => resolve(code))
-            }),
-            phoneCode: async () => await new Promise((resolve) => {
-                ipcMain.on("channel_code", async (event, code) => resolve(code))
-            }),
-            password: async () => await new Promise((resolve) => {
-                ipcMain.on("channel_pass", async (event, code) => resolve(code))
-            }),
-            onError: async (err) => console.log(err),
+            phoneNumber: async () => await new Promise((resolve) => ipcMain.on("channel_phone", async (event, code) => resolve(code))),
+            phoneCode: async () => await new Promise((resolve) => ipcMain.on("channel_code", async (event, code) => resolve(code))),
+            password: async () => await new Promise((resolve) => ipcMain.on("channel_pass", async (event, code) => resolve(code))),
+            onError: async (err) => await sendAuthPhoneError("Авторизация по номеру", err),
         }).then(async () => {
             const me = await client.getMe();
             await sendUserData(me)
@@ -265,6 +259,11 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
 async function sendLog(type = String(undefined), title = String(undefined), message = String(undefined)) {
     BrowserWindow.getAllWindows().filter(b => {
         b.webContents.send('sendLog', type, title, message)
+    })
+}
+async function sendAuthPhoneError(title = String(undefined), message = String(undefined)) {
+    BrowserWindow.getAllWindows().filter(b => {
+        b.webContents.send('sendAuthPhoneError', title, message)
     })
 }
 // Отправить статус авторизации

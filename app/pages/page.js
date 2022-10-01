@@ -1,56 +1,34 @@
 'use strict';
-const {
-    Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer,
-    Image, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, PasswordInput, TextEditor
-} = require('chuijs');
-const { GoogleSheets, GoogleDrive } = require('../google_sheets/google_sheets')
-const QRCode = require("qrcode");
+const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, TextEditor} = require('chuijs');
+const {GoogleSheets, GoogleDrive} = require('../google_sheets/google_sheets')
 const {AuthHelpDialog, CreateHelpDialog} = require("../dialogs/dialogs");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
 let lists = [];
-let report = {
-    folder_id: String(undefined),
-    file_id: String(undefined)
-}
+let report = { folder_id: String(undefined), file_id: String(undefined) }
+//
+const {AuthMain} = require("../auth/auth");
 //
 class CreateChatTG extends Page {
     #help_auth_dialog = new AuthHelpDialog();
     #help_create_dialog = new CreateHelpDialog();
     #tabs_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-    #qr = undefined;
-    #phone = undefined;
     constructor() {
         super();
         // Настройки страницы
         this.setTitle('Создание чата в Telegram');
         this.setMain(true);
         this.setFullWidth();
+        this.setFullHeight();
         // ===
         this.#enableLogsNotification();
         this.add(this.#help_auth_dialog)
         this.add(this.#help_create_dialog)
         //
         this.#tabs_block.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#tabs_block.add(
-            new Button({
-                title: "Авторизация по QR-коду",
-                clickEvent: () => {
-                    this.#qr = this.#qrCodeBlock();
-                    this.#tabs_block.clear();
-                    this.#tabs_block.add(this.#qr)
-                }
-            }),
-            new Button({
-                title: "Авторизация по телефону",
-                clickEvent: () => {
-                    this.#phone = this.#phoneBlock();
-                    this.#tabs_block.clear();
-                    this.#tabs_block.add(this.#phone)
-                }
-            })
-        );
+        this.#tabs_block.setHeight(Styles.SIZE.WEBKIT_FILL)
+        this.#tabs_block.add(new AuthMain(this.#tabs_block));
         //
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', (e, status) => {
@@ -63,83 +41,6 @@ class CreateChatTG extends Page {
                 this.#help_auth_dialog.open()
             }
         })
-    }
-    #phoneBlock() {
-        let main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        main.setWidth(Styles.SIZE.WEBKIT_FILL)
-        ipcRenderer.send("loginInPhone")
-        let block_phone = this.#addBlockTest("Телефон", "Отправить", "channel_phone", () => {
-            main.clear()
-            main.add(block_code)
-        });
-        let block_code = this.#addBlockTest("Проверочный код", "Отправить", "channel_code", () => {
-            main.clear()
-            main.add(block_pass)
-        });
-        let block_pass = this.#addBlockTest("Пароль", "Авторизоваться", "channel_pass");
-        main.add(block_phone)
-        return main;
-    }
-    #addBlockTest(inoutTitle, buttonTitle, channel, listener = () => {}) {
-        let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        block.setWidth(Styles.SIZE.WEBKIT_FILL)
-        let input = undefined;
-        if (inoutTitle.includes("Пароль")) {
-            input = new PasswordInput({ title: inoutTitle, width: "225px" })
-        } else {
-            input = new TextInput({ title: inoutTitle, width: "225px" })
-        }
-        let button = new Button({
-            title: buttonTitle,
-            clickEvent: () => {
-                ipcRenderer.send(channel, input.getValue())
-                listener()
-            }
-        })
-        block.add(input, button)
-        return block
-    }
-    #qrCodeBlock() {
-        let main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        main.setWidth(Styles.SIZE.WEBKIT_FILL)
-        let QRCode_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-        QRCode_block.setWidth("-webkit-fill-available")
-        main.add(QRCode_block)
-        //Проверка авторизации
-        ipcRenderer.send("getAuth")
-        ipcRenderer.on("checkAuthorization", (e, auth) => {
-            if (auth) {
-                ipcRenderer.send('getTokenForQRCode', "")
-            } else {
-                let input_pass = new PasswordInput({
-                    title: "Пароль",
-                    width: "225px"
-                })
-                let generate = new Button({
-                    title: "Сгенерировать QR-код",
-                    clickEvent: () => {
-                        ipcRenderer.send('getTokenForQRCode', input_pass.getValue())
-                        ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
-                            QRCode.toDataURL(text).then(src => {
-                                QRCode_block.clear()
-                                QRCode_block.add(new Image({
-                                    base64: src,
-                                    width: "280px",
-                                    height: "280px"
-                                }))
-                                new Notification({
-                                    title: "Авторизация", text: "QR-код изменен",
-                                    style: Notification.STYLE.WARNING,
-                                    showTime: 3000
-                                }).show()
-                            })
-                        })
-                    }
-                })
-                QRCode_block.add(input_pass, generate)
-            }
-        })
-        return main;
     }
     #mainBlock() {
         let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.BASELINE, justify: Styles.JUSTIFY.START });
