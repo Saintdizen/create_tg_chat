@@ -111,6 +111,7 @@ class AuthPhone {
         for (let element of enabled) element.setDisabled(false);
         ipcRenderer.on('sendAuthPhoneError', (e, title, message) => {
             new Notification({title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000}).show();
+            this.#back.setDisabled(false);
             for (let element of disabled) element.setDisabled(false);
             for (let element of enabled) element.setDisabled(true);
         });
