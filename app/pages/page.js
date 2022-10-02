@@ -149,30 +149,28 @@ class CreateChatTG extends Page {
                                 progressBar.setValue(10)
                                 let link = `https://docs.google.com/document/d/${id}/edit`;
                                 progressBar.setProgressText('Создание чата...')
-                                ipcRenderer.on('setProgressValue', (e, value) => {
-                                    progressBar.setValue(value)
-                                })
-                                ipcRenderer.on('setProgressText', (e, text) => {
-                                    progressBar.setProgressText(text)
-                                })
-                                ipcRenderer.on('setProgressLogText', (e, text) => {
-                                    progressBlock.add(new Label(text))
-                                })
+                                ipcRenderer.on('setProgressValue', (e, value) => progressBar.setValue(value))
+                                ipcRenderer.on('setProgressText', (e, text) => progressBar.setProgressText(text))
+                                ipcRenderer.on('setProgressLogText', (e, text) => progressBlock.add(new Label(text)))
                                 ipcRenderer.send('tg_crt_chat', lists, pin_message.getValueAsHTML(), inc_num.getValue(), desc.getValue(), link)
                             }
                         })
                     } catch (e) {
                         progressBlock.add(new Label(e))
+                        new Notification({
+                            title: 'Создание чата', text: e,
+                            style: Notification.STYLE.ERROR, showTime: 3000
+                        }).show()
                     }
                 } else {
                     new Notification({
                         title: 'Создание чата', text: 'Выберите список пользователей',
-                        style: Notification.STYLE.ERROR,
-                        showTime: 3000
+                        style: Notification.STYLE.ERROR, showTime: 3000
                     }).show()
                 }
             }
         })
+        button_c_chat.setDisabled(true);
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
@@ -193,6 +191,7 @@ class CreateChatTG extends Page {
                 }
                 radioGroup.addOptions(radio_groups)
                 radioGroup.addChangeListener(async (e) => {
+                    button_c_chat.setDisabled(true);
                     await googleSheets.read(`${e.target.value}!A1:A`).then(values => {
                         lists = []
                         values.forEach(val => {
@@ -208,11 +207,16 @@ class CreateChatTG extends Page {
                                     report.file_id = val[3]
                                 }
                             })
+                            new Notification({
+                                title: 'Список пользователей', text: "Обновлен",
+                                style: Notification.STYLE.SUCCESS, showTime: 3000
+                            }).show()
+                            button_c_chat.setDisabled(false);
                         })
+                    }).catch((err) => {
                         new Notification({
-                            title: 'Список пользователей', text: "Обновлен",
-                            style: Notification.STYLE.SUCCESS,
-                            showTime: 3000
+                            title: 'Список пользователей', text: err,
+                            style: Notification.STYLE.ERROR, showTime: 3000
                         }).show()
                     })
                 })

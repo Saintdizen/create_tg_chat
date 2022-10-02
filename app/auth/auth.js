@@ -58,8 +58,8 @@ class AuthPhone {
         justify: Styles.JUSTIFY.CENTER
     });
     // Поля ввода
-    #input_phone = new TextInput({title: "Номер телефона", width: "225px"});
-    #input_code = new TextInput({title: "Проверочный код", width: "225px"});
+    #input_phone = new TextInput({title: "Номер телефона", placeholder: "+7XXXXXXXXXX", width: "225px"});
+    #input_code = new TextInput({title: "Проверочный код", placeholder: "XXXXX", width: "225px"});
     #input_password = new PasswordInput({title: "Пароль", width: "225px"});
     // Кнопки
     #code_get = new Button({title: "Запросить код"});

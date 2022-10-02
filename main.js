@@ -12,7 +12,7 @@ const { Main, MenuItem, ipcMain } = require('chuijs');
 const { GoogleSheets } = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 // TelegramClient
-const { TelegramClient, Api } = require("telegram");
+const { TelegramClient, Api, errors} = require("telegram");
 // StringSession
 const {StringSession} = require("telegram/sessions");
 // JSON
@@ -257,20 +257,14 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
 // ФУНКЦИИ
 // Отправка логов
 async function sendLog(type = String(undefined), title = String(undefined), message = String(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('sendLog', type, title, message)
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendLog', type, title, message))
 }
 async function sendAuthPhoneError(title = String(undefined), message = String(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('sendAuthPhoneError', title, message)
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendAuthPhoneError', title, message))
 }
 // Отправить статус авторизации
 async function sendAuthStatus(status = Boolean(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('sendAuthStatus', status)
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendAuthStatus', status))
 }
 
 async function saveSession(client) {
@@ -302,35 +296,25 @@ async function createUserData(tag_tg = String(undefined)) {
     await sleep(1000)
     await googleSheets.read('USERS!A1:C').then(async (users) => {
         users.forEach(user => {
-            if (tag_tg.includes(user[0])) {
-                BrowserWindow.getAllWindows().filter(b => {
-                    b.webContents.send('user_data', user[0], user[1], user[2])
-                })
-            }
+            if (tag_tg.includes(user[0])) BrowserWindow.getAllWindows().filter(b => b.webContents.send('user_data', user[0], user[1], user[2]))
         })
         await sendLog('success', `Настройки пользователя`, `Настройки загружены`)
+    }).catch(async (err) => {
+        await sendLog('error', `Настройки пользователя`, err)
     })
 }
 // Прогресс бар
 async function setProgressValue(value = Number(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('setProgressValue', value)
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('setProgressValue', value))
 }
 async function setProgressText(text = String(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('setProgressText', text)
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('setProgressText', text))
 }
 async function setProgressLogText(text = String(undefined)) {
-    BrowserWindow.getAllWindows().forEach(b => {
-        b.webContents.send('setProgressLogText', text)
-    })
+    BrowserWindow.getAllWindows().forEach(b => b.webContents.send('setProgressLogText', text))
 }
 async function closeDialog() {
-    BrowserWindow.getAllWindows().filter(b => {
-        b.webContents.send('closeDialog')
-    })
+    BrowserWindow.getAllWindows().filter(b => b.webContents.send('closeDialog'))
 }
 async function sendUserData(user) {
     BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendUserData', user))
