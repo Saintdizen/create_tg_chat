@@ -7,8 +7,7 @@ let sessionPath = require('path').join(require('os').homedir(), 'sessions_create
 let sessionFile = `${transliterate(username_new).toLowerCase()}.json`;
 let fullSessionPath = require("path").join(sessionPath, sessionFile);
 
-const {BrowserWindow} = require("electron");
-const {Main, MenuItem, ipcMain, Notification} = require('chuijs');
+const {Main, MenuItem, ipcMain} = require('chuijs');
 // GoogleSheets
 const {GoogleSheets} = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
@@ -39,7 +38,7 @@ let main = new Main({
     width: 900,
     height: 735,
     render: `${__dirname}/app/app.js`,
-    devTools: true,
+    devTools: false,
     menuBarVisible: false,
     icon: `${__dirname}/resources/icons/app/icon.png`,
 });
@@ -76,9 +75,8 @@ ipcMain.on("LOGOUT", async () => {
 })
 
 ipcMain.on("getAuth", async () => {
-    BrowserWindow.getAllWindows().filter(async b => {
-        await b.webContents.send('checkAuthorization', await client.checkAuthorization())
-    })
+    let auth = await client.checkAuthorization();
+    main.getWindow().webContents.send("checkAuthorization", auth)
 })
 // ipcMain
 ipcMain.on('getTokenForQRCode', async (event, password) => {
@@ -91,9 +89,8 @@ ipcMain.on('getTokenForQRCode', async (event, password) => {
                     return true;
                 },
                 qrCode: async (code) => {
-                    BrowserWindow.getAllWindows().filter(async b => {
-                        await b.webContents.send('generatedTokenForQRCode', `tg://login?token=${code.token.toString("base64")}`)
-                    })
+                    let qr = `tg://login?token=${code.token.toString("base64")}`;
+                    main.getWindow().webContents.send("generatedTokenForQRCode", qr)
                 },
                 password: async (hint) => {
                     console.log(hint)
@@ -257,14 +254,14 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
 // ФУНКЦИИ
 // Отправка логов
 async function sendLog(type = String(undefined), title = String(undefined), message = String(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendLog', type, title, message))
+    main.getWindow().webContents.send("sendLog", type, title, message)
 }
 async function sendAuthPhoneError(title = String(undefined), message = String(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendAuthPhoneError', title, message))
+    main.getWindow().webContents.send("sendAuthPhoneError", title, message)
 }
 // Отправить статус авторизации
 async function sendAuthStatus(status = Boolean(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendAuthStatus', status))
+    main.getWindow().webContents.send("sendAuthStatus", status)
 }
 
 async function saveSession(client) {
@@ -291,70 +288,33 @@ async function saveSession(client) {
     });
 }
 
-function getPathFile(name) {
-    let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
-    let fileName = `${name}.json`;
-    return require("path").join(filePath, fileName);
-}
-function createFile(name, data) {
-    let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
-    let fileName = `${name}.json`;
-    let fullSessionPath = require("path").join(filePath, fileName);
-    // if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
-    fs.access(filePath, (error) => {
-        // Создание папки сессии
-        if (error) {
-            fs.mkdir(filePath, { recursive: true }, async (err) => {
-                if (err) {
-                    new Notification({
-                        title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
-                    }).show()
-                }
-            });
-        }
-        // Создание файла сессии
-        fs.writeFile(fullSessionPath, data, async (err) => {
-            if (err) {
-                new Notification({
-                    title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
-                }).show()
-            }
-        })
-    });
-}
-
 // Конфигурация пользователя
 async function createUserData(tag_tg = String(undefined)) {
-    let type_load;
-    let users;
-    if (fs.existsSync(getPathFile("user_names"))) {
-        users = require(getPathFile("user_names"))
-        type_load = "из файла"
-    } else {
-        users = await googleSheets.read('USERS!A1:C').catch(async err => await sendLog('error', `Настройки пользователя`, err))
-        createFile("user_names", JSON.stringify(users))
-        type_load = "из Google API"
-    }
+    let users = await googleSheets.read('USERS!A1:C').catch(async err => await sendLog('error', `Настройки пользователя`, err));
     users.forEach(user => {
-        if (tag_tg.includes(user[0])) BrowserWindow.getAllWindows().filter(b => b.webContents.send('user_data', user[0], user[1], user[2]))
+        if (user[0] === tag_tg) {
+            setTimeout(async () => {
+                main.getWindow().webContents.send("user_data", user[0], user[1], user[2]);
+                await sendLog('success', `Настройки пользователя`, `Настройки загружены`)
+            }, 1000);
+        }
     })
-    await sendLog('success', `Настройки пользователя`, `Настройки загружены ${type_load}`)
 }
 // Прогресс бар
 async function setProgressValue(value = Number(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('setProgressValue', value))
+    main.getWindow().webContents.send("setProgressValue", value)
 }
 async function setProgressText(text = String(undefined)) {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('setProgressText', text))
+    main.getWindow().webContents.send("setProgressText", text)
 }
 async function setProgressLogText(text = String(undefined)) {
-    BrowserWindow.getAllWindows().forEach(b => b.webContents.send('setProgressLogText', text))
+    main.getWindow().webContents.send("setProgressLogText", text)
 }
 async function closeDialog() {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('closeDialog'))
+    main.getWindow().webContents.send("closeDialog")
 }
 async function sendUserData(user) {
-    BrowserWindow.getAllWindows().filter(b => b.webContents.send('sendUserData', user))
+    main.getWindow().webContents.send("sendUserData", user)
 }
 //Формат даты
 function format(date) {

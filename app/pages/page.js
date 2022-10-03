@@ -1,4 +1,3 @@
-'use strict';
 const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, TextEditor} = require('chuijs');
 const {GoogleSheets, GoogleDrive} = require('../google_sheets/google_sheets')
 const {AuthHelpDialog, CreateHelpDialog} = require("../dialogs/dialogs");
@@ -9,7 +8,6 @@ let lists = [];
 let report = { folder_id: String(undefined), file_id: String(undefined) }
 //
 const {AuthMain} = require("../auth/auth");
-const fs = require("fs");
 //
 class CreateChatTG extends Page {
     #help_auth_dialog = new AuthHelpDialog();
@@ -34,17 +32,16 @@ class CreateChatTG extends Page {
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
             if (status) {
-                let main = await this.#mainBlock();
                 this.remove(this.#tabs_block)
-                this.add(main)
-                //this.#help_create_dialog.open()
+                this.add(this.#mainBlock())
+                this.#help_create_dialog.open()
             } else {
                 this.add(this.#tabs_block)
                 this.#help_auth_dialog.open()
             }
         })
     }
-    async #mainBlock() {
+    #mainBlock() {
         let block = new ContentBlock({
             direction: Styles.DIRECTION.COLUMN,
             wrap: Styles.WRAP.WRAP,
@@ -193,21 +190,10 @@ class CreateChatTG extends Page {
         modal.addToBody(progressBlock)
         block.add(modal)
         block_radios.add(spinner)
-
-        let rp_names = undefined;
-        if (fs.existsSync(this.#getPathFile("rp_names"))) {
-            console.log("Читаю файл")
-            rp_names = require(this.#getPathFile("rp_names"))
-        } else {
-            console.log("Читаю таблицу")
-            let backup = await googleSheets.getLists().catch(err => console.log(err));
-            rp_names = backup.data.sheets
-            console.log("Создаю файл")
-            this.#createFile("rp_names", JSON.stringify(rp_names))
-        }
-
+        //
         ipcRenderer.on('user_data', async (e, TAG_TG, ROLE, GROUP) => {
-            for (let list of rp_names) {
+            let rp_names = await googleSheets.getLists().catch(err => console.log(err));
+            for (let list of rp_names.data.sheets) {
                 if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
                     radio_groups.push(list.properties.title);
                 } else {
@@ -224,14 +210,7 @@ class CreateChatTG extends Page {
                     button_c_chat.setDisabled(true);
                     // Чтение таблиц
                     let report_list = await googleSheets_DB.read(`REPORTS!A1:D`);
-                    //this.#createFile("report_list", JSON.stringify(report_list));
-
-
                     let users_list = await googleSheets.read(`${e.target.value}!A1:A`).catch(err => console.log(err));
-                    //this.#createFile(e.target.value.replace(" ", ""), JSON.stringify(users_list))
-
-
-                    //
                     lists = []
                     users_list.forEach(val => {
                         if (val.length !== 0) lists.push(val[0]);
@@ -242,9 +221,6 @@ class CreateChatTG extends Page {
                             report.file_id = val[3]
                         }
                     })
-
-                    //console.log(users_list)
-                    //console.log(report_list)
                     new Notification({
                         title: 'Список пользователей', text: "Обновлен",
                         style: Notification.STYLE.SUCCESS, showTime: 3000
@@ -268,50 +244,13 @@ class CreateChatTG extends Page {
     #enableLogsNotification() {
         ipcRenderer.on('sendLog', (e, type, title, message) => {
             if (type === "success") {
-                new Notification({
-                    title: title, text: message, style: Notification.STYLE.SUCCESS, showTime: 3000
-                }).show()
+                new Notification({ title: title, text: message, style: Notification.STYLE.SUCCESS, showTime: 3000 }).show()
             } else if (type === 'error') {
-                new Notification({
-                    title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000
-                }).show()
+                new Notification({ title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000 }).show()
             } else if (type === undefined) {
-                new Notification({
-                    title: title, text: message, showTime: 3000
-                }).show()
+                new Notification({ title: title, text: message, showTime: 3000 }).show()
             }
         })
-    }
-    #getPathFile(name) {
-        let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
-        let fileName = `${name}.json`;
-        return require("path").join(filePath, fileName);
-    }
-    #createFile(name, data) {
-        let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
-        let fileName = `${name}.json`;
-        let fullSessionPath = require("path").join(filePath, fileName);
-        // if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
-        fs.access(filePath, (error) => {
-            // Создание папки сессии
-            if (error) {
-                fs.mkdir(filePath, { recursive: true }, async (err) => {
-                    if (err) {
-                        new Notification({
-                            title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
-                        }).show()
-                    }
-                });
-            }
-            // Создание файла сессии
-            fs.writeFile(fullSessionPath, data, async (err) => {
-                if (err) {
-                    new Notification({
-                        title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
-                    }).show()
-                }
-            })
-        });
     }
     static #format(date) {
         let day = date.getDate()
