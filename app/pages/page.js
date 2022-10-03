@@ -9,6 +9,7 @@ let lists = [];
 let report = { folder_id: String(undefined), file_id: String(undefined) }
 //
 const {AuthMain} = require("../auth/auth");
+const fs = require("fs");
 //
 class CreateChatTG extends Page {
     #help_auth_dialog = new AuthHelpDialog();
@@ -31,25 +32,41 @@ class CreateChatTG extends Page {
         this.#tabs_block.add(new AuthMain(this.#tabs_block));
         //
         ipcRenderer.send("getUser")
-        ipcRenderer.on('sendAuthStatus', (e, status) => {
+        ipcRenderer.on('sendAuthStatus', async (e, status) => {
             if (status) {
+                let main = await this.#mainBlock();
                 this.remove(this.#tabs_block)
-                this.add(this.#mainBlock())
-                this.#help_create_dialog.open()
+                this.add(main)
+                //this.#help_create_dialog.open()
             } else {
                 this.add(this.#tabs_block)
                 this.#help_auth_dialog.open()
             }
         })
     }
-    #mainBlock() {
-        let block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.BASELINE, justify: Styles.JUSTIFY.START });
+    async #mainBlock() {
+        let block = new ContentBlock({
+            direction: Styles.DIRECTION.COLUMN,
+            wrap: Styles.WRAP.WRAP,
+            align: Styles.ALIGN.BASELINE,
+            justify: Styles.JUSTIFY.START
+        });
         block.setWidth("-webkit-fill-available")
         //
-        let block_radios = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
+        let block_radios = new ContentBlock({
+            direction: Styles.DIRECTION.ROW,
+            wrap: Styles.WRAP.WRAP,
+            align: Styles.ALIGN.CENTER,
+            justify: Styles.JUSTIFY.CENTER
+        });
         block_radios.setWidth(Styles.SIZE.WEBKIT_FILL);
         //
-        let progressBlock = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
+        let progressBlock = new ContentBlock({
+            direction: Styles.DIRECTION.COLUMN,
+            wrap: Styles.WRAP.WRAP,
+            align: Styles.ALIGN.CENTER,
+            justify: Styles.JUSTIFY.CENTER
+        });
         progressBlock.setWidth("-webkit-fill-available")
         progressBlock.disableMarginChild();
         //
@@ -58,7 +75,7 @@ class CreateChatTG extends Page {
             height: "max-content",
         })
         //
-        let progressBar = new ProgressBar({ max: 100 });
+        let progressBar = new ProgressBar({max: 100});
         progressBar.setWidth("-webkit-fill-available")
         progressBar.setValue(0)
         //
@@ -176,53 +193,72 @@ class CreateChatTG extends Page {
         modal.addToBody(progressBlock)
         block.add(modal)
         block_radios.add(spinner)
-        googleSheets.getLists().then(async values => {
-            ipcRenderer.on('user_data', (e, TAG_TG, ROLE, GROUP) => {
-                for (let list of values.data.sheets) {
-                    if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
-                        radio_groups.push(list.properties.title);
-                    } else {
-                        if (list.properties.title.includes(GROUP)) {
-                            radio_groups.push(list.properties.title)
-                        } else if (GROUP.includes("*")) {
-                            radio_groups.push(list.properties.title)
-                        }
+
+        let rp_names = undefined;
+        if (fs.existsSync(this.#getPathFile("rp_names"))) {
+            console.log("Читаю файл")
+            rp_names = require(this.#getPathFile("rp_names"))
+        } else {
+            console.log("Читаю таблицу")
+            let backup = await googleSheets.getLists().catch(err => console.log(err));
+            rp_names = backup.data.sheets
+            console.log("Создаю файл")
+            this.#createFile("rp_names", JSON.stringify(rp_names))
+        }
+
+        ipcRenderer.on('user_data', async (e, TAG_TG, ROLE, GROUP) => {
+            for (let list of rp_names) {
+                if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
+                    radio_groups.push(list.properties.title);
+                } else {
+                    if (list.properties.title.includes(GROUP)) {
+                        radio_groups.push(list.properties.title)
+                    } else if (GROUP.includes("*")) {
+                        radio_groups.push(list.properties.title)
                     }
                 }
-                radioGroup.addOptions(radio_groups)
-                radioGroup.addChangeListener(async (e) => {
+            }
+            radioGroup.addOptions(radio_groups)
+            radioGroup.addChangeListener(async (e) => {
+                try {
                     button_c_chat.setDisabled(true);
-                    await googleSheets.read(`${e.target.value}!A1:A`).then(values => {
-                        lists = []
-                        values.forEach(val => {
-                            if (val.length !== 0) {
-                                lists.push(val[0])
-                            }
-                        })
-                    }).then(async () => {
-                        await googleSheets_DB.read(`REPORTS!A1:D`).then(res => {
-                            res.filter(val => {
-                                if (e.target.value.includes(val[1])) {
-                                    report.folder_id = val[2]
-                                    report.file_id = val[3]
-                                }
-                            })
-                            new Notification({
-                                title: 'Список пользователей', text: "Обновлен",
-                                style: Notification.STYLE.SUCCESS, showTime: 3000
-                            }).show()
-                            button_c_chat.setDisabled(false);
-                        })
-                    }).catch((err) => {
-                        new Notification({
-                            title: 'Список пользователей', text: err,
-                            style: Notification.STYLE.ERROR, showTime: 3000
-                        }).show()
+                    // Чтение таблиц
+                    let report_list = await googleSheets_DB.read(`REPORTS!A1:D`);
+                    //this.#createFile("report_list", JSON.stringify(report_list));
+
+
+                    let users_list = await googleSheets.read(`${e.target.value}!A1:A`).catch(err => console.log(err));
+                    //this.#createFile(e.target.value.replace(" ", ""), JSON.stringify(users_list))
+
+
+                    //
+                    lists = []
+                    users_list.forEach(val => {
+                        if (val.length !== 0) lists.push(val[0]);
                     })
-                })
-                block_radios.clear()
-                block_radios.add(radioGroup)
+                    report_list.filter(val => {
+                        if (e.target.value.includes(val[1])) {
+                            report.folder_id = val[2]
+                            report.file_id = val[3]
+                        }
+                    })
+
+                    //console.log(users_list)
+                    //console.log(report_list)
+                    new Notification({
+                        title: 'Список пользователей', text: "Обновлен",
+                        style: Notification.STYLE.SUCCESS, showTime: 3000
+                    }).show()
+                    button_c_chat.setDisabled(false);
+                } catch (e) {
+                    new Notification({
+                        title: 'Список пользователей', text: e,
+                        style: Notification.STYLE.ERROR, showTime: 3000
+                    }).show()
+                }
             })
+            block_radios.clear()
+            block_radios.add(radioGroup)
         })
         modal.addToFooter(button_close)
         //Добавление компонентов на форму
@@ -245,6 +281,37 @@ class CreateChatTG extends Page {
                 }).show()
             }
         })
+    }
+    #getPathFile(name) {
+        let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
+        let fileName = `${name}.json`;
+        return require("path").join(filePath, fileName);
+    }
+    #createFile(name, data) {
+        let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
+        let fileName = `${name}.json`;
+        let fullSessionPath = require("path").join(filePath, fileName);
+        // if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
+        fs.access(filePath, (error) => {
+            // Создание папки сессии
+            if (error) {
+                fs.mkdir(filePath, { recursive: true }, async (err) => {
+                    if (err) {
+                        new Notification({
+                            title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
+                        }).show()
+                    }
+                });
+            }
+            // Создание файла сессии
+            fs.writeFile(fullSessionPath, data, async (err) => {
+                if (err) {
+                    new Notification({
+                        title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
+                    }).show()
+                }
+            })
+        });
     }
     static #format(date) {
         let day = date.getDate()

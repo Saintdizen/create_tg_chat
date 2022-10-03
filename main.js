@@ -1,4 +1,5 @@
 const os = require("os");
+const fs = require("fs");
 let username = os.userInfo().username
 const { transliterate } = require('transliteration');
 let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_');
@@ -6,18 +7,17 @@ let sessionPath = require('path').join(require('os').homedir(), 'sessions_create
 let sessionFile = `${transliterate(username_new).toLowerCase()}.json`;
 let fullSessionPath = require("path").join(sessionPath, sessionFile);
 
-const { BrowserWindow } = require("electron");
-const { Main, MenuItem, ipcMain } = require('chuijs');
+const {BrowserWindow} = require("electron");
+const {Main, MenuItem, ipcMain, Notification} = require('chuijs');
 // GoogleSheets
-const { GoogleSheets } = require('./app/google_sheets/google_sheets')
+const {GoogleSheets} = require('./app/google_sheets/google_sheets')
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 // TelegramClient
-const { TelegramClient, Api, errors} = require("telegram");
+const {TelegramClient, Api} = require("telegram");
 // StringSession
 const {StringSession} = require("telegram/sessions");
 // JSON
 const json = require('./package.json');
-const fs = require("fs");
 
 let stringSession = new StringSession("");
 if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
@@ -39,7 +39,7 @@ let main = new Main({
     width: 900,
     height: 735,
     render: `${__dirname}/app/app.js`,
-    devTools: false,
+    devTools: true,
     menuBarVisible: false,
     icon: `${__dirname}/resources/icons/app/icon.png`,
 });
@@ -291,17 +291,54 @@ async function saveSession(client) {
     });
 }
 
+function getPathFile(name) {
+    let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
+    let fileName = `${name}.json`;
+    return require("path").join(filePath, fileName);
+}
+function createFile(name, data) {
+    let filePath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
+    let fileName = `${name}.json`;
+    let fullSessionPath = require("path").join(filePath, fileName);
+    // if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
+    fs.access(filePath, (error) => {
+        // Создание папки сессии
+        if (error) {
+            fs.mkdir(filePath, { recursive: true }, async (err) => {
+                if (err) {
+                    new Notification({
+                        title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
+                    }).show()
+                }
+            });
+        }
+        // Создание файла сессии
+        fs.writeFile(fullSessionPath, data, async (err) => {
+            if (err) {
+                new Notification({
+                    title: title, text: "message", style: Notification.STYLE.ERROR, showTime: 3000
+                }).show()
+            }
+        })
+    });
+}
+
 // Конфигурация пользователя
 async function createUserData(tag_tg = String(undefined)) {
-    await sleep(1000)
-    await googleSheets.read('USERS!A1:C').then(async (users) => {
-        users.forEach(user => {
-            if (tag_tg.includes(user[0])) BrowserWindow.getAllWindows().filter(b => b.webContents.send('user_data', user[0], user[1], user[2]))
-        })
-        await sendLog('success', `Настройки пользователя`, `Настройки загружены`)
-    }).catch(async (err) => {
-        await sendLog('error', `Настройки пользователя`, err)
+    let type_load;
+    let users;
+    if (fs.existsSync(getPathFile("user_names"))) {
+        users = require(getPathFile("user_names"))
+        type_load = "из файла"
+    } else {
+        users = await googleSheets.read('USERS!A1:C').catch(async err => await sendLog('error', `Настройки пользователя`, err))
+        createFile("user_names", JSON.stringify(users))
+        type_load = "из Google API"
+    }
+    users.forEach(user => {
+        if (tag_tg.includes(user[0])) BrowserWindow.getAllWindows().filter(b => b.webContents.send('user_data', user[0], user[1], user[2]))
     })
+    await sendLog('success', `Настройки пользователя`, `Настройки загружены ${type_load}`)
 }
 // Прогресс бар
 async function setProgressValue(value = Number(undefined)) {
