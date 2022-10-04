@@ -125,32 +125,35 @@ class UpdateApp {
         progress.setProgressText(`Загрузка: ${options.name}`)
         progress.setProgressCountText(`0%`)
         //
-        let button = new Button('Начать загрузку', async () => {
-            this.#control.remove(button);
-            progress.setProgressText(`Загрузка ${options.name}`)
-            const Downloader = require("nodejs-file-downloader");
-            const downloader = new Downloader({
-                url: options.link,
-                fileName: options.name,
-                directory: updates_path,
-                onProgress: (percentage, chunk, remainingSize) => {
-                    //let test = `(${remainingSize.toString()})`;
-                    progress.setProgressCountText(`${percentage}%`)
-                    progress.setValue(Number(percentage))
-                },
-            });
-            try {
-                await downloader.download();
-                await shell.openExternal(`file://${updates_path}`, {
-                    workingDirectory: updates_path
-                })
-                let button = new Button({
-                    title: "Закрыть приложение",
-                    clickEvent: () => ipcRenderer.send("closeForUpdate")
-                })
-                this.#control.add(button)
-            } catch (error) {
-                console.log(error);
+        let button = new Button({
+            title: 'Начать загрузку',
+            clickEvent: async () => {
+                this.#control.remove(button);
+                progress.setProgressText(`Загрузка ${options.name}`)
+                const Downloader = require("nodejs-file-downloader");
+                const downloader = new Downloader({
+                    url: options.link,
+                    fileName: options.name,
+                    directory: updates_path,
+                    onProgress: (percentage/*, chunk, remainingSize*/) => {
+                        //let test = `(${remainingSize.toString()})`;
+                        progress.setProgressCountText(`${percentage}%`)
+                        progress.setValue(Number(percentage))
+                    },
+                });
+                try {
+                    await downloader.download();
+                    await shell.openExternal(`file://${updates_path}`, {
+                        workingDirectory: updates_path
+                    })
+                    let button = new Button({
+                        title: "Закрыть приложение",
+                        clickEvent: () => ipcRenderer.send("closeForUpdate")
+                    })
+                    this.#control.add(button)
+                } catch (error) {
+                    console.log(error);
+                }
             }
         })
         //
