@@ -76,7 +76,7 @@ class CreateChatTG extends Page {
         progressBar.setWidth("-webkit-fill-available")
         progressBar.setValue(0)
         //
-        let spinner = new Spinner(SpinnerSize.STANDART, '8px auto');
+        let spinner = new Spinner(Spinner.SIZE.SMALL, '8px auto');
         //
         let radioGroup = new RadioGroup({
             styles: {
@@ -191,6 +191,14 @@ class CreateChatTG extends Page {
         block.add(modal)
         block_radios.add(spinner)
         //
+
+        ipcRenderer.on("sendNotification", (e, text, body) => {
+            new Notification({
+                title: text, text: body,
+                style: Notification.STYLE.SUCCESS, showTime: 3000
+            }).show(true)
+        })
+
         ipcRenderer.on('user_data', async (e, TAG_TG, ROLE, GROUP) => {
             let rp_names = await googleSheets.getLists().catch(err => console.log(err));
             for (let list of rp_names.data.sheets) {

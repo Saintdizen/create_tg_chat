@@ -240,11 +240,10 @@ ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_li
                 }
             }
         }
-        const { Notification } = require('electron')
         await setProgressText('Чат успешно создан!')
         await setProgressValue(100)
         await closeDialog()
-        new Notification({title: appName, body: 'Чат успешно создан!'}).show()
+        await sendNotification(appName, 'Чат успешно создан!');
     } catch (e) {
         await closeDialog()
         await setProgressLogText(e.message)
@@ -315,6 +314,9 @@ async function closeDialog() {
 }
 async function sendUserData(user) {
     main.getWindow().webContents.send("sendUserData", user)
+}
+async function sendNotification(text, body) {
+    main.getWindow().webContents.send("sendNotification", text, body)
 }
 //Формат даты
 function format(date) {

@@ -33,13 +33,13 @@ class App extends AppLayout {
     }
     #check_new_version_app_notification() {
         request('https://updates_create_tg_chat:PZG3mrSZ0HDjqXm5yu8eHfavWBdCZh@updates.chuijs.ru/updates/create_tg_chat/', function (error, response, body) {
-            if (error !== null) new Notification({ title: `Ошибка запроса`, text: `${error}`, showTime: 5000 }).show();
+            if (error !== null) new Notification({ title: `Ошибка запроса`, text: `${error}`, showTime: 3000 }).show();
             if (response.statusCode === 200) {
                 let json = JSON.parse(body)
                 if (package_json.version < json.version) {
                     for (let pack of json.packages) {
                         if (pack.platform.includes(process.platform)) {
-                            new Notification({ title: `Доступна новая версия!`, markdownText: `Перазапустите приложение для появления пунка меню с обновлением`, style: Notification.STYLE.WARNING, showTime: 5000 }).show();
+                            new Notification({ title: `Доступна новая версия!`, markdownText: `Перазапустите приложение для появления пунка меню с обновлением`, style: Notification.STYLE.WARNING, showTime: 3000 }).show();
                         }
                     }
                 }
@@ -48,7 +48,7 @@ class App extends AppLayout {
     }
     #check_new_version_app(app) {
         request('https://updates_create_tg_chat:PZG3mrSZ0HDjqXm5yu8eHfavWBdCZh@updates.chuijs.ru/updates/create_tg_chat/', function (error, response, body) {
-            if (error !== null) new Notification({ title: `Ошибка запроса`, text: `${error}`, showTime: 5000 }).show();
+            if (error !== null) new Notification({ title: `Ошибка запроса`, text: `${error}`, showTime: 3000 }).show();
             if (response.statusCode === 200) {
                 let json = JSON.parse(body)
                 if (package_json.version < json.version) {
@@ -83,7 +83,7 @@ class App extends AppLayout {
                                     }),
                                 ]
                             })
-                            new Notification({ title: `Доступна новая версия!`, markdownText: `Обновите приложение до версии **${json.version}**`, style: Notification.STYLE.WARNING, showTime: 5000 }).show();
+                            new Notification({ title: `Доступна новая версия!`, markdownText: `Обновите приложение до версии **${json.version}**`, style: Notification.STYLE.WARNING, showTime: 3000 }).show();
                         }
                     }
                 }

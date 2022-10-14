@@ -1,7 +1,7 @@
 const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, ProgressBar, shell, ipcRenderer, Icons} = require("chuijs");
 
 class AuthHelpDialog {
-    #dialog = new Dialog({ width: "85%", height: "85%", closeOutSideClick: false })
+    #dialog = new Dialog({ width: "85%", height: "80%", closeOutSideClick: false })
     #header_dialog = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.SPACE_BEETWEEN });
     #content = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER });
     constructor() {
@@ -61,7 +61,7 @@ class AuthHelpDialog {
 exports.AuthHelpDialog = AuthHelpDialog
 
 class CreateHelpDialog {
-    #dialog = new Dialog({ width: "85%", height: "85%", closeOutSideClick: false })
+    #dialog = new Dialog({ width: "85%", height: "80%", closeOutSideClick: false })
     #header_dialog = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.SPACE_BEETWEEN });
     #content = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER });
     constructor() {
