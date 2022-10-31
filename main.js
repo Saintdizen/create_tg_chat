@@ -29,7 +29,7 @@ const client = new TelegramClient(stringSession, 5030579, "c414e180e62df5a8d8078
     systemLangCode: 'ru'
 });
 
-const appName = 'Создание чата в Telegram'
+const appName = 'Create Chat Telegram'
 
 client.session.setDC(2, "149.154.167.41", 443);
 // Main
