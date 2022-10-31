@@ -18,6 +18,7 @@ let sessionPath = path.join(os.homedir(), 'sessions_create_tg_chat');
 let sessionFile = `${transliterate(username_new).toLowerCase()}.json`;
 let fullSessionPath = path.join(sessionPath, sessionFile);
 let stringSession = new StringSession("");
+createSessionDir()
 if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
 //
 
@@ -277,10 +278,13 @@ async function sendAuthStatus(status = Boolean(undefined)) {
     main.getWindow().webContents.send("sendAuthStatus", status)
 }
 
+function createSessionDir() {
+    if (!fs.existsSync(sessionPath)) fs.mkdirSync(sessionPath, { recursive: true });
+}
+
 async function saveSession(client) {
     try {
         let sessionString = await client.session.save();
-        if (!fs.existsSync(sessionPath)) fs.mkdirSync(sessionPath);
         let json = `{"session": "${sessionString}"}`
         fs.writeFileSync(fullSessionPath, json);
         await sendLog('success', `Сохранение сессии`, `Сессия успешно сохранена!`)
