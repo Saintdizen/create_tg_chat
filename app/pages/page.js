@@ -192,7 +192,7 @@ class CreateChatTG extends Page {
         })
         button_c_chat.setDisabled(true);
         //
-        this.#menuBar.addMenuItems(button_c_chat.set())
+        //this.#menuBar.addMenuItems(button_c_chat.set())
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
