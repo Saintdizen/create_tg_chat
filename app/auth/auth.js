@@ -1,5 +1,6 @@
 const {ContentBlock, Styles, ipcRenderer, PasswordInput, TextInput, Button, Image, Notification, Icons, Label} = require("chuijs");
 const QRCode = require("qrcode");
+const Console = require("console");
 
 class AuthMain {
     #block_main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
@@ -153,9 +154,10 @@ class AuthQRCode {
             ipcRenderer.send('getTokenForQRCode', this.#input_pass.getValue())
             ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
                 QRCode.toDataURL(text).then(src => {
+                    console.log(src)
                     this.#QRCode_block.clear()
                     this.#QRCode_block.add(new Image({
-                        base64: src,
+                        base64: src.replace("data:image/png;base64,", ""),
                         width: "280px",
                         height: "280px"
                     }))
