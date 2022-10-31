@@ -49,9 +49,24 @@ main.start({
         new MenuItem().button("Консоль", () => { main.toggleDevTools() }),
         new MenuItem().separator(),
         new MenuItem().quit('Выход')
-    ],
-    autoUpdateApp: true
+    ]
 })
+
+setTimeout(async () => {
+    const adapter = await main.getAutoUpdateAdapter();
+    let updates = await adapter.checkUpdates();
+    if (updates !== null) {
+        console.log(updates)
+        adapter.addUpdateAvailableEvent(() => {
+            console.log("addUpdateAvailableEvent")
+        })
+        adapter.addUpdateDownloadedEvent(() => {
+            console.log("addUpdateDownloadedEvent")
+        })
+    } else {
+        console.log("Обновлений нету")
+    }
+}, 5000)
 
 ipcMain.on("closeForUpdate", () => {
     main.stop();
