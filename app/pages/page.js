@@ -192,9 +192,7 @@ class CreateChatTG extends Page {
         })
         button_c_chat.setDisabled(true);
         //
-        let but_list_crt_chat = new Button({title: "Список созданных чатов"})
-        but_list_crt_chat.setDisabled(true)
-        this.#menuBar.addMenuItems(button_c_chat.set(), but_list_crt_chat.set())
+        this.#menuBar.addMenuItems(button_c_chat.set())
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
