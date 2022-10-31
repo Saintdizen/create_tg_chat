@@ -56,14 +56,17 @@ setTimeout(async () => {
     const adapter = await main.getAutoUpdateAdapter();
     let updates = await adapter.checkUpdates();
     if (updates !== null) {
-        await sendNotificationUpdate("Проверка обновлений", `Доступна новая версия ${updates.versionInfo.version}`);
+        let ver = updates.versionInfo.version;
+        if (ver > json.version) {
+            await sendNotificationUpdate("Проверка обновлений", `Доступна новая версия ${updates.versionInfo.version}`);
+        }
         adapter.addUpdateDownloadedEvent(async () => {
             await sendNotificationUpdate("Проверка обновлений", "Обновление загружено и готово к установке");
         })
     } else {
         await sendNotificationUpdate("Проверка обновлений", "Обновлений не найдено");
     }
-}, 5000)
+}, 5000);
 
 ipcMain.on("getUser", async () => {
     await client.connect();
