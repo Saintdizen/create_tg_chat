@@ -24,10 +24,11 @@
     "asar": false,
     "publish": {
       "provider": "github",
-      "owner": "Saintdizen",
+      "owner": "saintdizen",
       "private": true,
       "repo": "create_tg_chat",
-      "releaseType": "release"
+      "releaseType": "release",
+      "token": "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"
     },
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
     "electronDownload": {
