@@ -1,4 +1,6 @@
-const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, TextEditor} = require('chuijs');
+const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, TextEditor,
+    MenuBar
+} = require('chuijs');
 const {GoogleSheets, GoogleDrive} = require('../google_sheets/google_sheets')
 const {AuthHelpDialog, CreateHelpDialog} = require("../dialogs/dialogs");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
@@ -13,6 +15,7 @@ class CreateChatTG extends Page {
     #help_auth_dialog = new AuthHelpDialog();
     #help_create_dialog = new CreateHelpDialog();
     #tabs_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
+    #menuBar = new MenuBar({test: true});
     constructor() {
         super();
         // Настройки страницы
@@ -28,6 +31,9 @@ class CreateChatTG extends Page {
         this.#tabs_block.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#tabs_block.setHeight(Styles.SIZE.WEBKIT_FILL)
         this.#tabs_block.add(new AuthMain(this.#tabs_block));
+        //
+        this.#menuBar = new MenuBar({test: true});
+        this.setMenuBar(this.#menuBar)
         //
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
@@ -186,6 +192,10 @@ class CreateChatTG extends Page {
         })
         button_c_chat.setDisabled(true);
         //
+        let but_list_crt_chat = new Button({title: "Список созданных чатов"})
+        but_list_crt_chat.setDisabled(true)
+        this.#menuBar.addMenuItems(button_c_chat.set(), but_list_crt_chat.set())
+        //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
         block.add(modal)
@@ -203,12 +213,12 @@ class CreateChatTG extends Page {
             let rp_names = await googleSheets.getLists().catch(err => console.log(err));
             for (let list of rp_names.data.sheets) {
                 if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
-                    radio_groups.push(list.properties.title);
+                    radio_groups.push({name: list.properties.title, value: list.properties.title});
                 } else {
                     if (list.properties.title.includes(GROUP)) {
-                        radio_groups.push(list.properties.title)
+                        radio_groups.push({name: list.properties.title, value: list.properties.title})
                     } else if (GROUP.includes("*")) {
-                        radio_groups.push(list.properties.title)
+                        radio_groups.push({name: list.properties.title, value: list.properties.title})
                     }
                 }
             }
@@ -246,7 +256,7 @@ class CreateChatTG extends Page {
         })
         modal.addToFooter(button_close)
         //Добавление компонентов на форму
-        block.add(block_radios, inc_num, desc, pin_message, button_c_chat)
+        block.add(block_radios, inc_num, desc, pin_message) //, button_c_chat)
         return block;
     }
     #enableLogsNotification() {

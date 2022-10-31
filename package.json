@@ -97,12 +97,12 @@
     "electron-builder": "~23.3.3"
   },
   "dependencies": {
-    "chuijs": "~0.9.0",
-    "googleapis": "~108.0.0",
+    "chuijs": "~1.0.6",
+    "googleapis": "~109.0.0",
     "nodejs-file-downloader": "~4.10.2",
     "qrcode": "~1.5.1",
     "request": "~2.88.2",
-    "telegram": "~2.12.8",
+    "telegram": "~2.13.6",
     "transliteration": "~2.3.5"
   }
 }

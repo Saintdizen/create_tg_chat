@@ -36,7 +36,7 @@ client.session.setDC(2, "149.154.167.41", 443);
 let main = new Main({
     name: appName,
     width: 900,
-    height: 735,
+    height: 725,
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,
@@ -45,6 +45,8 @@ let main = new Main({
 main.start({
     tray: [
         new MenuItem().button('Показать \\ Скрыть', () => { main.hideAndShow() }),
+        new MenuItem().separator(),
+        new MenuItem().button("Консоль", () => { main.toggleDevTools() }),
         new MenuItem().separator(),
         new MenuItem().quit('Выход')
     ]
