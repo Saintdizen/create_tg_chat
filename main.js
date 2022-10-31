@@ -56,21 +56,14 @@ setTimeout(async () => {
     const adapter = await main.getAutoUpdateAdapter();
     let updates = await adapter.checkUpdates();
     if (updates !== null) {
-        console.log(updates)
-        adapter.addUpdateAvailableEvent(() => {
-            console.log("addUpdateAvailableEvent")
-        })
-        adapter.addUpdateDownloadedEvent(() => {
-            console.log("addUpdateDownloadedEvent")
+        await sendNotificationUpdate("Проверка обновлений", `Доступна новая версия ${updates.versionInfo.version}`);
+        adapter.addUpdateDownloadedEvent(async () => {
+            await sendNotificationUpdate("Проверка обновлений", "Обновление загружено и готово к установке");
         })
     } else {
-        console.log("Обновлений нету")
+        await sendNotificationUpdate("Проверка обновлений", "Обновлений не найдено");
     }
 }, 5000)
-
-ipcMain.on("closeForUpdate", () => {
-    main.stop();
-})
 
 ipcMain.on("getUser", async () => {
     await client.connect();
@@ -82,7 +75,6 @@ ipcMain.on("getUser", async () => {
         await createUserData(`@${me.username}`)
     } catch (e) {
         await sendAuthStatus(false);
-        //await sendLog('error', `Авторизация`, e.message)
     }
 })
 
@@ -335,6 +327,9 @@ async function sendUserData(user) {
 }
 async function sendNotification(text, body) {
     main.getWindow().webContents.send("sendNotification", text, body)
+}
+async function sendNotificationUpdate(text, body) {
+    main.getWindow().webContents.send("sendNotificationUpdate", text, body)
 }
 //Формат даты
 function format(date) {

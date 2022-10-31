@@ -1,4 +1,4 @@
-const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, ProgressBar, shell, ipcRenderer, Icons} = require("chuijs");
+const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, Icons} = require("chuijs");
 
 class AuthHelpDialog {
     #dialog = new Dialog({ width: "85%", height: "80%", closeOutSideClick: false })
@@ -98,72 +98,3 @@ class CreateHelpDialog {
     open() { this.#dialog.open() }
 }
 exports.CreateHelpDialog = CreateHelpDialog
-
-class UpdateApp {
-    #content = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER });
-    #desc = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-    #control = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-    constructor(options = {
-        title: String(undefined),
-        name: String(undefined),
-        link: String(undefined),
-        version: String(undefined),
-        platform: String(undefined)
-    }) {
-        //
-        let updates_path = require('path').join(require('os').homedir(), "updates_create_tg_chat");
-        //
-        this.#content.setWidth(Styles.SIZE.WEBKIT_FILL);
-        this.#content.setHeight(Styles.SIZE.MAX_CONTENT);
-        this.#desc.setWidth(Styles.SIZE.WEBKIT_FILL);
-        this.#control.setWidth(Styles.SIZE.WEBKIT_FILL);
-        //
-        let progress = new ProgressBar({
-            max: 100
-        });
-        progress.setWidth(Styles.SIZE.WEBKIT_FILL);
-        progress.setProgressText(`Загрузка: ${options.name}`)
-        progress.setProgressCountText(`0%`)
-        //
-        let button = new Button({
-            title: 'Начать загрузку',
-            clickEvent: async () => {
-                this.#control.remove(button);
-                progress.setProgressText(`Загрузка ${options.name}`)
-                const Downloader = require("nodejs-file-downloader");
-                const downloader = new Downloader({
-                    url: options.link,
-                    fileName: options.name,
-                    directory: updates_path,
-                    onProgress: (percentage/*, chunk, remainingSize*/) => {
-                        //let test = `(${remainingSize.toString()})`;
-                        progress.setProgressCountText(`${percentage}%`)
-                        progress.setValue(Number(percentage))
-                    },
-                });
-                try {
-                    await downloader.download();
-                    await shell.openExternal(`file://${updates_path}`, {
-                        workingDirectory: updates_path
-                    })
-                    let button = new Button({
-                        title: "Закрыть приложение",
-                        clickEvent: () => ipcRenderer.send("closeForUpdate")
-                    })
-                    this.#control.add(button)
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-        })
-        //
-        this.#desc.add(
-            new Label({ text: `Версия: ${options.version}_${options.platform}` }),
-            new Label({ text: `Директория: ${require('path').join(updates_path)}`, wordBreak: "break-all" })
-        )
-        this.#control.add(progress, button);
-        this.#content.add(this.#desc, this.#control);
-        return this.#content;
-    }
-}
-exports.UpdateApp = UpdateApp
