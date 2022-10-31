@@ -24,7 +24,7 @@
     "publish": {
       "provider": "github",
       "owner": "Saintdizen",
-      "private": false,
+      "private": true,
       "repo": "create_tg_chat",
       "releaseType": "release"
     },
@@ -32,11 +32,11 @@
     "electronDownload": {
       "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
     },
-    "appId": "com.yandex.services",
+    "appId": "com.monitoring.createTelegramChat",
     "linux": {
       "category": "Monitoring",
       "target": [
-        "deb"
+        "AppImage"
       ]
     },
     "win": {
@@ -98,6 +98,7 @@
   },
   "dependencies": {
     "chuijs": "~1.0.6",
+    "electron-updater": "^5.3.0",
     "googleapis": "~109.0.0",
     "nodejs-file-downloader": "~4.10.2",
     "qrcode": "~1.5.1",

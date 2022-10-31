@@ -1,6 +1,5 @@
 const {ContentBlock, Styles, ipcRenderer, PasswordInput, TextInput, Button, Image, Notification, Icons, Label} = require("chuijs");
 const QRCode = require("qrcode");
-const Console = require("console");
 
 class AuthMain {
     #block_main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
