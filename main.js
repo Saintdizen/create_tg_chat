@@ -1,12 +1,7 @@
 const os = require("os");
 const fs = require("fs");
-let username = os.userInfo().username
+const path = require('path');
 const { transliterate } = require('transliteration');
-let username_new = username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_');
-let sessionPath = require('path').join(require('os').homedir(), 'sessions_create_tg_chat');
-let sessionFile = `${transliterate(username_new).toLowerCase()}.json`;
-let fullSessionPath = require("path").join(sessionPath, sessionFile);
-
 const {Main, MenuItem, ipcMain} = require('chuijs');
 // GoogleSheets
 const {GoogleSheets} = require('./app/google_sheets/google_sheets')
@@ -17,9 +12,14 @@ const {TelegramClient, Api} = require("telegram");
 const {StringSession} = require("telegram/sessions");
 // JSON
 const json = require('./package.json');
-
+//
+let username_new = os.userInfo().username.replaceAll(new RegExp("[^a-zA-Zа-яА-Я\\s0-9]", 'g'), '').trim().replaceAll(" ", '_');
+let sessionPath = path.join(os.homedir(), 'sessions_create_tg_chat');
+let sessionFile = `${transliterate(username_new).toLowerCase()}.json`;
+let fullSessionPath = path.join(sessionPath, sessionFile);
 let stringSession = new StringSession("");
 if (fs.existsSync(fullSessionPath)) stringSession = new StringSession(require(fullSessionPath).session);
+//
 
 const client = new TelegramClient(stringSession, 5030579, "c414e180e62df5a8d8078b8e263be014", {
     appVersion: json.version,
