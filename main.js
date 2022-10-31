@@ -278,27 +278,15 @@ async function sendAuthStatus(status = Boolean(undefined)) {
 }
 
 async function saveSession(client) {
-    let sessionString = await client.session.save();
-    fs.access(sessionPath, (error) => {
-        // Создание папки сессии
-        if (error) {
-            fs.mkdir(sessionPath, { recursive: true }, async (err) => {
-                if (err) await sendLog('error', `Сохранение сессии`, `Ошибка: ${err}`);
-            });
-        }
-        // Создание файла сессии
-        let json = `{ 
-    "session": "${sessionString}"
-}`
-        //
-        fs.writeFile(fullSessionPath, json, async (err) => {
-            if (err) {
-                await sendLog('error', `Сохранение сессии`, `Ошибка: ${err}`)
-            } else {
-                await sendLog('success', `Сохранение сессии`, `Сессия успешно сохранена!`)
-            }
-        })
-    });
+    try {
+        let sessionString = await client.session.save();
+        if (!fs.existsSync(sessionPath)) fs.mkdirSync(sessionPath);
+        let json = `{"session": "${sessionString}"}`
+        fs.writeFileSync(fullSessionPath, json);
+        await sendLog('success', `Сохранение сессии`, `Сессия успешно сохранена!`)
+    } catch (e) {
+        await sendLog('error', `Сохранение сессии`, `Ошибка: ${e}`)
+    }
 }
 
 // Конфигурация пользователя
