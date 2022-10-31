@@ -61,7 +61,8 @@ setTimeout(async () => {
             await sendNotificationUpdate("Проверка обновлений", `Доступна новая версия ${updates.versionInfo.version}`);
         }
         adapter.addUpdateDownloadedEvent(async () => {
-            await sendNotificationUpdate("Проверка обновлений", "Обновление загружено и готово к установке");
+            await sendNotificationUpdate("Проверка обновлений", "Обновление загружено\nОбновление будет установлено автоматически\nПо завершению установки приложение перезапустится");
+            await adapter.quitAndInstall();
         })
     } else {
         await sendNotificationUpdate("Проверка обновлений", "Обновлений не найдено");
