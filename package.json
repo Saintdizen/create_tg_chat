@@ -2,7 +2,7 @@
   "name": "create_tg_chat",
   "productName": "Создание чата в Telegram",
   "description": "Создание чата в Telegram",
-  "version": "0.4.9",
+  "version": "0.4.8",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -14,12 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Saintdizen/create_tg_chat.git"
+    "url": "https://github.com/Saintdizen/create_tg_chat.git"
   },
   "keywords": [
     "Monitoring"
   ],
   "build": {
+    "appId": "com.monitoring.createTelegramChat",
     "asar": false,
     "publish": {
       "provider": "github",
@@ -32,24 +33,13 @@
     "electronDownload": {
       "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
     },
-    "appId": "com.monitoring.createTelegramChat",
     "linux": {
-      "category": "Monitoring",
-      "target": [
-        "AppImage"
-      ]
+      "category": "tests",
+      "target": "AppImage"
     },
     "win": {
       "icon": "resources/icons/app/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "ia32",
-            "x64"
-          ]
-        }
-      ]
+      "target": "nsis"
     },
     "nsis": {
       "differentialPackage": false,
@@ -63,16 +53,7 @@
       "installerHeaderIcon": "resources/icons/app/icon.ico",
       "installerIcon": "resources/icons/app/icon.ico",
       "uninstallerIcon": "resources/icons/app/icon.ico",
-      "artifactName": "${name}-${os}-x32-x64-${version}.${ext}"
-    },
-    "mac": {
-      "target": [
-        "dmg"
-      ],
-      "icon": "resources/icons/app/icon.icns"
-    },
-    "dmg": {
-      "writeUpdateInfo": false
+      "artifactName": "${name}-${os}-${arch}-${version}.${ext}"
     },
     "directories": {
       "buildResources": "build",
@@ -94,10 +75,10 @@
   },
   "homepage": "https://github.com/Saintdizen/create_tg_chat#readme",
   "devDependencies": {
-    "electron-builder": "~23.3.3"
+    "electron-builder": "^23.6.0"
   },
   "dependencies": {
-    "chuijs": "~1.0.6",
+    "chuijs": "~1.0.8",
     "googleapis": "~109.0.0",
     "nodejs-file-downloader": "~4.10.2",
     "qrcode": "~1.5.1",
