@@ -49,7 +49,8 @@ main.start({
         new MenuItem().button("Консоль", () => { main.toggleDevTools() }),
         new MenuItem().separator(),
         new MenuItem().quit('Выход')
-    ]
+    ],
+    autoUpdateApp: true
 })
 
 ipcMain.on("closeForUpdate", () => {
