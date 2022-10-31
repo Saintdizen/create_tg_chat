@@ -1,4 +1,0 @@
-appId: com.monitoring.createTelegramChat
-publish:
-  provider: github
-  token: "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"

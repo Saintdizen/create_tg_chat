@@ -2,7 +2,7 @@
   "name": "create_tg_chat",
   "productName": "Создание чата в Telegram",
   "description": "Создание чата в Telegram",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
