@@ -1,4 +1,4 @@
-const { AppLayout, render, ipcRenderer, Notification} = require('chuijs');
+const { AppLayout, render, ipcRenderer } = require('chuijs');
 const { CreateChatTG } = require('./pages/page');
 
 class App extends AppLayout {
@@ -20,9 +20,6 @@ class App extends AppLayout {
                     })
                 ]
             })
-        })
-        ipcRenderer.on("sendNotificationUpdate", (e, text, body) => {
-            new Notification({ title: text, text: body, style: Notification.STYLE.WARNING, showTime: 3000 }).show(true);
         })
     }
 }
