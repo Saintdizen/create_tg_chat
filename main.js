@@ -31,9 +31,9 @@ ipcMain.on("getAuth", async () => await tgSrc.getAuth());
 ipcMain.on('getTokenForQRCode', async (event, password) => await tgSrc.authQrCode(password));
 ipcMain.on('loginInPhone', async () => {
     await tgSrc.loginInPhone(
-        new Promise((resolve) => ipcMain.on("channel_phone", async (event, code) => resolve(code))),
+        new Promise((resolve) => ipcMain.on("channel_phone", async (event, phone) => resolve(phone))),
         new Promise((resolve) => ipcMain.on("channel_code", async (event, code) => resolve(code))),
-        new Promise((resolve) => ipcMain.on("channel_pass", async (event, code) => resolve(code)))
+        new Promise((resolve) => ipcMain.on("channel_pass", async (event, password) => resolve(password)))
     )
 });
 ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_link) => await tgSrc.createChat(userList, pin_message, inc_num, desc, doc_link));
