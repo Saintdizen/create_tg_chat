@@ -168,7 +168,7 @@ class TelegramSrc {
             let date_STRING = this.format(new Date());
             const res_cr_chat = await this.#client.invoke(new Api.channels.CreateChannel({
                 megagroup: true,
-                title: `${date_STRING} - ${desc} - ${inc_num}`,
+                title: `‼ ${date_STRING} - ${desc} - ${inc_num}️`,
                 about: `Создан чат по проблеме ${date_STRING} - ${desc} - ${inc_num}`,
             }));
             let chat_id = res_cr_chat.updates[2].channelId.value;

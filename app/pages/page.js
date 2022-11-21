@@ -137,11 +137,12 @@ class CreateChatTG extends Page {
         })
         pin_message.setValueAsHTML("<p><b>Описание инцидента:</b></p>\n" +
             "<p>--- Данная строка будет автоматически изменена ---</p>\n" +
-            "<p><b>Отвественный:</b></p>\n" +
+            "<p><b>Статус подготовки отчета:</b> Заполнение отчёта</p>\n" +
+            "<p><b>Отвественный:</b> Определение ответственного</p>\n" +
             "<p><b><br></b></p>\n" +
             "<p><b>Время начала:</b></p>\n" +
             "<p><b>Время окончания:</b></p>\n" +
-            "<p><b>Статус:</b></p>")
+            "<p><b>Статус:</b> ⚠️ Устранение инцидента</p>")
         // Кнопка закрытия модала
         let button_close = new Button({
             title: "Закрыть",
@@ -192,7 +193,7 @@ class CreateChatTG extends Page {
         })
         button_c_chat.setDisabled(true);
         //
-        this.#menuBar.addMenuItems(button_c_chat.set())
+        this.#menuBar.addMenuItems(button_c_chat)
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
