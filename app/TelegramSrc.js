@@ -178,10 +178,11 @@ class TelegramSrc {
                 new Api.messages.EditChatDefaultBannedRights({
                     peer: chat_id,
                     bannedRights: new Api.ChatBannedRights({
-                        untilDate: 0,
-                        changeInfo: true,
-                        inviteUsers: true,
-                        pinMessages: true,
+                        until_date: 0,
+                        view_messages: true,
+                        change_info: true,
+                        invite_users: true,
+                        pin_messages: true,
                     }),
                 })
             );
@@ -270,7 +271,7 @@ class TelegramSrc {
         } catch (e) {
             await this.#closeDialog()
             await this.#setProgressLogText(e.message)
-            await console.log(e.message)
+            await console.log(e)
         }
     }
     async logOut() {
