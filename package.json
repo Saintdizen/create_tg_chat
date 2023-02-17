@@ -87,7 +87,7 @@
   },
   "homepage": "https://github.com/Saintdizen/create_tg_chat#readme",
   "devDependencies": {
-    "electron-builder": "~23.6.0"
+    "electron-builder": "22.11.7"
   },
   "dependencies": {
     "chuijs": "~1.1.8",
