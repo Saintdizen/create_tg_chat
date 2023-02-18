@@ -25,7 +25,8 @@ class TelegramSrc {
             deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()}`,
             langCode: 'ru',
             systemVersion: os.release().toString(),
-            systemLangCode: 'ru'
+            systemLangCode: 'ru',
+            connectionRetries: 5
         });
         this.#client.session.setDC(2, "149.154.167.41", 443);
     }
@@ -143,7 +144,10 @@ class TelegramSrc {
                 phoneNumber: async () => await phone,
                 phoneCode: async () => await code,
                 password: async () => await password,
-                onError: async (err) => await this.#sendAuthPhoneError("Авторизация по номеру", err),
+                onError: async (err) => {
+                    await this.#sendAuthPhoneError("Авторизация по номеру", err)
+                    return true;
+                },
             }).then(async () => {
                 const me = await this.#client.getMe();
                 await this.#sendUserData(me)
