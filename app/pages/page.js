@@ -1,19 +1,27 @@
-const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, TextEditor, MenuBar, Route,
-    Icons
+const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, TextEditor, MenuBar, Route, Icons,
+    Badge
 } = require('chuijs');
 const {GoogleSheets, GoogleDrive} = require('../src/google_sheets/google_sheets')
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {AuthMain} = require("./auth/auth");
-let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
-let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
+let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8', "Группы пользователей");
+let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ', "Настройки авторизации");
 let googleDrive = new GoogleDrive();
 let lists = [];
 let report = { folder_id: String(undefined), file_id: String(undefined) }
 //
 class CreateChatTG extends Page {
-    #spinner_big = new Spinner(Spinner.SIZE.BIG, 'auto');
+    #spinner_big = new Spinner(Spinner.SIZE.BIG, '10px');
     #help_create_dialog = new CreateHelpDialog();
     #menuBar = new MenuBar({test: true});
+    #info_block = new ContentBlock({
+        direction: Styles.DIRECTION.COLUMN,
+        wrap: Styles.WRAP.WRAP,
+        align: Styles.ALIGN.CENTER,
+        justify: Styles.JUSTIFY.CENTER
+    });
+    #b_no_auth = new Badge({ text: "Не авторизован", style: Badge.STYLE.WARNING })
+    #b_auth = new Badge({ text: "Авторизован", style: Badge.STYLE.SUCCESS })
     constructor() {
         super();
         // Настройки страницы
@@ -24,20 +32,65 @@ class CreateChatTG extends Page {
         // ===
         this.#enableLogsNotification();
         this.add(this.#help_create_dialog)
-        this.add(this.#spinner_big)
+        this.add(this.#info_block)
+        this.#info_block.setHeight(Styles.SIZE.WEBKIT_FILL)
+        this.#info_block.setWidth(Styles.SIZE.WEBKIT_FILL)
+        this.#info_block.add(this.#spinner_big)
         //
         this.#menuBar = new MenuBar({test: true});
         this.setMenuBar(this.#menuBar)
-        //
+
+        setTimeout(async () => {
+            let status_1 = await this.checkTable(googleSheets);
+            let status_2 = await this.checkTable(googleSheets_DB);
+            if (status_1.status && status_2.status) {
+                this.checkAuth();
+            } else {
+                this.#info_block.remove(this.#spinner_big)
+            }
+        }, 50)
+    }
+    addBlock(text) {
+        let block = new ContentBlock({
+            direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.WRAP,
+            align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
+        });
+        block.setWidth(Styles.SIZE.WEBKIT_FILL);
+        block.add(new Label({
+            markdownText: text, wordBreak: Styles.WORD_BREAK.BREAK_ALL
+        }))
+        return block;
+    }
+    checkAuth() {
+        let block = this.addBlock(`**Проверка авторизации**`);
+        this.#info_block.add(block)
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
             if (!status) {
-                new Route().go(new AuthMain(this))
+                block.add(this.#b_no_auth)
+                setTimeout(() => new Route().go(new AuthMain(this)), 250)
             } else {
-                this.remove(this.#spinner_big)
-                this.add(this.#mainBlock())
+                block.remove(this.#b_no_auth)
+                block.add(this.#b_auth)
+                setTimeout(() => {
+                    this.remove(this.#info_block)
+                    this.add(this.#mainBlock())
+                }, 250)
             }
         })
+    }
+    async checkTable(table) {
+        let block = this.addBlock(`Проверка таблицы **${table.getName()}**`);
+        this.#info_block.add(block)
+        //
+        let status = await table.getStatus()
+        if (status.status) {
+            block.add(new Badge({ text: "Успешно", style: Badge.STYLE.SUCCESS }))
+        } else {
+            block.add(new Badge({ text: "Ошибка", style: Badge.STYLE.ERROR }))
+            console.log(status)
+        }
+        return status;
     }
     #mainBlock() {
         let block = new ContentBlock({

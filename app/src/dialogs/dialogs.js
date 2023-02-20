@@ -35,7 +35,7 @@ class AuthHelpDialog {
                         new Label({ markdownText: "3) Нажать кнопку: **Сгенерировать**" }),
                         new Image({ path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_2.png`, width: "333px" }),
                         new Label({ markdownText: "3) Отсканировать **QR-код** приложением **Telegram**" }),
-                        new Image({ path: `${__dirname}/../../resources/images/auth/auth_qr/auth_1_3.png`, width: "333px" }),
+                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_3.png`, width: "333px" }),
                     ]
                 }),
                 TreeView.ExpandButton({
