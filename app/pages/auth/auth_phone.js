@@ -1,38 +1,6 @@
-const {ContentBlock, Styles, ipcRenderer, PasswordInput, TextInput, Button, Image, Notification, Icons, Label} = require("chuijs");
-const QRCode = require("qrcode");
+const {ContentBlock, Styles, ipcRenderer, PasswordInput, TextInput, Button, Notification, Icons, Page, Route} = require("chuijs");
 
-class AuthMain {
-    #block_main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
-    constructor(tabs_block) {
-        this.#block_main.setWidth(Styles.SIZE.WEBKIT_FILL);
-        this.#block_main.setHeight(Styles.SIZE.WEBKIT_FILL);
-        this.#block_main.add(
-            new Label({
-                markdownText: "**Авторизация**",
-                wordBreak: Styles.WORD_BREAK.BREAK_ALL
-            }),
-            new Button({
-                title: "По QR-коду",
-                icon: Icons.COMMUNICATION.QR_CODE,
-                clickEvent: () => {
-                    tabs_block.clear();
-                    tabs_block.add(new AuthQRCode(tabs_block))
-                }
-            }),
-            new Button({
-                title: "По номеру",
-                icon: Icons.COMMUNICATION.PHONE,
-                clickEvent: () => {
-                    tabs_block.clear();
-                    tabs_block.add(new AuthPhone(tabs_block))
-                }
-            })
-        );
-        return this.#block_main;
-    }
-}
-
-class AuthPhone {
+class AuthPhone extends Page {
     #block_main = new ContentBlock({
         direction: Styles.DIRECTION.COLUMN,
         wrap: Styles.WRAP.NOWRAP,
@@ -68,7 +36,12 @@ class AuthPhone {
     //
     #back = new Button({title: "Назад", icon: Icons.NAVIGATION.ARROW_BACK, reverse: true});
 
-    constructor(tabs_block) {
+    constructor(back, mainPage) {
+        super();
+        this.setTitle('Авторизация по номеру телефона');
+        this.setMain(false);
+        this.setFullHeight()
+        this.setFullWidth()
         // Определение метода авторизации
         ipcRenderer.send("loginInPhone");
         // ===
@@ -79,10 +52,7 @@ class AuthPhone {
         this.#input_password.setDisabled(true);
         this.#code_send.setDisabled(true);
         this.#password_send.setDisabled(true);
-        this.#back.addClickListener(() => {
-            tabs_block.clear();
-            tabs_block.add(new AuthMain(tabs_block))
-        })
+        this.#back.addClickListener(() => new Route().go(back))
         // ===
         //
         this.#code_get.addClickListener(async () => {
@@ -96,6 +66,7 @@ class AuthPhone {
         this.#password_send.addClickListener(async () => {
             ipcRenderer.send(AuthPhone.CHANNELS.PASSWORD, this.#input_password.getValue())
             await this.#getAuthPhone([this.#input_password, this.#password_send], []);
+            await new Route().go(mainPage)
         })
 
         // Добавление элементов
@@ -103,7 +74,7 @@ class AuthPhone {
         this.#block_code.add(this.#input_code, this.#code_send);
         this.#block_password.add(this.#input_password, this.#password_send);
         this.#block_main.add(this.#back, this.#block_phone, this.#block_code, this.#block_password);
-        return this.#block_main;
+        this.add(this.#block_main);
     }
     async #getAuthPhone(disabled = [], enabled = []) {
         this.#back.setDisabled(true);
@@ -119,57 +90,4 @@ class AuthPhone {
     static CHANNELS = {PHONE: "channel_phone", CODE: "channel_code", PASSWORD: "channel_pass"}
 }
 
-class AuthQRCode {
-    #main = new ContentBlock({
-        direction: Styles.DIRECTION.COLUMN,
-        wrap: Styles.WRAP.NOWRAP,
-        align: Styles.ALIGN.CENTER,
-        justify: Styles.JUSTIFY.CENTER
-    });
-    #QRCode_block = new ContentBlock({
-        direction: Styles.DIRECTION.COLUMN,
-        wrap: Styles.WRAP.NOWRAP,
-        align: Styles.ALIGN.CENTER,
-        justify: Styles.JUSTIFY.CENTER
-    });
-    #back = new Button({title: "Назад", icon: Icons.NAVIGATION.ARROW_BACK, reverse: true});
-    #input_pass = new PasswordInput({ title: "Пароль", width: "225px" });
-    #generate = new Button({ title: "Сгенерировать", icon: Icons.COMMUNICATION.QR_CODE })
-
-    constructor(tabs_block) {
-        this.#main.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#QRCode_block.setWidth("-webkit-fill-available")
-        this.#main.add(this.#back)
-        this.#main.add(this.#input_pass, this.#generate)
-        this.#main.add(this.#QRCode_block)
-        this.#back.addClickListener(() => {
-            tabs_block.clear();
-            tabs_block.add(new AuthMain(tabs_block))
-        })
-        this.#generate.addClickListener(() => {
-            this.#back.setDisabled(true);
-            this.#input_pass.setDisabled(true);
-            this.#generate.setDisabled(true);
-            ipcRenderer.send('getTokenForQRCode', this.#input_pass.getValue())
-            ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
-                QRCode.toDataURL(text).then(src => {
-                    console.log(src)
-                    this.#QRCode_block.clear()
-                    this.#QRCode_block.add(new Image({
-                        base64: src.replace("data:image/png;base64,", ""),
-                        width: "280px",
-                        height: "280px"
-                    }))
-                    new Notification({
-                        title: "Авторизация", text: "QR-код изменен",
-                        style: Notification.STYLE.WARNING,
-                        showTime: 3000
-                    }).show()
-                })
-            })
-        })
-        return this.#main;
-    }
-}
-
-exports.AuthMain = AuthMain
+exports.AuthPhone = AuthPhone

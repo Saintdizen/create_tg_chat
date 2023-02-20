@@ -5,7 +5,7 @@ const path = require("path");
 const {transliterate} = require("transliteration");
 const fs = require("fs");
 const {StringSession} = require("telegram/sessions");
-const {GoogleSheets} = require('../app/google_sheets/google_sheets');
+const {GoogleSheets} = require('./src/google_sheets/google_sheets');
 let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 
 class TelegramSrc {
@@ -68,6 +68,9 @@ class TelegramSrc {
     async #sendAuthStatus(status = Boolean(undefined)) {
         this.#mainApp.getWindow().webContents.send("sendAuthStatus", status)
     }
+    async #loginInQRCode() {
+        this.#mainApp.getWindow().webContents.send("loginInQRCode")
+    }
     //
     async #saveSession() {
         try {
@@ -129,6 +132,7 @@ class TelegramSrc {
                 await this.#sendLog('success', "Авторизация", `${user.firstName} ${user.lastName}`);
                 await this.#createUserData(`@${user.username}`)
                 await this.#saveSession();
+                await this.#loginInQRCode()
             });
         } else {
             const me = await this.#client.getMe();

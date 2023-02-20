@@ -1,20 +1,18 @@
-const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, SpinnerSize, TextEditor,
-    MenuBar
+const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, TextEditor, MenuBar, Route,
+    Icons
 } = require('chuijs');
-const {GoogleSheets, GoogleDrive} = require('../google_sheets/google_sheets')
-const {AuthHelpDialog, CreateHelpDialog} = require("../dialogs/dialogs");
+const {GoogleSheets, GoogleDrive} = require('../src/google_sheets/google_sheets')
+const {CreateHelpDialog} = require("../src/dialogs/dialogs");
+const {AuthMain} = require("./auth/auth");
 let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8');
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
 let googleDrive = new GoogleDrive();
 let lists = [];
 let report = { folder_id: String(undefined), file_id: String(undefined) }
 //
-const {AuthMain} = require("../auth/auth");
-//
 class CreateChatTG extends Page {
-    #help_auth_dialog = new AuthHelpDialog();
+    #spinner_big = new Spinner(Spinner.SIZE.BIG, 'auto');
     #help_create_dialog = new CreateHelpDialog();
-    #tabs_block = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
     #menuBar = new MenuBar({test: true});
     constructor() {
         super();
@@ -25,25 +23,19 @@ class CreateChatTG extends Page {
         this.setFullHeight();
         // ===
         this.#enableLogsNotification();
-        this.add(this.#help_auth_dialog)
         this.add(this.#help_create_dialog)
-        //
-        this.#tabs_block.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#tabs_block.setHeight(Styles.SIZE.WEBKIT_FILL)
-        this.#tabs_block.add(new AuthMain(this.#tabs_block));
+        this.add(this.#spinner_big)
         //
         this.#menuBar = new MenuBar({test: true});
         this.setMenuBar(this.#menuBar)
         //
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
-            if (status) {
-                this.remove(this.#tabs_block)
-                this.add(this.#mainBlock())
-                this.#help_create_dialog.open()
+            if (!status) {
+                new Route().go(new AuthMain(this))
             } else {
-                this.add(this.#tabs_block)
-                this.#help_auth_dialog.open()
+                this.remove(this.#spinner_big)
+                this.add(this.#mainBlock())
             }
         })
     }
@@ -193,7 +185,13 @@ class CreateChatTG extends Page {
         })
         button_c_chat.setDisabled(true);
         //
-        this.#menuBar.addMenuItems(button_c_chat)
+        let button_help = new Button({
+            title: "Помощь",
+            icon: Icons.COMMUNICATION.LIVE_HELP,
+            clickEvent: () => this.#help_create_dialog.open()
+        })
+        //
+        this.#menuBar.addMenuItems(button_c_chat, button_help)
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
