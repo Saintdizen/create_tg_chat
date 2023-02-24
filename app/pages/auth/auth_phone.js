@@ -66,7 +66,7 @@ class AuthPhone extends Page {
         this.#password_send.addClickListener(async () => {
             ipcRenderer.send(AuthPhone.CHANNELS.PASSWORD, this.#input_password.getValue())
             await this.#getAuthPhone([this.#input_password, this.#password_send], []);
-            await new Route().go(mainPage)
+            setTimeout(() => new Route().go(mainPage), 200)
         })
 
         // Добавление элементов
@@ -75,17 +75,15 @@ class AuthPhone extends Page {
         this.#block_password.add(this.#input_password, this.#password_send);
         this.#block_main.add(this.#back, this.#block_phone, this.#block_code, this.#block_password);
         this.add(this.#block_main);
+
+        ipcRenderer.on('sendAuthPhoneError', (e, title, message) => {
+            new Notification({title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000}).show();
+        });
     }
     async #getAuthPhone(disabled = [], enabled = []) {
         this.#back.setDisabled(true);
         for (let element of disabled) element.setDisabled(true);
         for (let element of enabled) element.setDisabled(false);
-        ipcRenderer.on('sendAuthPhoneError', (e, title, message) => {
-            new Notification({title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000}).show();
-            this.#back.setDisabled(false);
-            for (let element of disabled) element.setDisabled(false);
-            for (let element of enabled) element.setDisabled(true);
-        });
     }
     static CHANNELS = {PHONE: "channel_phone", CODE: "channel_code", PASSWORD: "channel_pass"}
 }

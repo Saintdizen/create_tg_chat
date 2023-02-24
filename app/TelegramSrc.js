@@ -279,7 +279,7 @@ class TelegramSrc {
         } catch (e) {
             await this.#closeDialog()
             await this.#setProgressLogText(e.message)
-            await console.log(e)
+            await console.error(e)
         }
     }
     async logOut() {

@@ -26,34 +26,8 @@ class AuthHelpDialog {
         return new TreeView({
             width: Styles.SIZE.WEBKIT_FILL,
             components: [
-                TreeView.ExpandButton({
-                    title: "По QR-коду",
-                    components: [
-                        new Label({ markdownText: "1) Нажать кнопку: **По QR-коду**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_qr/1_auth.png`, width: "333px" }),
-                        new Label({ markdownText: "2) Ввести пороль **двуэтапной вторизации**" }),
-                        new Label({ markdownText: "3) Нажать кнопку: **Сгенерировать**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_2.png`, width: "333px" }),
-                        new Label({ markdownText: "3) Отсканировать **QR-код** приложением **Telegram**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_3.png`, width: "333px" }),
-                    ]
-                }),
-                TreeView.ExpandButton({
-                    title: "По номеру телефона",
-                    components: [
-                        new Label({ markdownText: "1) Нажать кнопку: **По номеру**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2.png`, width: "333px" }),
-                        new Label({ markdownText: "2) Ввести в поле: **Номер телефона** номер от учетной записи" }),
-                        new Label({ markdownText: "3) Нажать кнопку: **Запросить код**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_1.png`, width: "333px" }),
-                        new Label({ markdownText: "4) Ввести в поле: **Проверочный код** 5-ти значный код, который должен прийти в **Telegram**", wordBreak: "break-all", width: Styles.SIZE.WEBKIT_FILL }),
-                        new Label({ markdownText: "5) Нажать кнопку: **Отправить код**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_2.png`, width: "333px" }),
-                        new Label({ markdownText: "6) Ввести пороль **двуэтапной вторизации** в поле: **Пароль**" }),
-                        new Label({ markdownText: "7) Нажать кнопку: **Авторизоваться**" }),
-                        new Image({ path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_3.png`, width: "333px" }),
-                    ]
-                }),
+                TreeView.ExpandButton({ title: "По QR-коду", components: new Data(data.qr_code_content).parse() }),
+                TreeView.ExpandButton({ title: "По номеру телефона", components: new Data(data.phone_content).parse() }),
             ]
         });
     }
@@ -67,23 +41,7 @@ class CreateHelpDialog {
     constructor() {
         this.#content.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#content.setHeight(Styles.SIZE.MAX_CONTENT)
-        this.#content.add(
-            new Label({ markdownText: "1) Выбрать **список пользователей**" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/1.png`, width: "-webkit-fill-available" }),
-            new Label({ markdownText: "**Дождаться появления уведомления**" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/1_2.png`, }),
-            new Label({ markdownText: "2) Заполнить поле: **Номер инцидента**" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/2.png`, width: "-webkit-fill-available" }),
-            new Label({ markdownText: "3) Заполнить поле: **Описание инцидента**" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/3.png`, width: "-webkit-fill-available" }),
-            new Label({ markdownText: "4) Заполнить поле: **Закрепленное сообщение** при необходимости" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/4.png`, width: "-webkit-fill-available" }),
-            new Label({ markdownText: "5) Нажать кнопку: **Создать чат**" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/5.png`, }),
-            new Label({ markdownText: "6) Дождаться заполнения **прогресс бара** и появления сообщения: **Чат успешно создан!**" }),
-            new Image({ path: `${__dirname}/../../../resources/images/create_chat/6.png`, width: "-webkit-fill-available" }),
-            new Label({ markdownText: "7) Нажать кнопку: **Закрыть** и проверить создание чата в **Telegram**" }),
-        )
+        this.#content.add(...new Data(data.create_chat_content).parse())
         this.#header_dialog.add(new Label({ markdownText: "**Создание чата**" }), new Button({
             icon: Icons.NAVIGATION.CLOSE,
             clickEvent: () => this.#dialog.close()
@@ -98,3 +56,141 @@ class CreateHelpDialog {
     open() { this.#dialog.open() }
 }
 exports.CreateHelpDialog = CreateHelpDialog
+
+let data = {
+    qr_code_content: [
+        {
+            text: "1) Нажать кнопку: **По QR-коду**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_qr/1_auth.png`
+            }
+        },
+        {
+            text: "2) Ввести пороль **двуэтапной вторизации**",
+        },
+        {
+            text: "3) Нажать кнопку: **Сгенерировать**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_2.png`
+            }
+        },
+        {
+            text: "4) Отсканировать **QR-код** приложением **Telegram**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_3.png`
+            }
+        }
+    ],
+    phone_content: [
+        {
+            text: "1) Нажать кнопку: **По номеру**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2.png`
+            }
+        },
+        {
+            text: "2) Ввести в поле: **Номер телефона** номер от учетной записи",
+        },
+        {
+            text: "3) Нажать кнопку: **Запросить код**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_1.png`
+            }
+        },
+        {
+            text: "4) Ввести в поле: **Проверочный код** 5-ти значный код, который должен прийти в **Telegram**",
+        },
+        {
+            text: "5) Нажать кнопку: **Отправить код**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_2.png`
+            }
+        },
+        {
+            text: "6) Ввести пороль **двуэтапной вторизации** в поле: **Пароль**",
+        },
+        {
+            text: "7) Нажать кнопку: **Авторизоваться**",
+            image: {
+                width: "369px",
+                path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_3.png`
+            }
+        }
+    ],
+    create_chat_content: [
+        {
+            text: "1) Выбрать **список пользователей**",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/1.png`
+            }
+        },
+        {
+            text: "**Дождаться появления уведомления**",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/1_2.png`
+            }
+        },
+        {
+            text: "2) Заполнить поле: **Номер инцидента**",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/2.png`
+            }
+        },
+        {
+            text: "3) Заполнить поле: **Описание инцидента**",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/3.png`
+            }
+        },
+        {
+            text: "4) Заполнить поле: **Закрепленное сообщение** при необходимости",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/4.png`
+            }
+        },
+        {
+            text: "5) Нажать кнопку: **Создать чат**",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/5.png`
+            }
+        },
+        {
+            text: "6) Дождаться заполнения **прогресс бара** и появления сообщения: **Чат успешно создан!**",
+            image: {
+                width: "-webkit-fill-available",
+                path: `${__dirname}/../../../resources/images/create_chat/6.png`
+            }
+        },
+        {
+            text: "7) Нажать кнопку: **Закрыть** и проверить создание чата в **Telegram**",
+        }
+    ]
+}
+
+class Data {
+    #data = []
+    constructor(data = []) {
+        this.#data = data
+    }
+    parse() {
+        let contents = []
+        for (let block of this.#data) {
+            let text = block.text; let image = block.image;
+            if (text !== undefined) contents.push(new Label({ markdownText: text, wordBreak: "break-word", width: "-webkit-fill-available" }))
+            if (image !== undefined) contents.push(new Image({ path: block.image.path, width: block.image.width }))
+        }
+        return contents;
+    }
+}

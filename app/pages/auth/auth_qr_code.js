@@ -38,7 +38,6 @@ class AuthQRCode extends Page {
             ipcRenderer.send('getTokenForQRCode', this.#input_pass.getValue())
             ipcRenderer.on('generatedTokenForQRCode', (e, text) => {
                 QRCode.toDataURL(text).then(src => {
-                    console.log(src)
                     this.#QRCode_block.clear()
                     this.#QRCode_block.add(new Image({
                         base64: src.replace("data:image/png;base64,", ""),

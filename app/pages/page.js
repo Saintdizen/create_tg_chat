@@ -15,13 +15,9 @@ class CreateChatTG extends Page {
     #help_create_dialog = new CreateHelpDialog();
     #menuBar = new MenuBar({test: true});
     #info_block = new ContentBlock({
-        direction: Styles.DIRECTION.COLUMN,
-        wrap: Styles.WRAP.WRAP,
-        align: Styles.ALIGN.CENTER,
-        justify: Styles.JUSTIFY.CENTER
+        direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP,
+        align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
     });
-    #b_no_auth = new Badge({ text: "Не авторизован", style: Badge.STYLE.WARNING })
-    #b_auth = new Badge({ text: "Авторизован", style: Badge.STYLE.SUCCESS })
     constructor() {
         super();
         // Настройки страницы
@@ -44,11 +40,11 @@ class CreateChatTG extends Page {
             let status_1 = await this.checkTable(googleSheets);
             let status_2 = await this.checkTable(googleSheets_DB);
             if (status_1.status && status_2.status) {
-                this.checkAuth();
+                await this.checkAuth();
             } else {
                 this.#info_block.remove(this.#spinner_big)
             }
-        }, 50)
+        }, 200)
     }
     addBlock(text) {
         let block = new ContentBlock({
@@ -62,20 +58,13 @@ class CreateChatTG extends Page {
         return block;
     }
     checkAuth() {
-        let block = this.addBlock(`**Проверка авторизации**`);
-        this.#info_block.add(block)
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
-            if (!status) {
-                block.add(this.#b_no_auth)
-                setTimeout(() => new Route().go(new AuthMain(this)), 250)
+            this.remove(this.#info_block)
+            if (status) {
+                setTimeout(() => this.add(this.#mainBlock()), 200)
             } else {
-                block.remove(this.#b_no_auth)
-                block.add(this.#b_auth)
-                setTimeout(() => {
-                    this.remove(this.#info_block)
-                    this.add(this.#mainBlock())
-                }, 250)
+                setTimeout(() => new Route().go(new AuthMain(this)), 200)
             }
         })
     }
@@ -260,7 +249,7 @@ class CreateChatTG extends Page {
         })
 
         ipcRenderer.on('user_data', async (e, TAG_TG, ROLE, GROUP) => {
-            let rp_names = await googleSheets.getLists().catch(err => console.log(err));
+            let rp_names = await googleSheets.getLists().catch(err => console.error(err));
             for (let list of rp_names.data.sheets) {
                 if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
                     radio_groups.push({name: list.properties.title, value: list.properties.title});
@@ -278,7 +267,7 @@ class CreateChatTG extends Page {
                     button_c_chat.setDisabled(true);
                     // Чтение таблиц
                     let report_list = await googleSheets_DB.read(`REPORTS!A1:D`);
-                    let users_list = await googleSheets.read(`${e.target.value}!A1:A`).catch(err => console.log(err));
+                    let users_list = await googleSheets.read(`${e.target.value}!A1:A`).catch(err => console.error(err));
                     lists = []
                     users_list.forEach(val => {
                         if (val.length !== 0) lists.push(val[0]);
