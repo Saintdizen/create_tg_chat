@@ -1,5 +1,5 @@
 const {Main, MenuItem, ipcMain} = require('chuijs');
-const { TelegramSrc } = require("./app/TelegramSrc");
+const {TelegramSrc} = require("./app/TelegramSrc");
 const json = require('./package.json');
 // Main
 let main = new Main({
@@ -13,9 +13,13 @@ let main = new Main({
 });
 main.start({
     tray: [
-        new MenuItem().button('Показать \\ Скрыть', () => { main.hideAndShow() }),
+        new MenuItem().button('Показать \\ Скрыть', () => {
+            main.hideAndShow()
+        }),
         new MenuItem().separator(),
-        new MenuItem().button("Консоль", () => { main.toggleDevTools() }),
+        new MenuItem().button("Консоль", () => {
+            main.toggleDevTools()
+        }),
         new MenuItem().separator(),
         new MenuItem().quit('Выход')
     ]

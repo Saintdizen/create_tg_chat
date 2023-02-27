@@ -1,4 +1,20 @@
-const {Page, Button, TextInput, ContentBlock, Styles, Notification, ipcRenderer, Dialog, ProgressBar, Label, RadioGroup, Spinner, TextEditor, MenuBar, Route, Icons,
+const {
+    Page,
+    Button,
+    TextInput,
+    ContentBlock,
+    Styles,
+    Notification,
+    ipcRenderer,
+    Dialog,
+    ProgressBar,
+    Label,
+    RadioGroup,
+    Spinner,
+    TextEditor,
+    MenuBar,
+    Route,
+    Icons,
     Badge
 } = require('chuijs');
 const {GoogleSheets, GoogleDrive} = require('../src/google_sheets/google_sheets')
@@ -8,7 +24,8 @@ let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv
 let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ', "Настройки авторизации");
 let googleDrive = new GoogleDrive();
 let lists = [];
-let report = { folder_id: String(undefined), file_id: String(undefined) }
+let report = {folder_id: String(undefined), file_id: String(undefined)}
+
 //
 class CreateChatTG extends Page {
     #spinner_big = new Spinner(Spinner.SIZE.BIG, '10px');
@@ -18,6 +35,7 @@ class CreateChatTG extends Page {
         direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP,
         align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
     });
+
     constructor() {
         super();
         // Настройки страницы
@@ -46,6 +64,7 @@ class CreateChatTG extends Page {
             }
         }, 200)
     }
+
     addBlock(text) {
         let block = new ContentBlock({
             direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.WRAP,
@@ -57,6 +76,7 @@ class CreateChatTG extends Page {
         }))
         return block;
     }
+
     checkAuth() {
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
@@ -68,19 +88,21 @@ class CreateChatTG extends Page {
             }
         })
     }
+
     async checkTable(table) {
         let block = this.addBlock(`Проверка таблицы **${table.getName()}**`);
         this.#info_block.add(block)
         //
         let status = await table.getStatus()
         if (status.status) {
-            block.add(new Badge({ text: "Успешно", style: Badge.STYLE.SUCCESS }))
+            block.add(new Badge({text: "Успешно", style: Badge.STYLE.SUCCESS}))
         } else {
-            block.add(new Badge({ text: "Ошибка", style: Badge.STYLE.ERROR }))
+            block.add(new Badge({text: "Ошибка", style: Badge.STYLE.ERROR}))
             console.log(status)
         }
         return status;
     }
+
     #mainBlock() {
         let block = new ContentBlock({
             direction: Styles.DIRECTION.COLUMN,
@@ -298,24 +320,35 @@ class CreateChatTG extends Page {
         block.add(block_radios, inc_num, desc, pin_message) //, button_c_chat)
         return block;
     }
+
     #enableLogsNotification() {
         ipcRenderer.on('sendLog', (e, type, title, message) => {
             if (type === "success") {
-                new Notification({ title: title, text: message, style: Notification.STYLE.SUCCESS, showTime: 3000 }).show()
+                new Notification({
+                    title: title,
+                    text: message,
+                    style: Notification.STYLE.SUCCESS,
+                    showTime: 3000
+                }).show()
             } else if (type === 'error') {
-                new Notification({ title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000 }).show()
+                new Notification({title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000}).show()
             } else if (type === undefined) {
-                new Notification({ title: title, text: message, showTime: 3000 }).show()
+                new Notification({title: title, text: message, showTime: 3000}).show()
             }
         })
     }
+
     static #format(date) {
         let day = date.getDate()
         let month = date.getMonth() + 1
         let year = date.getFullYear()
         //Определение дня и месяца
-        if (day < 10) { day = "0" + day }
-        if (month < 10) { month = "0" + month }
+        if (day < 10) {
+            day = "0" + day
+        }
+        if (month < 10) {
+            month = "0" + month
+        }
         return String(day + "-" + month + "-" + year)
     }
 }

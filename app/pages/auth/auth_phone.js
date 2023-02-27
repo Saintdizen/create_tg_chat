@@ -1,4 +1,15 @@
-const {ContentBlock, Styles, ipcRenderer, PasswordInput, TextInput, Button, Notification, Icons, Page, Route} = require("chuijs");
+const {
+    ContentBlock,
+    Styles,
+    ipcRenderer,
+    PasswordInput,
+    TextInput,
+    Button,
+    Notification,
+    Icons,
+    Page,
+    Route
+} = require("chuijs");
 
 class AuthPhone extends Page {
     #block_main = new ContentBlock({
@@ -80,11 +91,13 @@ class AuthPhone extends Page {
             new Notification({title: title, text: message, style: Notification.STYLE.ERROR, showTime: 3000}).show();
         });
     }
+
     async #getAuthPhone(disabled = [], enabled = []) {
         this.#back.setDisabled(true);
         for (let element of disabled) element.setDisabled(true);
         for (let element of enabled) element.setDisabled(false);
     }
+
     static CHANNELS = {PHONE: "channel_phone", CODE: "channel_code", PASSWORD: "channel_pass"}
 }
 

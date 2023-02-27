@@ -1,16 +1,27 @@
 const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, Icons} = require("chuijs");
 
 class AuthHelpDialog {
-    #dialog = new Dialog({ width: "85%", height: "80%", closeOutSideClick: false })
-    #header_dialog = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.SPACE_BEETWEEN });
-    #content = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER });
+    #dialog = new Dialog({width: "85%", height: "80%", closeOutSideClick: false})
+    #header_dialog = new ContentBlock({
+        direction: Styles.DIRECTION.ROW,
+        wrap: Styles.WRAP.NOWRAP,
+        align: Styles.ALIGN.CENTER,
+        justify: Styles.JUSTIFY.SPACE_BEETWEEN
+    });
+    #content = new ContentBlock({
+        direction: Styles.DIRECTION.COLUMN,
+        wrap: Styles.WRAP.NOWRAP,
+        align: Styles.ALIGN.START,
+        justify: Styles.JUSTIFY.CENTER
+    });
+
     constructor() {
         this.#content.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#content.setHeight(Styles.SIZE.MAX_CONTENT)
         this.#content.add(AuthHelpDialog.#tree())
         this.#content.disableMarginChild()
         //
-        this.#header_dialog.add(new Label({ markdownText: "**Авторизация**" }), new Button({
+        this.#header_dialog.add(new Label({markdownText: "**Авторизация**"}), new Button({
             icon: Icons.NAVIGATION.CLOSE,
             clickEvent: () => this.#dialog.close()
         }))
@@ -21,28 +32,44 @@ class AuthHelpDialog {
         this.#dialog.addToBody(this.#content)
         return this.#dialog;
     }
-    open() { this.#dialog.open() }
+
+    open() {
+        this.#dialog.open()
+    }
+
     static #tree() {
         return new TreeView({
             width: Styles.SIZE.WEBKIT_FILL,
             components: [
-                TreeView.ExpandButton({ title: "По QR-коду", components: new Data(data.qr_code_content).parse() }),
-                TreeView.ExpandButton({ title: "По номеру телефона", components: new Data(data.phone_content).parse() }),
+                TreeView.ExpandButton({title: "По QR-коду", components: new Data(data.qr_code_content).parse()}),
+                TreeView.ExpandButton({title: "По номеру телефона", components: new Data(data.phone_content).parse()}),
             ]
         });
     }
 }
+
 exports.AuthHelpDialog = AuthHelpDialog
 
 class CreateHelpDialog {
-    #dialog = new Dialog({ width: "85%", height: "80%", closeOutSideClick: false })
-    #header_dialog = new ContentBlock({ direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.SPACE_BEETWEEN });
-    #content = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER });
+    #dialog = new Dialog({width: "85%", height: "80%", closeOutSideClick: false})
+    #header_dialog = new ContentBlock({
+        direction: Styles.DIRECTION.ROW,
+        wrap: Styles.WRAP.NOWRAP,
+        align: Styles.ALIGN.CENTER,
+        justify: Styles.JUSTIFY.SPACE_BEETWEEN
+    });
+    #content = new ContentBlock({
+        direction: Styles.DIRECTION.COLUMN,
+        wrap: Styles.WRAP.NOWRAP,
+        align: Styles.ALIGN.START,
+        justify: Styles.JUSTIFY.CENTER
+    });
+
     constructor() {
         this.#content.setWidth(Styles.SIZE.WEBKIT_FILL)
         this.#content.setHeight(Styles.SIZE.MAX_CONTENT)
         this.#content.add(...new Data(data.create_chat_content).parse())
-        this.#header_dialog.add(new Label({ markdownText: "**Создание чата**" }), new Button({
+        this.#header_dialog.add(new Label({markdownText: "**Создание чата**"}), new Button({
             icon: Icons.NAVIGATION.CLOSE,
             clickEvent: () => this.#dialog.close()
         }))
@@ -53,8 +80,12 @@ class CreateHelpDialog {
         this.#dialog.addToBody(this.#content)
         return this.#dialog;
     }
-    open() { this.#dialog.open() }
+
+    open() {
+        this.#dialog.open()
+    }
 }
+
 exports.CreateHelpDialog = CreateHelpDialog
 
 let data = {
@@ -181,15 +212,22 @@ let data = {
 
 class Data {
     #data = []
+
     constructor(data = []) {
         this.#data = data
     }
+
     parse() {
         let contents = []
         for (let block of this.#data) {
-            let text = block.text; let image = block.image;
-            if (text !== undefined) contents.push(new Label({ markdownText: text, wordBreak: "break-word", width: "-webkit-fill-available" }))
-            if (image !== undefined) contents.push(new Image({ path: block.image.path, width: block.image.width }))
+            let text = block.text;
+            let image = block.image;
+            if (text !== undefined) contents.push(new Label({
+                markdownText: text,
+                wordBreak: "break-word",
+                width: "-webkit-fill-available"
+            }))
+            if (image !== undefined) contents.push(new Image({path: block.image.path, width: block.image.width}))
         }
         return contents;
     }

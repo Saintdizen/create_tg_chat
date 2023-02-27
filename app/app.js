@@ -1,4 +1,4 @@
-const { AppLayout, render, ipcRenderer } = require('chuijs');
+const {AppLayout, render, ipcRenderer} = require('chuijs');
 const {CreateChatTG} = require("./pages/page");
 
 class App extends AppLayout {
@@ -10,11 +10,13 @@ class App extends AppLayout {
                 headerRight: [
                     AppLayout.USER_PROFILE({
                         username: `${user.firstName} ${user.lastName}`,
-                        image: { noImage: true },
+                        image: {noImage: true},
                         items: [
                             AppLayout.USER_PROFILE_ITEM({
                                 title: "Выход",
-                                clickEvent: () => { ipcRenderer.send("LOGOUT") }
+                                clickEvent: () => {
+                                    ipcRenderer.send("LOGOUT")
+                                }
                             })
                         ]
                     })

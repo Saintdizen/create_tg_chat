@@ -5,7 +5,13 @@ const {AuthHelpDialog} = require("../../src/dialogs/dialogs");
 
 class AuthMain extends Page {
     #help_auth_dialog = new AuthHelpDialog();
-    #block_main = new ContentBlock({ direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP, align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER });
+    #block_main = new ContentBlock({
+        direction: Styles.DIRECTION.COLUMN,
+        wrap: Styles.WRAP.NOWRAP,
+        align: Styles.ALIGN.CENTER,
+        justify: Styles.JUSTIFY.CENTER
+    });
+
     constructor(mainPage) {
         super();
         this.setTitle('Авторизация');

@@ -16,6 +16,7 @@ class TelegramSrc {
     #sessionFile = `${transliterate(this.#username_new).toLowerCase()}.json`;
     #fullSessionPath = path.join(this.#sessionPath, this.#sessionFile);
     #stringSession = new StringSession("");
+
     constructor(mainApp) {
         this.#mainApp = mainApp;
         this.#createSessionDir();
@@ -30,47 +31,64 @@ class TelegramSrc {
         });
         this.#client.session.setDC(2, "149.154.167.41", 443);
     }
+
     format(date) {
         let day = date.getDate();
         let month = date.getMonth() + 1;
         let year = date.getFullYear();
-        if (day < 10) { day = "0" + day }
-        if (month < 10) { month = "0" + month }
+        if (day < 10) {
+            day = "0" + day
+        }
+        if (month < 10) {
+            month = "0" + month
+        }
         return String(day + "-" + month + "-" + year)
     }
+
     #createSessionDir() {
-        if (!fs.existsSync(this.#sessionPath)) fs.mkdirSync(this.#sessionPath, { recursive: true });
+        if (!fs.existsSync(this.#sessionPath)) fs.mkdirSync(this.#sessionPath, {recursive: true});
     }
+
     async #sendLog(type = String(undefined), title = String(undefined), message = String(undefined)) {
         this.#mainApp.getWindow().webContents.send("sendLog", type, title, message)
     }
+
     async #setProgressValue(value = Number(undefined)) {
         this.#mainApp.getWindow().webContents.send("setProgressValue", value)
     }
+
     async #setProgressText(text = String(undefined)) {
         this.#mainApp.getWindow().webContents.send("setProgressText", text)
     }
+
     async #setProgressLogText(text = String(undefined)) {
         this.#mainApp.getWindow().webContents.send("setProgressLogText", text)
     }
+
     async #closeDialog() {
         this.#mainApp.getWindow().webContents.send("closeDialog")
     }
+
     async #sendUserData(user) {
         this.#mainApp.getWindow().webContents.send("sendUserData", user)
     }
+
     async #sendNotification(text, body) {
         this.#mainApp.getWindow().webContents.send("sendNotification", text, body)
     }
+
     async #sendAuthPhoneError(title = String(undefined), message = String(undefined)) {
         this.#mainApp.getWindow().webContents.send("sendAuthPhoneError", title, message)
     }
+
     async #sendAuthStatus(status = Boolean(undefined)) {
         this.#mainApp.getWindow().webContents.send("sendAuthStatus", status)
     }
+
     async #loginInQRCode() {
         this.#mainApp.getWindow().webContents.send("loginInQRCode")
     }
+
     //
     async #saveSession() {
         try {
@@ -82,6 +100,7 @@ class TelegramSrc {
             await this.#sendLog('error', `Сохранение сессии`, `Ошибка: ${e}`)
         }
     }
+
     async #createUserData(tag_tg = String(undefined)) {
         let users = await googleSheets.read('USERS!A1:C').catch(async err => await this.#sendLog('error', `Настройки пользователя`, err));
         users.forEach(user => {
@@ -93,6 +112,7 @@ class TelegramSrc {
             }
         })
     }
+
     //
     async getUser() {
         await this.#client.connect();
@@ -106,10 +126,12 @@ class TelegramSrc {
             await this.#sendAuthStatus(false);
         }
     }
+
     async getAuth() {
         let auth = await this.#client.checkAuthorization();
         this.#mainApp.getWindow().webContents.send("checkAuthorization", auth)
     }
+
     async authQrCode(password) {
         if (!await this.#client.checkAuthorization()) {
             await this.#client.signInUserWithQrCode({apiId: this.#client.apiId, apiHash: this.#client.apiHash},
@@ -142,6 +164,7 @@ class TelegramSrc {
             await this.#createUserData(`@${me.username}`)
         }
     }
+
     async loginInPhone(phone, code, password) {
         if (!await this.#client.checkAuthorization()) {
             await this.#client.start({
@@ -168,6 +191,7 @@ class TelegramSrc {
             await this.#createUserData(`@${me.username}`)
         }
     }
+
     async createChat(userList, pin_message, inc_num, desc, doc_link) {
         try {
             //Создать группу
@@ -282,10 +306,12 @@ class TelegramSrc {
             await console.error(e)
         }
     }
+
     async logOut() {
         await this.#client.invoke(new Api.auth.LogOut({}));
         if (fs.existsSync(this.#fullSessionPath)) fs.unlinkSync(this.#fullSessionPath);
         this.#mainApp.restart();
     }
 }
+
 exports.TelegramSrc = TelegramSrc

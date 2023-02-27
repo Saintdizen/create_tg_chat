@@ -1,4 +1,15 @@
-const {ContentBlock, Styles, ipcRenderer, PasswordInput, Button, Image, Notification, Icons, Page, Route} = require("chuijs");
+const {
+    ContentBlock,
+    Styles,
+    ipcRenderer,
+    PasswordInput,
+    Button,
+    Image,
+    Notification,
+    Icons,
+    Page,
+    Route
+} = require("chuijs");
 const QRCode = require("qrcode");
 
 class AuthQRCode extends Page {
@@ -15,8 +26,8 @@ class AuthQRCode extends Page {
         justify: Styles.JUSTIFY.CENTER
     });
     #back = new Button({title: "Назад", icon: Icons.NAVIGATION.ARROW_BACK, reverse: true});
-    #input_pass = new PasswordInput({ title: "Пароль", width: "225px" });
-    #generate = new Button({ title: "Сгенерировать", icon: Icons.COMMUNICATION.QR_CODE })
+    #input_pass = new PasswordInput({title: "Пароль", width: "225px"});
+    #generate = new Button({title: "Сгенерировать", icon: Icons.COMMUNICATION.QR_CODE})
 
     constructor(back, mainPage) {
         super();
