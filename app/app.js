@@ -1,10 +1,13 @@
 const {AppLayout, render, ipcRenderer} = require('chuijs');
 const {CreateChatTG} = require("./pages/page");
+const {TestPage} = require("./pages/test_page");
 
 class App extends AppLayout {
     constructor() {
         super();
+        this.setAutoCloseRouteMenu(true)
         this.setRoute(new CreateChatTG())
+        this.setRoute(new TestPage())
         ipcRenderer.on("sendUserData", (e, user) => {
             this.addComponentToAppLayout({
                 headerRight: [

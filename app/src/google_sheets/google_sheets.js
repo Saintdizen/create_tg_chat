@@ -108,6 +108,28 @@ class GoogleDrive {
             throw e
         }
     }
+    getPermissionsList = async (fileId = "") => {
+        try {
+            const {drive} = await this.#driveAuth();
+            let response = await drive.permissions.list({
+                fileId: fileId
+            })
+            return response.data.items;
+        } catch (e) {
+            throw e
+        }
+    }
+    getDeleteShare = async (fileId = "", permissionId = "") => {
+        try {
+            const {drive} = await this.#driveAuth();
+            let response = await drive.permissions.delete({
+                fileId: fileId, permissionId: permissionId
+            })
+            return response.data;
+        } catch (e) {
+            throw e
+        }
+    }
 }
 
 exports.GoogleDrive = GoogleDrive
