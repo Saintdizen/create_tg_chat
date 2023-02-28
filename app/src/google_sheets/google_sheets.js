@@ -91,9 +91,9 @@ class GoogleDrive {
         });
     }
 
-    #driveAuth = async () => {
+    #driveAuth = async (version = "v3") => {
         const client = await this.#auth.getClient();
-        let drive = await google.drive({version: 'v2', auth: client});
+        let drive = await google.drive({version: version, auth: client});
         return {drive}
     }
     copyDocument = async (options = {title: "", parentFolderId: "", fileId: ""}) => {
@@ -110,7 +110,7 @@ class GoogleDrive {
     }
     getPermissionsList = async (fileId = "") => {
         try {
-            const {drive} = await this.#driveAuth();
+            const {drive} = await this.#driveAuth("v2");
             let response = await drive.permissions.list({
                 fileId: fileId
             })
@@ -119,6 +119,24 @@ class GoogleDrive {
             throw e
         }
     }
+
+    setPermissionsList = async (fileId = "", email = "") => {
+        try {
+            const {drive} = await this.#driveAuth();
+            let response = await drive.permissions.create({
+                requestBody: {
+                    emailAddress: email,
+                    role: "writer",
+                    type: "user"
+                },
+                fileId: fileId
+            })
+            return response.data;
+        } catch (e) {
+            throw e
+        }
+    }
+
     getDeleteShare = async (fileId = "", permissionId = "") => {
         try {
             const {drive} = await this.#driveAuth();

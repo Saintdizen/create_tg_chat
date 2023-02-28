@@ -1,6 +1,6 @@
 const {AppLayout, render, ipcRenderer} = require('chuijs');
 const {CreateChatTG} = require("./pages/page");
-const {TestPage} = require("./pages/test_page");
+const {TestPage} = require("./pages/access/main_page");
 
 class App extends AppLayout {
     constructor() {
