@@ -6,7 +6,7 @@ const {transliterate} = require("transliteration");
 const fs = require("fs");
 const {StringSession} = require("telegram/sessions");
 const {GoogleSheets} = require('./src/google_sheets/google_sheets');
-let googleSheets = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ');
+let googleSheets = new GoogleSheets('19DiXisY4-5eZeK_TinD9HbJAgQgM3jtV0xGRcxPhTo8');
 
 class TelegramSrc {
     #mainApp = undefined;

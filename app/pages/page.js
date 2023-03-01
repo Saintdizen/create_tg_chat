@@ -20,8 +20,8 @@ const {
 const {GoogleSheets, GoogleDrive} = require('../src/google_sheets/google_sheets')
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {AuthMain} = require("./auth/auth");
-let googleSheets = new GoogleSheets('1zlmN2pioRFLfVqcNdvcCjZ4gw3AzkkhMLE83cwgIKv8', "Группы пользователей");
-let googleSheets_DB = new GoogleSheets('1o9v96kdyFrWwgrAwXA5SKXz8o5XDRBcjSpvTnYZM_EQ', "Настройки авторизации");
+let googleSheets = new GoogleSheets('1eXIlW-f2e-EEt1TUaen8CsNlfupmaAlV8JF4DQuG7UA', "Группы пользователей");
+let googleSheets_DB = new GoogleSheets('19DiXisY4-5eZeK_TinD9HbJAgQgM3jtV0xGRcxPhTo8', "Настройки авторизации");
 let googleDrive = new GoogleDrive();
 let lists = [];
 let report = {folder_id: String(undefined), file_id: String(undefined)}
