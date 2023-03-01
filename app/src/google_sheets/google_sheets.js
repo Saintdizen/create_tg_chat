@@ -98,7 +98,7 @@ class GoogleDrive {
     }
     copyDocument = async (options = {title: "", parentFolderId: "", fileId: ""}) => {
         try {
-            const {drive} = await this.#driveAuth();
+            const {drive} = await this.#driveAuth("v2");
             let response = await drive.files.copy({
                 requestBody: {'title': options.title, 'parents': [{"id": options.parentFolderId}]},
                 fileId: options.fileId
