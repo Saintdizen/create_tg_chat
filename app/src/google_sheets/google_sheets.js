@@ -108,6 +108,17 @@ class GoogleDrive {
             throw e
         }
     }
+    getFileInfo = async (fileId = "") => {
+        try {
+            const {drive} = await this.#driveAuth();
+            let response = await drive.files.get({
+                fileId: fileId
+            })
+            return response.data;
+        } catch (e) {
+            throw e
+        }
+    }
     getPermissionsList = async (fileId = "") => {
         try {
             const {drive} = await this.#driveAuth("v2");
