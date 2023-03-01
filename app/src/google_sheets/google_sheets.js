@@ -131,7 +131,7 @@ class GoogleDrive {
         }
     }
 
-    setPermissionsList = async (fileId = "", email = "") => {
+    setPermissionsToFile = async (fileId = "", email = "") => {
         try {
             const {drive} = await this.#driveAuth();
             let response = await drive.permissions.create({

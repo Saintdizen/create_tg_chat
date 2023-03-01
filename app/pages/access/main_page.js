@@ -126,9 +126,14 @@ class TestPage extends Page {
 
                 dialog_progress.open()
                 for (let folder of this.#folders) {
-                    await this.sleep(1000)
                     progress.setProgressText(`ID: ${folder}`)
                     progress.setValue(this.#folders.indexOf(folder) + 1)
+
+                    try {
+                        await google_api.setPermissionsToFile(folder, this.#email_person.getValue())
+                    } catch (e) {
+                        console.log(e)
+                    }
 
                     if (this.#folders.length - 1 === this.#folders.indexOf(folder)) {
                         await this.sleep(1000)
@@ -140,6 +145,7 @@ class TestPage extends Page {
 
         // Эвент удаления
         this.#button_del_person.addClickListener(async () => {
+            let files = await this.getFoldersList()
             if (this.#email_person.getValue() === "") {
                 new Notification({
                     title: "Удаление пользователя",
@@ -148,8 +154,41 @@ class TestPage extends Page {
                     showTime: 3000
                 }).show()
             } else {
-                for (let folder of await this.getFoldersList()) {
-                    console.log(folder)
+                let dialog_progress = new Dialog({
+                    width: "500px",
+                    height: Styles.SIZE.MAX_CONTENT,
+                    closeOutSideClick: false
+                });
+
+                let progress = new ProgressBar({max: files.length})
+                progress.setWidth(Styles.SIZE.WEBKIT_FILL)
+                progress.setProgressCountText(`Добавление пользователя: ${this.#email_person.getValue()}`)
+                progress.setProgressText("ID: ")
+
+                dialog_progress.addToBody(progress)
+                this.add(dialog_progress)
+
+                dialog_progress.open()
+                for (let folder of files) {
+                    progress.setProgressText(`ID: ${folder}`)
+                    progress.setValue(files.indexOf(folder) + 1)
+
+                    let data = await google_api.getPermissionsList(folder)
+                    for (let test of data) {
+                        if (test.emailAddress.toLowerCase() === this.#email_person.getValue().toLowerCase()) {
+                            try {
+                                let test_data = await google_api.getDeleteShare(folder, test.id)
+                                console.log(test_data)
+                            } catch (e) {
+                                console.log(e)
+                            }
+                        }
+                    }
+
+                    if (files.length - 1 === files.indexOf(folder)) {
+                        await this.sleep(1000)
+                        dialog_progress.close()
+                    }
                 }
             }
         })
