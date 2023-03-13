@@ -162,7 +162,7 @@ class TestPage extends Page {
 
                 let progress = new ProgressBar({max: files.length})
                 progress.setWidth(Styles.SIZE.WEBKIT_FILL)
-                progress.setProgressCountText(`Добавление пользователя: ${this.#email_person.getValue()}`)
+                progress.setProgressCountText(`Удаление пользователя: ${this.#email_person.getValue()}`)
                 progress.setProgressText("ID: ")
 
                 dialog_progress.addToBody(progress)

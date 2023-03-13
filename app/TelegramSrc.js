@@ -6,6 +6,11 @@ const {transliterate} = require("transliteration");
 const fs = require("fs");
 const {StringSession} = require("telegram/sessions");
 const {GoogleSheets} = require('./src/google_sheets/google_sheets');
+const request = require('request');
+const Store = require('electron-store');
+const {SettingsStoreMarks} = require("./pages/settings/settings_store_marks");
+const store = new Store();
+const marks = new SettingsStoreMarks();
 let googleSheets = new GoogleSheets('19DiXisY4-5eZeK_TinD9HbJAgQgM3jtV0xGRcxPhTo8');
 
 class TelegramSrc {
@@ -16,6 +21,9 @@ class TelegramSrc {
     #sessionFile = `${transliterate(this.#username_new).toLowerCase()}.json`;
     #fullSessionPath = path.join(this.#sessionPath, this.#sessionFile);
     #stringSession = new StringSession("");
+    #test_title = "";
+    #chat_id = undefined;
+    #report_link = "";
 
     constructor(mainApp) {
         this.#mainApp = mainApp;
@@ -198,17 +206,18 @@ class TelegramSrc {
             await this.#setProgressText('Создание группы...')
             await this.#setProgressValue(25)
             let date_STRING = this.format(new Date());
+            this.#test_title = `${date_STRING} - ${desc} - ${inc_num}️`;
             const res_cr_chat = await this.#client.invoke(new Api.channels.CreateChannel({
                 megagroup: true,
-                title: `‼ ${date_STRING} - ${desc} - ${inc_num}️`,
-                about: `Создан чат по проблеме ${date_STRING} - ${desc} - ${inc_num}`,
+                title: `‼ ${this.#test_title}️`,
+                about: `Создан чат по проблеме ${this.#test_title}`,
             }));
-            let chat_id = res_cr_chat.updates[2].channelId.value;
+            this.#chat_id = res_cr_chat.updates[2].channelId.value;
 
             //Изменение разрешений группы
             await this.#client.invoke(
                 new Api.messages.EditChatDefaultBannedRights({
-                    peer: chat_id,
+                    peer: this.#chat_id,
                     bannedRights: new Api.ChatBannedRights({
                         until_date: 0,
                         view_messages: true,
@@ -223,13 +232,16 @@ class TelegramSrc {
             await this.#setProgressText('Получение ссылки на приглашение в чат...')
             await this.#setProgressValue(40)
             const invite_link = await this.#client.invoke(new Api.messages.ExportChatInvite({
-                peer: chat_id,
+                peer: this.#chat_id,
             }));
             let tg_link = invite_link.link;
 
             //Корректировка сообщения
             await this.#setProgressText('Корректировка сообщения...')
             await this.#setProgressValue(55)
+
+            this.#report_link = doc_link;
+
             let message = pin_message.toString().replaceAll("<p>", "").replaceAll("</p>", "").split('\n');
             message[1] = `<b><a href="${doc_link}">Ссылка</a></b>  на отчет по инциденту`
             message.push(`\n<b>Приглашение в оперативный чат:</b> ${tg_link}`)
@@ -239,15 +251,15 @@ class TelegramSrc {
             await this.#setProgressText('Отправка и закрепление сообщения...')
             await this.#setProgressValue(70)
             try {
-                await this.#client.sendMessage(chat_id, {
+                await this.#client.sendMessage(this.#chat_id, {
                     message: new_message,
                     parseMode: 'html',
                     linkPreview: false
                 }).then(async (e) => {
-                    await this.#client.pinMessage(chat_id, e.id, {notify: false})
+                    await this.#client.pinMessage(this.#chat_id, e.id, {notify: false})
                 })
                 let today = new Date();
-                await this.#client.sendMessage(chat_id, {
+                await this.#client.sendMessage(this.#chat_id, {
                     message: `В ближайшее время будет произведены архивация и удаление чата`,
                     schedule: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7, 8, 0).getTime() / 1000
                 })
@@ -264,12 +276,12 @@ class TelegramSrc {
             for (let user of Array.from(new Set(userList))) {
                 try {
                     await this.#client.invoke(new Api.channels.InviteToChannel({
-                        channel: chat_id,
+                        channel: this.#chat_id,
                         users: [`${user}`],
                     }))
                     await this.#client.invoke(
                         new Api.channels.EditAdmin({
-                            channel: chat_id,
+                            channel: this.#chat_id,
                             userId: user,
                             adminRights: new Api.ChatAdminRights({
                                 changeInfo: true,
@@ -300,11 +312,51 @@ class TelegramSrc {
             await this.#setProgressValue(100)
             await this.#closeDialog()
             await this.#sendNotification(json.description, 'Чат успешно создан!');
+
+            if (store.get(marks.jira.activate)) await this.createJiraIssue();
         } catch (e) {
             await this.#closeDialog()
             await this.#setProgressLogText(e.message)
             await console.error(e)
         }
+    }
+
+    async createJiraIssue() {
+        let domain = store.get(marks.jira.domain)
+        let domain_2 = domain.replace("http://", "").replace("https://", "")
+        let protocol = domain.replace(domain_2, "")
+        let username = new Buffer(store.get(marks.jira.username), "base64").toString("utf-8")
+        let password = new Buffer(store.get(marks.jira.password), "base64").toString("utf-8")
+        let link = `${protocol}${username}:${password}@${domain_2}/rest/api/2/issue/`
+
+        const data = {
+            "fields": {
+                //"project": { "key": "DEMO" },
+                "project": { "key": "INV" },
+                "labels": store.get(marks.jira.labels),
+                "priority": { "name": "Highest" },
+                "assignee":{ "name": username },
+                "summary": this.#test_title,
+                "description": `Ссылка на отчет: ${this.#report_link}`,
+                //"issuetype": { "name": "Задача" }
+                "issuetype": { "name": "Task" }
+            }
+        }
+
+        const headers = {
+            "Content-Type": "application/json"
+        }
+
+        request.post({ url: link, body: JSON.stringify(data), headers: headers }, async (err, httpResponse, body) => {
+            if (err) return console.error('upload failed:', err);
+            let issueKey = JSON.parse(body).key;
+            await this.#client.sendMessage(this.#chat_id, {
+                message: `${domain}/browse/${issueKey}`,
+                parseMode: "html",
+                linkPreview: false
+            })
+        });
+
     }
 
     async logOut() {
