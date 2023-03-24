@@ -33,9 +33,6 @@
       "useMultipleRangeRequest": false
     },
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
-    "electronDownload": {
-      "mirror": "https://github.com/castlabs/electron-releases/releases/download/v"
-    },
     "linux": {
       "target": [
         {
