@@ -21,7 +21,7 @@ class TelegramSrc {
     #sessionFile = `${transliterate(this.#username_new).toLowerCase()}.json`;
     #fullSessionPath = path.join(this.#sessionPath, this.#sessionFile);
     #stringSession = new StringSession("");
-    #test_title = "";
+    #test_title = undefined;
     #chat_id = undefined;
     #report_link = "";
 
@@ -205,12 +205,13 @@ class TelegramSrc {
             //Создать группу
             await this.#setProgressText('Создание группы...')
             await this.#setProgressValue(25)
-            let date_STRING = this.format(new Date());
-            this.#test_title = `${date_STRING} - ${desc} - ${inc_num}️`;
+            this.#test_title = this.format(new Date()) + " - " + desc + " - " + inc_num
+            let test_t = `‼ ${this.#test_title}`
+            let test_a = `Создан чат по проблеме ${this.#test_title}`
             const res_cr_chat = await this.#client.invoke(new Api.channels.CreateChannel({
                 megagroup: true,
-                title: `‼ ${this.#test_title}️`,
-                about: `Создан чат по проблеме ${this.#test_title}`,
+                title: String(test_t),
+                about: String(test_a),
             }));
             this.#chat_id = res_cr_chat.updates[2].channelId.value;
 
