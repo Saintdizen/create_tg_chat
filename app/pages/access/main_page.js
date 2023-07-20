@@ -12,7 +12,7 @@ const {
     Spinner, Notification
 } = require('chuijs');
 const {GoogleSheets, GoogleDrive} = require("../../src/google_sheets/google_sheets");
-let googleSheets_DB = new GoogleSheets('19DiXisY4-5eZeK_TinD9HbJAgQgM3jtV0xGRcxPhTo8', "Настройки авторизации");
+let googleSheets_DB = new GoogleSheets('1b8MDk9NSk_DAor58VDLClwYzFXfLrwB5koCb2Krr5V8', "Настройки авторизации");
 let google_api = new GoogleDrive()
 
 class TestPage extends Page {

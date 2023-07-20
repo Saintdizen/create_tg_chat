@@ -1,11 +1,22 @@
 'use strict';
-const { Page, ContentBlock, Styles, TextInput, PasswordInput, Button, Notification, CheckBox, TextArea} = require('chuijs');
+const {
+    Page,
+    ContentBlock,
+    Styles,
+    TextInput,
+    PasswordInput,
+    Button,
+    Notification,
+    CheckBox,
+    TextArea, FieldSet
+} = require('chuijs');
 
 //
 const Store = require('electron-store');
 const store = new Store();
 const {SettingsStoreMarks} = require("./settings_store_marks");
 const marks = new SettingsStoreMarks();
+
 //
 
 class SettingsMain extends Page {
@@ -14,101 +25,162 @@ class SettingsMain extends Page {
         this.setTitle('Настройки');
         this.setMain(false);
         this.setFullWidth();
-        this.setFullHeight();
-        this.add(this.renderJiraBlock())
+        let mainBlock = new ContentBlock({
+            direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+            align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
+        })
+        mainBlock.setWidth(Styles.SIZE.WEBKIT_FILL)
+        mainBlock.add(this.settingAtlassianBlock())
+        this.add(mainBlock)
     }
 
-    renderJiraBlock() {
-        // Получение настроек
-        let activate = store.get(marks.jira.activate);
-        let domain = store.get(marks.jira.domain);
-        let username = store.get(marks.jira.username);
-        let password = store.get(marks.jira.password);
-        let labels = store.get(marks.jira.labels);
-        //
-
-        let contentBlock = new ContentBlock({
-            direction: Styles.DIRECTION.COLUMN,
-            wrap: Styles.WRAP.NOWRAP,
-            align: Styles.ALIGN.START,
-            justify: Styles.JUSTIFY.CENTER
+    settingAtlassianBlock() {
+        return new FieldSet({
+            title: "Настройки ATLASSIAN",
+            style: {
+                direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+                align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER,
+                width: "500px"
+            },
+            components: this.atlassianSettings()
         })
+    }
 
-        let activateJira = new CheckBox({ title: "Автоматическое создание задачи" })
-        activateJira.setValue(activate)
-
-        let jiraDomain = new TextInput({
-            name: 'jiraDomain',
-            title: "Домен JIRA",
-            placeholder: "Домен JIRA",
-            width: "400px",
-            required: true
+    atlassianSettings() {
+        // Настройки имени пользователя
+        let atlassian_status_store = store.get(marks.settings.atlassian.status);
+        let atlassian_user_name_store = store.get(marks.settings.atlassian.username);
+        let atlassian_user_password_store = store.get(marks.settings.atlassian.password);
+        let activateAtlassian_check = new CheckBox({title: "Включить"})
+        let atlassian_user_name = new TextInput({
+            name: 'atlassian_user_name', title: "Имя пользователя", placeholder: "Имя пользователя",
+            width: Styles.SIZE.WEBKIT_FILL, required: true
         });
-        if (domain !== undefined) jiraDomain.setValue(domain);
-
-        let jiraUsername = new TextInput({
-            name: 'jiraUsername',
-            title: "Имя пользователя",
-            placeholder: "Имя пользователя",
-            width: "400px",
-            required: true
+        let atlassian_user_password = new PasswordInput({
+            name: 'atlassian_user_password', title: "Пароль", placeholder: "Пароль",
+            width: Styles.SIZE.WEBKIT_FILL, required: true
         });
-        if (username !== undefined) jiraUsername.setValue(new Buffer(username, "base64").toString("utf-8"));
-
-        let jiraPassword = new PasswordInput({
-            name: 'jiraPassword',
-            title: "Пароль",
-            placeholder: "Пароль",
-            width: "400px",
-            required: true
+        activateAtlassian_check.setValue(atlassian_status_store)
+        if (atlassian_user_name_store !== undefined) atlassian_user_name.setValue(new Buffer(atlassian_user_name_store, "base64").toString("utf-8"));
+        if (atlassian_user_password_store !== undefined) atlassian_user_password.setValue(new Buffer(atlassian_user_password_store, "base64").toString("utf-8"));
+        let account = new FieldSet({
+            title: "Аккаунт Atlassian",
+            style: {
+                direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+                align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER,
+                width: Styles.SIZE.WEBKIT_FILL
+            },
+            components: [ atlassian_user_name, atlassian_user_password ]
+        })
+        // Настройка доменных имен
+        let atlassian_jira_domain_store = store.get(marks.settings.atlassian.jira.domain);
+        let atlassian_wiki_domain_store = store.get(marks.settings.atlassian.wiki.domain);
+        let atlassian_jira_domain = new TextInput({
+            name: 'atlassian_jira_domain_input', title: "Основной URL JIRA", placeholder: "https://example.ru",
+            width: Styles.SIZE.WEBKIT_FILL, required: true
         });
-        if (password !== undefined) jiraPassword.setValue(new Buffer(password, "base64").toString("utf-8"));
-
-        let jiraLabels = new TextArea({
+        let atlassian_wiki_domain = new TextInput({
+            name: 'atlassian_wiki_domain_input', title: "Основной URL WIKI", placeholder: "https://example.ru",
+            width: Styles.SIZE.WEBKIT_FILL, required: true
+        });
+        if (atlassian_jira_domain_store !== undefined) atlassian_jira_domain.setValue(new Buffer(atlassian_jira_domain_store, "base64").toString("utf-8"));
+        if (atlassian_wiki_domain_store !== undefined) atlassian_wiki_domain.setValue(new Buffer(atlassian_wiki_domain_store, "base64").toString("utf-8"));
+        let domains = new FieldSet({
+            title: "Общие настройки",
+            style: {
+                direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+                align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER,
+                width: Styles.SIZE.WEBKIT_FILL
+            },
+            components: [ atlassian_jira_domain, atlassian_wiki_domain ]
+        })
+        // createTask
+        let atlassian_jira_create_task_status_store = store.get(marks.settings.atlassian.jira.create_task.status);
+        let atlassian_jira_create_task_labels_store = store.get(marks.settings.atlassian.jira.create_task.labels);
+        let createTask_check = new CheckBox({title: "Включить"})
+        let textArea = new TextArea({
             title: "Метки",
             placeholder: "Метки",
-            width: "400px", height: "200px",
+            width: Styles.SIZE.WEBKIT_FILL, height: "200px",
         })
-        if (labels !== undefined) jiraLabels.setValue(labels.join("\n"));
-
-        // Активация данных
-        if (activate) {
-            jiraDomain.setDisabled(false);
-            jiraUsername.setDisabled(false);
-            jiraPassword.setDisabled(false);
-            jiraLabels.setDisabled(false);
+        let createTask = new FieldSet({
+            title: "Создание задачи",
+            style: {
+                direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+                align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER,
+                width: Styles.SIZE.WEBKIT_FILL
+            },
+            components: [ createTask_check, textArea ]
+        })
+        createTask_check.setValue(atlassian_jira_create_task_status_store);
+        if (atlassian_jira_create_task_labels_store !== undefined) textArea.setValue(atlassian_jira_create_task_labels_store.join("\n"));
+        // createReport
+        let atlassian_wiki_create_report_status_store = store.get(marks.settings.atlassian.wiki.create_report.status);
+        let createReport_check = new CheckBox({title: "Включить"})
+        let createReport = new FieldSet({
+            title: "Создание отчета",
+            style: {
+                direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+                align: Styles.ALIGN.START, justify: Styles.JUSTIFY.CENTER,
+                width: Styles.SIZE.WEBKIT_FILL
+            },
+            components: [ createReport_check ]
+        })
+        createReport_check.setValue(atlassian_wiki_create_report_status_store);
+        //
+        if (atlassian_status_store) {
+            atlassian_user_name.setDisabled(false);
+            atlassian_user_password.setDisabled(false);
+            atlassian_jira_domain.setDisabled(false);
+            atlassian_wiki_domain.setDisabled(false);
+            createTask_check.setDisabled(false);
+            textArea.setDisabled(false);
+            createReport_check.setDisabled(false);
         } else {
-            jiraDomain.setDisabled(true);
-            jiraUsername.setDisabled(true);
-            jiraPassword.setDisabled(true);
-            jiraLabels.setDisabled(true);
+            atlassian_user_name.setDisabled(true);
+            atlassian_user_password.setDisabled(true);
+            atlassian_jira_domain.setDisabled(true);
+            atlassian_wiki_domain.setDisabled(true);
+            createTask_check.setDisabled(true);
+            textArea.setDisabled(true);
+            createReport_check.setDisabled(true);
         }
-
-        activateJira.addChangeListener((e) => {
+        activateAtlassian_check.addChangeListener((e) => {
             if (e.target.checked) {
-                jiraDomain.setDisabled(false);
-                jiraUsername.setDisabled(false);
-                jiraPassword.setDisabled(false);
-                jiraLabels.setDisabled(false);
+                atlassian_user_name.setDisabled(false);
+                atlassian_user_password.setDisabled(false);
+                atlassian_jira_domain.setDisabled(false);
+                atlassian_wiki_domain.setDisabled(false);
+                createTask_check.setDisabled(false);
+                textArea.setDisabled(false);
+                createReport_check.setDisabled(false);
             } else {
-                jiraDomain.setDisabled(true);
-                jiraUsername.setDisabled(true);
-                jiraPassword.setDisabled(true);
-                jiraLabels.setDisabled(true);
+                atlassian_user_name.setDisabled(true);
+                atlassian_user_password.setDisabled(true);
+                atlassian_jira_domain.setDisabled(true);
+                atlassian_wiki_domain.setDisabled(true);
+                createTask_check.setDisabled(true);
+                textArea.setDisabled(true);
+                createReport_check.setDisabled(true);
             }
         })
-
-        let jiraSave = new Button({
-            title: "Сохранить",
-            clickEvent:  () => {
+        // Сохранение настроек
+        let b_save = new Button({
+            title: "Сохранить", clickEvent: () => {
                 try {
-                    store.set(marks.jira.activate, activateJira.getValue())
-                    store.set(marks.jira.domain, jiraDomain.getValue())
-                    store.set(marks.jira.username, new Buffer(jiraUsername.getValue()).toString("base64"))
-                    store.set(marks.jira.password, new Buffer(jiraPassword.getValue()).toString("base64"))
-                    store.set(marks.jira.labels, jiraLabels.getValue().split("\n"))
+                    store.set(marks.settings.atlassian.status, activateAtlassian_check.getValue())
+                    store.set(marks.settings.atlassian.username, new Buffer(atlassian_user_name.getValue()).toString("base64"))
+                    store.set(marks.settings.atlassian.password, new Buffer(atlassian_user_password.getValue()).toString("base64"))
+                    store.set(marks.settings.atlassian.jira.domain, new Buffer(atlassian_jira_domain.getValue()).toString("base64"))
+                    store.set(marks.settings.atlassian.wiki.domain, new Buffer(atlassian_wiki_domain.getValue()).toString("base64"))
+                    store.set(marks.settings.atlassian.jira.create_task.status, createTask_check.getValue())
+                    store.set(marks.settings.atlassian.jira.create_task.labels, textArea.getValue().split("\n"))
+                    store.set(marks.settings.atlassian.wiki.create_report.status, createReport_check.getValue())
                     new Notification({
-                        title: this.getTitle(), text: "Настройки успешно сохранены!", style: Notification.STYLE.SUCCESS, showTime: 2000
+                        title: this.getTitle(),
+                        text: "Настройки успешно сохранены!",
+                        style: Notification.STYLE.SUCCESS,
+                        showTime: 2000
                     }).show()
                 } catch (e) {
                     new Notification({
@@ -117,9 +189,7 @@ class SettingsMain extends Page {
                 }
             }
         });
-
-        contentBlock.add(activateJira, jiraDomain, jiraUsername, jiraPassword, jiraLabels, jiraSave)
-        return contentBlock;
+        return [activateAtlassian_check, account, domains, createTask, createReport, b_save]
     }
 }
 

@@ -17,14 +17,22 @@ const {
     Icons,
     Badge
 } = require('chuijs');
-const {GoogleSheets, GoogleDrive} = require('../src/google_sheets/google_sheets')
+const {GoogleSheets} = require('../src/google_sheets/google_sheets')
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {AuthMain} = require("./auth/auth");
 let googleSheets = new GoogleSheets('1eXIlW-f2e-EEt1TUaen8CsNlfupmaAlV8JF4DQuG7UA', "Группы пользователей");
-let googleSheets_DB = new GoogleSheets('19DiXisY4-5eZeK_TinD9HbJAgQgM3jtV0xGRcxPhTo8', "Настройки авторизации");
-let googleDrive = new GoogleDrive();
+let googleSheets_DB = new GoogleSheets('1b8MDk9NSk_DAor58VDLClwYzFXfLrwB5koCb2Krr5V8', "Настройки авторизации");
 let lists = [];
-let report = {folder_id: String(undefined), file_id: String(undefined)}
+let report = {
+    date: String(undefined),
+    incId: String(undefined),
+    pinMessage: String(undefined),
+    description: String(undefined),
+    wiki: {
+        space: String(undefined),
+        pageId: Number(undefined)
+    }
+}
 
 //
 class CreateChatTG extends Page {
@@ -35,7 +43,6 @@ class CreateChatTG extends Page {
         direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP,
         align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
     });
-
     constructor() {
         super();
         // Настройки страницы
@@ -214,24 +221,16 @@ class CreateChatTG extends Page {
             clickEvent: async () => {
                 if (lists.length !== 0) {
                     modal.open()
-                    progressBar.setProgressText('Клонирование документа с отчетом...')
-                    let date_STRING = CreateChatTG.#format(new Date());
+                    progressBar.setProgressText('Получение данных...')
+                    report.date = CreateChatTG.#format(new Date());
+                    report.incId = inc_num.getValue();
+                    report.pinMessage = pin_message.getValueAsHTML();
+                    report.description = desc.getValue();
                     try {
-                        await googleDrive.copyDocument({
-                            title: `${date_STRING} - ${inc_num.getValue()}`,
-                            parentFolderId: report.folder_id,
-                            fileId: report.file_id
-                        }).then(id => {
-                            if (id !== undefined) {
-                                progressBar.setValue(10)
-                                let link = `https://docs.google.com/document/d/${id}/edit`;
-                                progressBar.setProgressText('Создание чата...')
-                                ipcRenderer.on('setProgressValue', (e, value) => progressBar.setValue(value))
-                                ipcRenderer.on('setProgressText', (e, text) => progressBar.setProgressText(text))
-                                ipcRenderer.on('setProgressLogText', (e, text) => progressBlock.add(new Label(text)))
-                                ipcRenderer.send('tg_crt_chat', lists, pin_message.getValueAsHTML(), inc_num.getValue(), desc.getValue(), link)
-                            }
-                        })
+                        ipcRenderer.on('setProgressValue', (e, value) => progressBar.setValue(value))
+                        ipcRenderer.on('setProgressText', (e, text) => progressBar.setProgressText(text))
+                        ipcRenderer.on('setProgressLogText', (e, text) => progressBlock.add(new Label(text)))
+                        ipcRenderer.send('tg_crt_chat', lists, report)
                     } catch (e) {
                         progressBlock.add(new Label(e))
                         new Notification({
@@ -296,8 +295,8 @@ class CreateChatTG extends Page {
                     })
                     report_list.filter(val => {
                         if (e.target.value.includes(val[1])) {
-                            report.folder_id = val[2]
-                            report.file_id = val[3]
+                            report.wiki.space = val[2]
+                            report.wiki.pageId = val[3]
                         }
                     })
                     new Notification({

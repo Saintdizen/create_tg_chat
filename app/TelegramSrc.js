@@ -11,7 +11,7 @@ const Store = require('electron-store');
 const {SettingsStoreMarks} = require("./pages/settings/settings_store_marks");
 const store = new Store();
 const marks = new SettingsStoreMarks();
-let googleSheets = new GoogleSheets('19DiXisY4-5eZeK_TinD9HbJAgQgM3jtV0xGRcxPhTo8');
+let googleSheets = new GoogleSheets('1b8MDk9NSk_DAor58VDLClwYzFXfLrwB5koCb2Krr5V8');
 
 class TelegramSrc {
     #mainApp = undefined;
@@ -200,12 +200,15 @@ class TelegramSrc {
         }
     }
 
-    async createChat(userList, pin_message, inc_num, desc, doc_link) {
+    async createChat(userList, report = {
+        date: undefined, incId: undefined, pinMessage: undefined, description: undefined,
+        wiki: { space: undefined, pageId: undefined }
+    }) {
         try {
             //Создать группу
             await this.#setProgressText('Создание группы...')
             await this.#setProgressValue(25)
-            this.#test_title = this.format(new Date()) + " - " + desc + " - " + inc_num
+            this.#test_title = this.format(new Date()) + " - " + report.description + " - " + report.incId
             let test_t = `‼ ${this.#test_title}`
             let test_a = `Создан чат по проблеме ${this.#test_title}`
             const res_cr_chat = await this.#client.invoke(new Api.channels.CreateChannel({
@@ -237,14 +240,25 @@ class TelegramSrc {
             }));
             let tg_link = invite_link.link;
 
+            let Test_link = "";
+            // Проверка активации настройки
+            if (store.get(marks.settings.atlassian.status)) {
+                // Создание отчета
+                if (store.get(marks.settings.atlassian.wiki.create_report.status)) {
+                    await this.#setProgressText('Создание отчета...')
+                    await this.#setProgressValue(50)
+                    let req = await this.createWikiReport(report.wiki, report.date, report.incId);
+                    let body_json = JSON.parse(req)
+                    Test_link = `https://wiki.mos-team.ru/pages/viewpage.action?pageId=${body_json.id}`
+                }
+            }
+            this.#report_link = Test_link
+
             //Корректировка сообщения
             await this.#setProgressText('Корректировка сообщения...')
             await this.#setProgressValue(55)
-
-            this.#report_link = doc_link;
-
-            let message = pin_message.toString().replaceAll("<p>", "").replaceAll("</p>", "").split('\n');
-            message[1] = `<b><a href="${doc_link}">Ссылка</a></b>  на отчет по инциденту`
+            let message = report.pinMessage.toString().replaceAll("<p>", "").replaceAll("</p>", "").split('\n');
+            message[1] = `<b><a href="${Test_link}">Ссылка</a></b>  на отчет по инциденту`
             message.push(`\n<b>Приглашение в оперативный чат:</b> ${tg_link}`)
             const new_message = message.join('\n')
 
@@ -314,7 +328,11 @@ class TelegramSrc {
             await this.#closeDialog()
             await this.#sendNotification(json.description, 'Чат успешно создан!');
 
-            if (store.get(marks.jira.activate)) await this.createJiraIssue();
+            // Проверка активации настройки
+            if (store.get(marks.settings.atlassian.status)) {
+                // Создание задачи в JIRA
+                if (store.get(marks.settings.atlassian.jira.create_task.status)) await this.createJiraIssue()
+            }
         } catch (e) {
             await this.#closeDialog()
             await this.#setProgressLogText(e.message)
@@ -322,19 +340,67 @@ class TelegramSrc {
         }
     }
 
-    async createJiraIssue() {
-        let domain = store.get(marks.jira.domain)
-        let domain_2 = domain.replace("http://", "").replace("https://", "")
-        let protocol = domain.replace(domain_2, "")
-        let username = new Buffer(store.get(marks.jira.username), "base64").toString("utf-8")
-        let password = new Buffer(store.get(marks.jira.password), "base64").toString("utf-8")
-        let link = `${protocol}${username}:${password}@${domain_2}/rest/api/2/issue/`
+    // Создание отчета
+    async createWikiReport(wiki = {space: undefined, pageId: undefined}, date = undefined, incId = undefined) {
+        let domain = new Buffer(store.get(marks.settings.atlassian.wiki.domain), "base64").toString("utf-8")
+        let domain_wiki = domain.replace("http://", "").replace("https://", "")
+        let protocol = domain.replace(domain_wiki, "")
+        let username = new Buffer(store.get(marks.settings.atlassian.username), "base64").toString("utf-8")
+        let password = new Buffer(store.get(marks.settings.atlassian.password), "base64").toString("utf-8")
+        let link = `${protocol}${username}:${password}@${domain_wiki}/rest/api/content/`
+        const data = {
+            "type": "page",
+            "title": `${date} - ${incId}`,
+            "ancestors": [{ "id": wiki.pageId }],
+            "space": { "key": wiki.space },
+            "body": {
+                "storage": {
+                    "value": `<at:declarations />
+<table class="wrapped" style="letter-spacing: 0.0px;">
+    <tbody class="">
+        <tr class=""><td style="text-align: center;" colspan="2"><strong title="">Отчёт по инциденту - ${incId}</strong></td></tr>
+        <tr class=""><td>Приоритет</td><td><br /></td></tr>
+        <tr class=""><td>Номер записи в СМКСС</td><td><br /></td></tr>
+        <tr class=""><td>Дата и время фиксирования внештатной ситуации</td><td><br /></td></tr>
+        <tr class=""><td>Дата и время устранения</td><td><br /></td></tr>
+        <tr class=""><td>Общее время недоступности Системы (чч:мм)</td><td><br /></td></tr>
+        <tr class=""><td>Тип внештатной ситуации</td><td><br /></td></tr>
+        <tr class=""><td>Краткое описание</td><td><br /></td></tr>
+        <tr class=""><td>Количественные и бизнес метрики</td><td><br /></td></tr>
+        <tr class=""><td>Установленная причина внештатной ситуации</td><td><br /></td></tr>
+        <tr class=""><td>Описание процедуры восстановления работоспособности Портала (-ов)</td><td><br /></td></tr>
+        <tr class=""><td>Меры по предотвращению</td><td><br /></td></tr>
+    </tbody>
+</table>
+<p><br /></p>`,
+                    "representation": "storage"
+                }
+            }
+        }
 
+        return new Promise((resolve, reject) => {
+            request.post({
+                url: link, body: JSON.stringify(data), headers: {"Content-Type": "application/json"}
+            }, async (err, httpResponse, body) => {
+                if (err) reject(reject);
+                resolve(body)
+            });
+        });
+    }
+
+    // Создание задачи
+    async createJiraIssue() {
+        let domain = store.get(marks.settings.atlassian.jira.domain)
+        let domain_jira = domain.replace("http://", "").replace("https://", "")
+        let protocol = domain.replace(domain_jira, "")
+        let username = new Buffer(store.get(marks.settings.atlassian.username), "base64").toString("utf-8")
+        let password = new Buffer(store.get(marks.settings.atlassian.password), "base64").toString("utf-8")
+        let link = `${protocol}${username}:${password}@${domain_jira}/rest/api/2/issue/`
         const data = {
             "fields": {
                 //"project": { "key": "DEMO" },
                 "project": { "key": "INV" },
-                "labels": store.get(marks.jira.labels),
+                "labels": store.get(marks.settings.atlassian.jira.create_task.labels),
                 "priority": { "name": "Highest" },
                 "assignee":{ "name": username },
                 "summary": this.#test_title,
@@ -343,13 +409,8 @@ class TelegramSrc {
                 "issuetype": { "name": "Task" }
             }
         }
-
-        const headers = {
-            "Content-Type": "application/json"
-        }
-
-        request.post({ url: link, body: JSON.stringify(data), headers: headers }, async (err, httpResponse, body) => {
-            if (err) return console.error('upload failed:', err);
+        request.post({ url: link, body: JSON.stringify(data), headers: {"Content-Type":"application/json"} }, async (err, httpResponse, body) => {
+            if (err) return console.error('Error:', err);
             let issueKey = JSON.parse(body).key;
             await this.#client.sendMessage(this.#chat_id, {
                 message: `${domain}/browse/${issueKey}`,
@@ -357,7 +418,6 @@ class TelegramSrc {
                 linkPreview: false
             })
         });
-
     }
 
     async logOut() {

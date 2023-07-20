@@ -40,4 +40,4 @@ ipcMain.on('loginInPhone', async () => {
         new Promise((resolve) => ipcMain.on("channel_pass", async (event, password) => resolve(password)))
     )
 });
-ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, doc_link) => await tgSrc.createChat(userList, pin_message, inc_num, desc, doc_link));
+ipcMain.on('tg_crt_chat', async (e, userList, pin_message, inc_num, desc, report) => await tgSrc.createChat(userList, pin_message, inc_num, desc, report));
