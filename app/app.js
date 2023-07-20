@@ -1,6 +1,5 @@
 const {AppLayout, render, ipcRenderer} = require('chuijs');
 const {CreateChatTG} = require("./pages/page");
-const {TestPage} = require("./pages/access/main_page");
 const {SettingsMain} = require("./pages/settings/settings_main");
 
 class App extends AppLayout {
@@ -8,7 +7,6 @@ class App extends AppLayout {
         super();
         this.setAutoCloseRouteMenu(true)
         this.setRoute(new CreateChatTG())
-        this.setRoute(new TestPage())
         this.setRoute(new SettingsMain())
         ipcRenderer.on("sendUserData", (e, user) => {
             this.addComponentToAppLayout({
