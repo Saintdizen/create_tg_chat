@@ -390,7 +390,7 @@ class TelegramSrc {
 
     // Создание задачи
     async createJiraIssue() {
-        let domain = store.get(marks.settings.atlassian.jira.domain)
+        let domain = new Buffer(store.get(marks.settings.atlassian.jira.domain), "base64").toString("utf-8")
         let domain_jira = domain.replace("http://", "").replace("https://", "")
         let protocol = domain.replace(domain_jira, "")
         let username = new Buffer(store.get(marks.settings.atlassian.username), "base64").toString("utf-8")
@@ -406,11 +406,13 @@ class TelegramSrc {
                 "summary": this.#test_title,
                 "description": `Ссылка на отчет: ${this.#report_link}`,
                 //"issuetype": { "name": "Задача" }
-                "issuetype": { "name": "Task" }
+                "issuetype": { "name": "Task" },
+                "customfield_16003" : { "value": "Другое" }
             }
         }
         request.post({ url: link, body: JSON.stringify(data), headers: {"Content-Type":"application/json"} }, async (err, httpResponse, body) => {
             if (err) return console.error('Error:', err);
+            console.log(JSON.parse(body))
             let issueKey = JSON.parse(body).key;
             await this.#client.sendMessage(this.#chat_id, {
                 message: `${domain}/browse/${issueKey}`,
