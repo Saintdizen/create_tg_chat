@@ -276,7 +276,7 @@ class TelegramSrc {
                 let today = new Date();
                 await this.#client.sendMessage(this.#chat_id, {
                     message: `В ближайшее время будет произведены архивация и удаление чата`,
-                    schedule: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7, 8, 0).getTime() / 1000
+                    schedule: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7, 10, 0).getTime() / 1000
                 })
             } catch (e) {
                 if (e.message.includes("A wait of ")) {
