@@ -5,7 +5,7 @@ const json = require('./package.json');
 let main = new Main({
     name: json.description,
     width: 900,
-    height: 750,
+    height: 735,
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,

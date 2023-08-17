@@ -2,7 +2,7 @@
   "name": "create_tg_chat",
   "productName": "Create Chat Telegram",
   "description": "Create Chat Telegram",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -87,7 +87,7 @@
     "electron-builder": "22.11.7"
   },
   "dependencies": {
-    "chuijs": "~1.3.2",
+    "chuijs": "~1.3.6",
     "googleapis": "~124.0.0",
     "nodejs-file-downloader": "~4.12.1",
     "qrcode": "~1.5.3",
