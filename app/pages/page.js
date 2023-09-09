@@ -254,7 +254,7 @@ class CreateChatTG extends Page {
             clickEvent: () => this.#help_create_dialog.open()
         })
         //
-        this.#menuBar.addMenuItems(button_c_chat, button_help)
+        this.#menuBar.addMenuItems(button_help, button_c_chat)
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)

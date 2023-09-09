@@ -1,4 +1,3 @@
-'use strict';
 const {
     Page,
     ContentBlock,
@@ -8,7 +7,7 @@ const {
     Button,
     Notification,
     CheckBox,
-    TextArea, FieldSet
+    TextArea, FieldSet, Icons, MenuBar, Route
 } = require('chuijs');
 
 //
@@ -20,10 +19,21 @@ const marks = new SettingsStoreMarks();
 //
 
 class SettingsMain extends Page {
-    constructor() {
+    #menuBar = new MenuBar({test: true});
+    constructor(page) {
         super();
         this.setTitle('Настройки');
         this.setMain(false);
+        this.setMenuBar(this.#menuBar)
+
+        let back = new Button({
+            title: "Назад",
+            icon: Icons.NAVIGATION.ARROW_BACK,
+            reverse: true,
+            clickEvent: () => new Route().go(page)
+        })
+        this.#menuBar.addMenuItems(back)
+
         this.setFullWidth();
         let mainBlock = new ContentBlock({
             direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
