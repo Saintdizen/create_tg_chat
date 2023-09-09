@@ -3,7 +3,7 @@ const {TelegramSrc} = require("./app/TelegramSrc");
 const json = require('./package.json');
 // Main
 let main = new Main({
-    name: json.description,
+    name: `${json.productName} (${json.version})`,
     width: 900,
     height: 735,
     render: `${__dirname}/app/app.js`,
@@ -13,14 +13,15 @@ let main = new Main({
 });
 main.start({
     tray: [
+        new MenuItem().separator(),
+        new MenuItem().help(`Версия: ${require("./package.json").version}`),
+        new MenuItem().separator(),
         new MenuItem().button('Показать \\ Скрыть', () => {
             main.hideAndShow()
         }),
-        new MenuItem().separator(),
         new MenuItem().button("Консоль", () => {
             main.toggleDevTools()
         }),
-        new MenuItem().separator(),
         new MenuItem().quit('Выход')
     ]
 })
