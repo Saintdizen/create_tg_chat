@@ -347,35 +347,25 @@ class TelegramSrc {
         let protocol = domain.replace(domain_wiki, "")
         let username = new Buffer(store.get(marks.settings.atlassian.username), "base64").toString("utf-8")
         let password = new Buffer(store.get(marks.settings.atlassian.password), "base64").toString("utf-8")
+        // https://wiki.mos-team.ru/
+        // Взятие шаблона
+        let link_template = `${protocol}${username}:${password}@${domain_wiki}/rest/api/content/55678380?expand=body.storage`
+        let template = await new Promise((resolve, reject) => {
+            request.get({ url: link_template }, async (err, httpResponse, body) => {
+                if (err) reject(reject);
+                resolve(body)
+            });
+        });
+        console.log(JSON.parse(template).body);
+
+        // Создание страницы
         let link = `${protocol}${username}:${password}@${domain_wiki}/rest/api/content/`
         const data = {
             "type": "page",
             "title": `${date} - ${incId}`,
             "ancestors": [{ "id": wiki.pageId }],
             "space": { "key": wiki.space },
-            "body": {
-                "storage": {
-                    "value": `<at:declarations />
-<table class="wrapped" style="letter-spacing: 0.0px;">
-    <tbody class="">
-        <tr class=""><td style="text-align: center;" colspan="2"><strong title="">Отчёт по инциденту - ${incId}</strong></td></tr>
-        <tr class=""><td>Приоритет</td><td><br /></td></tr>
-        <tr class=""><td>Номер записи в СМКСС</td><td><br /></td></tr>
-        <tr class=""><td>Дата и время фиксирования внештатной ситуации</td><td><br /></td></tr>
-        <tr class=""><td>Дата и время устранения</td><td><br /></td></tr>
-        <tr class=""><td>Общее время недоступности Системы (чч:мм)</td><td><br /></td></tr>
-        <tr class=""><td>Тип внештатной ситуации</td><td><br /></td></tr>
-        <tr class=""><td>Краткое описание</td><td><br /></td></tr>
-        <tr class=""><td>Количественные и бизнес метрики</td><td><br /></td></tr>
-        <tr class=""><td>Установленная причина внештатной ситуации</td><td><br /></td></tr>
-        <tr class=""><td>Описание процедуры восстановления работоспособности Портала (-ов)</td><td><br /></td></tr>
-        <tr class=""><td>Меры по предотвращению</td><td><br /></td></tr>
-    </tbody>
-</table>
-<p><br /></p>`,
-                    "representation": "storage"
-                }
-            }
+            "body": JSON.parse(template).body
         }
 
         return new Promise((resolve, reject) => {
