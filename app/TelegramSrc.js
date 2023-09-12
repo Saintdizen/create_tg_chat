@@ -334,9 +334,9 @@ class TelegramSrc {
                 if (store.get(marks.settings.atlassian.jira.create_task.status)) await this.createJiraIssue()
             }
         } catch (e) {
-            await this.#closeDialog()
-            await this.#setProgressLogText(e.message)
-            await console.error(e)
+            await this.#closeDialog();
+            await this.#sendLog('error', `Создание чата`, `${e}`);
+            await console.error(e);
         }
     }
 
@@ -349,7 +349,7 @@ class TelegramSrc {
         let password = new Buffer(store.get(marks.settings.atlassian.password), "base64").toString("utf-8")
         // https://wiki.mos-team.ru/
         // Взятие шаблона
-        let link_template = `${protocol}${username}:${password}@${domain_wiki}/rest/api/content/55678380?expand=body.storage`
+        let link_template = `${protocol}${username}:${password}@${domain_wiki}/rest/api/content/55678859?expand=body.storage`
         let template = await new Promise((resolve, reject) => {
             request.get({ url: link_template }, async (err, httpResponse, body) => {
                 if (err) reject(reject);
