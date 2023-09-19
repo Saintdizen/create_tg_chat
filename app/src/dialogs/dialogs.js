@@ -1,7 +1,7 @@
 const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, Icons} = require("chuijs");
 
 class AuthHelpDialog {
-    #dialog = new Dialog({width: "85%", height: "80%", closeOutSideClick: false})
+    #dialog = new Dialog({width: "85%", height: Styles.SIZE.WEBKIT_FILL, closeOutSideClick: false})
     #header_dialog = new ContentBlock({
         direction: Styles.DIRECTION.ROW,
         wrap: Styles.WRAP.NOWRAP,
@@ -93,7 +93,7 @@ let data = {
         {
             text: "1) Нажать кнопку: **По QR-коду**",
             image: {
-                width: "369px",
+                width: "378px",
                 path: `${__dirname}/../../../resources/images/auth/auth_qr/1_auth.png`
             }
         },
@@ -103,14 +103,14 @@ let data = {
         {
             text: "3) Нажать кнопку: **Сгенерировать**",
             image: {
-                width: "369px",
+                width: "410px",
                 path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_2.png`
             }
         },
         {
             text: "4) Отсканировать **QR-код** приложением **Telegram**",
             image: {
-                width: "369px",
+                width: "454px",
                 path: `${__dirname}/../../../resources/images/auth/auth_qr/auth_1_3.png`
             }
         }
@@ -119,7 +119,7 @@ let data = {
         {
             text: "1) Нажать кнопку: **По номеру**",
             image: {
-                width: "369px",
+                width: "404px",
                 path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2.png`
             }
         },
@@ -129,7 +129,7 @@ let data = {
         {
             text: "3) Нажать кнопку: **Запросить код**",
             image: {
-                width: "369px",
+                width: "401px",
                 path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_1.png`
             }
         },
@@ -139,7 +139,7 @@ let data = {
         {
             text: "5) Нажать кнопку: **Отправить код**",
             image: {
-                width: "369px",
+                width: "443px",
                 path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_2.png`
             }
         },
@@ -149,7 +149,7 @@ let data = {
         {
             text: "7) Нажать кнопку: **Авторизоваться**",
             image: {
-                width: "369px",
+                width: "433px",
                 path: `${__dirname}/../../../resources/images/auth/auth_phone/auth_2_3.png`
             }
         }
@@ -165,7 +165,7 @@ let data = {
         {
             text: "**Дождаться появления уведомления**",
             image: {
-                width: "-webkit-fill-available",
+                width: "292px",
                 path: `${__dirname}/../../../resources/images/create_chat/1_2.png`
             }
         },
@@ -193,7 +193,7 @@ let data = {
         {
             text: "5) Нажать кнопку: **Создать чат**",
             image: {
-                width: "-webkit-fill-available",
+                width: "137px",
                 path: `${__dirname}/../../../resources/images/create_chat/5.png`
             }
         },
