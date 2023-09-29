@@ -217,6 +217,7 @@ class CreateChatTG extends Page {
         })
         // Кнопка создания чата
         let button_c_chat = new Button({
+            primary: true,
             title: "Создать чат",
             clickEvent: async () => {
                 if (lists.length !== 0) {

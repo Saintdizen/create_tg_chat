@@ -19,18 +19,20 @@ const marks = new SettingsStoreMarks();
 //
 
 class SettingsMain extends Page {
+    #back_page = undefined;
     #menuBar = new MenuBar({test: true});
     constructor(page) {
         super();
         this.setTitle('Настройки');
         this.setMain(false);
         this.setMenuBar(this.#menuBar)
+        this.#back_page = page;
 
         let back = new Button({
             title: "Назад",
             icon: Icons.NAVIGATION.ARROW_BACK,
             reverse: true,
-            clickEvent: () => new Route().go(page)
+            clickEvent: () => new Route().go(this.#back_page)
         })
         this.#menuBar.addMenuItems(back)
 
@@ -50,7 +52,7 @@ class SettingsMain extends Page {
             style: {
                 direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
                 align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER,
-                width: "500px"
+                width: Styles.SIZE.WEBKIT_FILL
             },
             components: this.atlassianSettings()
         })
@@ -175,7 +177,15 @@ class SettingsMain extends Page {
             }
         })
         // Сохранение настроек
+        let buttons_save_cancel = new ContentBlock({
+            direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.NOWRAP,
+            align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
+        })
+        let b_cancel = new Button({
+            title: "Отмена", clickEvent: () => new Route().go(this.#back_page)
+        });
         let b_save = new Button({
+            primary: true,
             title: "Сохранить", clickEvent: () => {
                 try {
                     store.set(marks.settings.atlassian.status, activateAtlassian_check.getValue())
@@ -199,7 +209,8 @@ class SettingsMain extends Page {
                 }
             }
         });
-        return [activateAtlassian_check, account, domains, createTask, createReport, b_save]
+        buttons_save_cancel.add(b_cancel, b_save)
+        return [activateAtlassian_check, account, domains, createTask, createReport, buttons_save_cancel]
     }
 }
 
