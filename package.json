@@ -2,7 +2,7 @@
   "name": "create_tg_chat",
   "productName": "Create Chat Telegram",
   "description": "Create Chat Telegram",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -29,7 +29,7 @@
       "private": true,
       "repo": "create_tg_chat",
       "releaseType": "release",
-      "token": "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",
+      "token": "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",
       "useMultipleRangeRequest": false
     },
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
@@ -44,6 +44,13 @@
         "Name": "Create Chat Telegram",
         "Terminal": "false"
       }
+    },
+    "mac": {
+      "signIgnore": "*",
+      "category": "public.app-category.support-tools",
+      "target": ["pkg"],
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
     },
     "win": {
       "icon": "resources/icons/app/icon.ico",
@@ -70,6 +77,7 @@
     },
     "files": [
       "main.js",
+      "update.json",
       "resources/**/*",
       "app/**/*"
     ]
@@ -87,12 +95,11 @@
     "electron-builder": "22.11.7"
   },
   "dependencies": {
-    "chuijs": "~1.6.6",
+    "chuijs": "~1.8.2",
     "googleapis": "~126.0.1",
-    "nodejs-file-downloader": "~4.12.1",
     "qrcode": "~1.5.3",
     "request": "~2.88.2",
-    "telegram": "~2.18.38",
+    "telegram": "~2.19.6",
     "transliteration": "~2.3.5"
   }
 }

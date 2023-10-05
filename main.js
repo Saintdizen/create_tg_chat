@@ -22,7 +22,7 @@ main.start({
     ]
 })
 
-main.enableAutoUpdateApp(3000, json.version);
+main.enableAutoUpdateApp(3000, require("./update.json"));
 
 const tgSrc = new TelegramSrc(main);
 
