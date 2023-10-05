@@ -37,4 +37,4 @@ class App extends AppLayout {
     }
 }
 
-render(() => new App()).then(() => console.log("ЗАГРУЖЕНО!"))
+render(() => new App()).then(() => console.log("ЗАГРУЖЕНО!!!"))
