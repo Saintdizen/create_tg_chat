@@ -9,7 +9,6 @@
     "debs": "npm install --save --legacy-peer-deps --force",
     "postinstall": "electron-builder install-app-deps",
     "linux": "electron-builder --linux --publish always",
-    "linux_start": "electron-builder --linux",
     "win": "electron-builder --win --publish always",
     "mac": "electron-builder --mac --publish always"
   },
@@ -21,7 +20,6 @@
     "Monitoring"
   ],
   "build": {
-    "appId": "com.monitoring.createTelegramChat",
     "asar": false,
     "publish": {
       "provider": "github",
@@ -29,10 +27,10 @@
       "private": true,
       "repo": "create_tg_chat",
       "releaseType": "release",
-      "token": "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",
-      "useMultipleRangeRequest": false
+      "token": "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"
     },
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
+    "appId": "com.monitoring.createtelegramchat",
     "linux": {
       "target": [
         {
@@ -92,7 +90,7 @@
   },
   "homepage": "https://github.com/Saintdizen/create_tg_chat#readme",
   "devDependencies": {
-    "electron-builder": "22.11.7"
+    "electron-builder": "~23.6.0"
   },
   "dependencies": {
     "chuijs": "~1.8.2",
