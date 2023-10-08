@@ -1,27 +1,35 @@
-const path = require('path');
 const {google} = require('googleapis');
+const {log} = require("chuijs")
 
 class GoogleSheets {
     #name = undefined;
     #SHEET_ID = undefined;
     #auth = undefined;
 
-    constructor(SHEET_ID, name) {
-        this.#SHEET_ID = SHEET_ID;
-        this.#name = name;
-        this.#auth = new google.auth.GoogleAuth({
-            keyFile: path.join(__dirname, 'creds/credentials.json'),
-            scopes: 'https://www.googleapis.com/auth/spreadsheets'
-        })
+    constructor(SHEET_ID, name, credentials = String()) {
+        try {
+            this.#SHEET_ID = SHEET_ID;
+            this.#name = name;
+            this.#auth = new google.auth.GoogleAuth({
+                keyFile: credentials,
+                scopes: 'https://www.googleapis.com/auth/spreadsheets'
+            })
+        } catch (e) {
+            return null;
+        }
     }
 
     #googleAuth = async () => {
-        let client = await this.#auth.getClient();
-        let sheets = await google.sheets({
-            version: 'v4',
-            auth: client
-        });
-        return {sheets}
+        try {
+            let client = await this.#auth.getClient();
+            let sheets = await google.sheets({
+                version: 'v4',
+                auth: client
+            });
+            return {sheets}
+        } catch (e) {
+            log.info(e)
+        }
     }
     read = async (range) => {
         try {
@@ -32,7 +40,7 @@ class GoogleSheets {
             })
             return response.data.values;
         } catch (e) {
-            console.error(e);
+            log.info(e)
         }
     }
     write = async (range, data) => {
@@ -45,7 +53,7 @@ class GoogleSheets {
                 requestBody: {values: [data]}
             })
         } catch (e) {
-            console.error(e);
+            log.info(e)
         }
     }
     getLists = async () => {
@@ -55,7 +63,7 @@ class GoogleSheets {
                 spreadsheetId: this.#SHEET_ID
             });
         } catch (e) {
-            console.error(e);
+            log.info(e)
         }
     }
     getStatus = async () => {

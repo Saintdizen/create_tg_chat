@@ -15,13 +15,16 @@ const {
     MenuBar,
     Route,
     Icons,
-    Badge
+    Badge,
+    log
 } = require('chuijs');
-const {GoogleSheets} = require('../src/google_sheets/google_sheets')
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {AuthMain} = require("./auth/auth");
-let googleSheets = new GoogleSheets('1eXIlW-f2e-EEt1TUaen8CsNlfupmaAlV8JF4DQuG7UA', "Группы пользователей");
-let googleSheets_DB = new GoogleSheets('1b8MDk9NSk_DAor58VDLClwYzFXfLrwB5koCb2Krr5V8', "Настройки авторизации");
+
+const {Tables} = require('../src/google_sheets/tables');
+let tableUsersGroups = new Tables().tableUsersGroups();
+let tableAuthSettings = new Tables().tableAuthSettings();
+
 let lists = [];
 let report = {
     date: String(undefined),
@@ -62,13 +65,13 @@ class CreateChatTG extends Page {
         this.setMenuBar(this.#menuBar)
 
         setTimeout(async () => {
-            let status_1 = await this.checkTable(googleSheets);
-            let status_2 = await this.checkTable(googleSheets_DB);
+            /*let status_1 = await this.checkTable(tableUsersGroups);
+            let status_2 = await this.checkTable(tableAuthSettings);
             if (status_1.status && status_2.status) {
                 await this.checkAuth();
             } else {
                 this.#info_block.remove(this.#spinner_big)
-            }
+            }*/
         }, 200)
     }
 
@@ -105,7 +108,7 @@ class CreateChatTG extends Page {
             block.add(new Badge({text: "Успешно", style: Badge.STYLE.SUCCESS}))
         } else {
             block.add(new Badge({text: "Ошибка", style: Badge.STYLE.ERROR}))
-            console.log(status)
+            log.error(status)
         }
         return status;
     }
@@ -271,7 +274,7 @@ class CreateChatTG extends Page {
         })
 
         ipcRenderer.on('user_data', async (e, TAG_TG, ROLE, GROUP) => {
-            let rp_names = await googleSheets.getLists().catch(err => console.error(err));
+            let rp_names = await tableUsersGroups.getLists().catch(err => log.info(err));
             for (let list of rp_names.data.sheets) {
                 if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
                     radio_groups.push({name: list.properties.title, value: list.properties.title});
@@ -288,8 +291,8 @@ class CreateChatTG extends Page {
                 try {
                     button_c_chat.setDisabled(true);
                     // Чтение таблиц
-                    let report_list = await googleSheets_DB.read(`REPORTS!A1:D`);
-                    let users_list = await googleSheets.read(`${e.target.value}!A1:A`).catch(err => console.error(err));
+                    let report_list = await tableAuthSettings.read(`REPORTS!A1:D`);
+                    let users_list = await tableUsersGroups.read(`${e.target.value}!A1:A`).catch(err => log.info(err));
                     lists = []
                     users_list.forEach(val => {
                         if (val.length !== 0) lists.push(val[0]);

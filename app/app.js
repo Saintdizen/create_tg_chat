@@ -1,12 +1,11 @@
-const {AppLayout, render, ipcRenderer, Route, Icons} = require('chuijs');
+const {AppLayout, render, ipcRenderer, Route, Icons, Log} = require('chuijs');
 const {CreateChatTG} = require("./pages/page");
 const {SettingsMain} = require("./pages/settings/settings_main");
 
-class App extends AppLayout {
+class Apps extends AppLayout {
     constructor() {
         super();
-        this.setAutoCloseRouteMenu()
-        //this.disableAppMenu();
+        this.setAutoCloseRouteMenu();
         //
         let main_page = new CreateChatTG();
         let settings_page = new SettingsMain(main_page);
@@ -37,4 +36,4 @@ class App extends AppLayout {
     }
 }
 
-render(() => new App()).then(() => console.log("ЗАГРУЖЕНО!!!"))
+render(() => new Apps()).then(() => Log.info("ЗАГРУЖЕНО!!!"))
