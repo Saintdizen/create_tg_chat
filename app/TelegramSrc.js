@@ -6,7 +6,7 @@ const {transliterate} = require("transliteration");
 const fs = require("fs");
 const {StringSession} = require("telegram/sessions");
 const request = require('request');
-const {store, log} = require('chuijs');
+const {store, Log} = require('chuijs');
 const {SettingsStoreMarks} = require("./settings/settings_store_marks");
 const {Tables} = require('./src/google_sheets/tables');
 let tableUsersGroups = new Tables().tableUsersGroups();
@@ -334,7 +334,7 @@ class TelegramSrc {
         } catch (e) {
             await this.#closeDialog();
             await this.#sendLog('error', `Создание чата`, `${e}`);
-            await log.error(e);
+            await Log.error(e);
         }
     }
 
@@ -398,7 +398,7 @@ class TelegramSrc {
             }
         }
         request.post({ url: link, body: JSON.stringify(data), headers: {"Content-Type":"application/json"} }, async (err, httpResponse, body) => {
-            if (err) return log.error('Error:', err);
+            if (err) return Log.error('Error:', err);
             let issueKey = JSON.parse(body).key;
             await this.#client.sendMessage(this.#chat_id, {
                 message: `${domain}/browse/${issueKey}`,

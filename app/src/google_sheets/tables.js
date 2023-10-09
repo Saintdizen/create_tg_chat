@@ -1,4 +1,4 @@
-const {store, log} = require('chuijs');
+const {store, Log} = require('chuijs');
 const {GoogleSheets} = require('./google_sheets');
 const {SettingsStoreMarks} = require("../../settings/settings_store_marks");
 
@@ -15,7 +15,7 @@ class Tables {
         try {
             return new GoogleSheets(this.#users_groups_id, "Группы пользователей", this.#json_key_path);
         } catch (e) {
-            log.error(e)
+            Log.error(e)
             return null;
         }
     }
@@ -23,7 +23,7 @@ class Tables {
         try {
             return new GoogleSheets(this.#auth_settings_id, "Настройки авторизации", this.#json_key_path);
         } catch (e) {
-            log.error(e)
+            Log.error(e)
             return null;
         }
     }

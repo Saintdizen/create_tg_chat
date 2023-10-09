@@ -1,5 +1,5 @@
 const {google} = require('googleapis');
-const {log} = require("chuijs")
+const {Log} = require("chuijs")
 
 class GoogleSheets {
     #name = undefined;
@@ -28,7 +28,7 @@ class GoogleSheets {
             });
             return {sheets}
         } catch (e) {
-            log.info(e)
+            Log.info(e)
         }
     }
     read = async (range) => {
@@ -40,7 +40,7 @@ class GoogleSheets {
             })
             return response.data.values;
         } catch (e) {
-            log.info(e)
+            Log.info(e)
         }
     }
     write = async (range, data) => {
@@ -53,7 +53,7 @@ class GoogleSheets {
                 requestBody: {values: [data]}
             })
         } catch (e) {
-            log.info(e)
+            Log.info(e)
         }
     }
     getLists = async () => {
@@ -63,7 +63,7 @@ class GoogleSheets {
                 spreadsheetId: this.#SHEET_ID
             });
         } catch (e) {
-            log.info(e)
+            Log.info(e)
         }
     }
     getStatus = async () => {

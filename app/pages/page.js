@@ -16,7 +16,7 @@ const {
     Route,
     Icons,
     Badge,
-    log
+    Log
 } = require('chuijs');
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {AuthMain} = require("./auth/auth");
@@ -108,7 +108,7 @@ class CreateChatTG extends Page {
             block.add(new Badge({text: "Успешно", style: Badge.STYLE.SUCCESS}))
         } else {
             block.add(new Badge({text: "Ошибка", style: Badge.STYLE.ERROR}))
-            log.error(status)
+            Log.error(status)
         }
         return status;
     }
@@ -274,7 +274,7 @@ class CreateChatTG extends Page {
         })
 
         ipcRenderer.on('user_data', async (e, TAG_TG, ROLE, GROUP) => {
-            let rp_names = await tableUsersGroups.getLists().catch(err => log.info(err));
+            let rp_names = await tableUsersGroups.getLists().catch(err => Log.info(err));
             for (let list of rp_names.data.sheets) {
                 if (list.properties.title.includes("Тестер") || list.properties.title.includes("Общая проблема")) {
                     radio_groups.push({name: list.properties.title, value: list.properties.title});
@@ -292,7 +292,7 @@ class CreateChatTG extends Page {
                     button_c_chat.setDisabled(true);
                     // Чтение таблиц
                     let report_list = await tableAuthSettings.read(`REPORTS!A1:D`);
-                    let users_list = await tableUsersGroups.read(`${e.target.value}!A1:A`).catch(err => log.info(err));
+                    let users_list = await tableUsersGroups.read(`${e.target.value}!A1:A`).catch(err => Log.info(err));
                     lists = []
                     users_list.forEach(val => {
                         if (val.length !== 0) lists.push(val[0]);
