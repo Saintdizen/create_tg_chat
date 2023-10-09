@@ -9,8 +9,7 @@
     "debs": "npm install --save --legacy-peer-deps --force",
     "postinstall": "electron-builder install-app-deps",
     "linux": "electron-builder --linux --publish always",
-    "win": "electron-builder --win --publish always",
-    "mac": "electron-builder --mac --publish always"
+    "win": "electron-builder --win --publish always"
   },
   "repository": {
     "type": "git",
@@ -32,34 +31,16 @@
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
     "appId": "com.monitoring.createtelegramchat",
     "linux": {
-      "target": [
-        {
-          "target": "AppImage"
-        }
-      ],
+      "target": [{"target": "AppImage"}],
       "category": "test",
       "desktop": {
         "Name": "Create Chat Telegram",
         "Terminal": "false"
       }
     },
-    "mac": {
-      "signIgnore": "*",
-      "category": "public.app-category.support-tools",
-      "target": ["pkg"],
-      "hardenedRuntime": false,
-      "gatekeeperAssess": false
-    },
     "win": {
       "icon": "resources/icons/app/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ]
+      "target": [{"target": "nsis", "arch": ["x64"]}]
     },
     "nsis": {
       "oneClick": false,
@@ -75,7 +56,6 @@
     },
     "files": [
       "main.js",
-      "update.json",
       "resources/**/*",
       "app/**/*"
     ]
@@ -93,7 +73,7 @@
     "electron-builder": "~23.6.0"
   },
   "dependencies": {
-    "chuijs": "~1.9.4",
+    "chuijs": "~1.9.5",
     "googleapis": "~126.0.1",
     "qrcode": "~1.5.3",
     "request": "~2.88.2",
