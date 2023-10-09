@@ -9,7 +9,7 @@ const request = require('request');
 const {store, Log} = require('chuijs');
 const {SettingsStoreMarks} = require("./settings/settings_store_marks");
 const {Tables} = require('./src/google_sheets/tables');
-let tableUsersGroups = new Tables().tableUsersGroups();
+let tableAuthSettings = new Tables().tableAuthSettings();
 
 class TelegramSrc {
     #mainApp = undefined;
@@ -108,7 +108,7 @@ class TelegramSrc {
     }
 
     async #createUserData(tag_tg = String(undefined)) {
-        let users = await tableUsersGroups.read('USERS!A1:C').catch(async err => await this.#sendLog('error', `Настройки пользователя`, err));
+        let users = await tableAuthSettings.read('USERS!A1:C').catch(async err => await this.#sendLog('error', `Настройки пользователя`, err));
         users.forEach(user => {
             if (user[0] === tag_tg) {
                 setTimeout(async () => {

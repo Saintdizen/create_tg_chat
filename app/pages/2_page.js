@@ -20,7 +20,6 @@ const {
 } = require('chuijs');
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {AuthMain} = require("./auth/auth");
-
 const {Tables} = require('../src/google_sheets/tables');
 let tableUsersGroups = new Tables().tableUsersGroups();
 let tableAuthSettings = new Tables().tableAuthSettings();
@@ -65,13 +64,13 @@ class CreateChatTG extends Page {
         this.setMenuBar(this.#menuBar)
 
         setTimeout(async () => {
-            /*let status_1 = await this.checkTable(tableUsersGroups);
+            let status_1 = await this.checkTable(tableUsersGroups);
             let status_2 = await this.checkTable(tableAuthSettings);
             if (status_1.status && status_2.status) {
                 await this.checkAuth();
             } else {
                 this.#info_block.remove(this.#spinner_big)
-            }*/
+            }
         }, 200)
     }
 
@@ -90,7 +89,7 @@ class CreateChatTG extends Page {
     checkAuth() {
         ipcRenderer.send("getUser")
         ipcRenderer.on('sendAuthStatus', async (e, status) => {
-            this.remove(this.#info_block)
+            //this.remove(this.#info_block)
             if (status) {
                 setTimeout(() => this.add(this.#mainBlock()), 200)
             } else {
@@ -292,7 +291,7 @@ class CreateChatTG extends Page {
                     button_c_chat.setDisabled(true);
                     // Чтение таблиц
                     let report_list = await tableAuthSettings.read(`REPORTS!A1:D`);
-                    let users_list = await tableUsersGroups.read(`${e.target.value}!A1:A`).catch(err => Log.info(err));
+                    let users_list = await tableUsersGroups.read(`${e.target.value}!A1:A`).catch(err => Log.error(err));
                     lists = []
                     users_list.forEach(val => {
                         if (val.length !== 0) lists.push(val[0]);

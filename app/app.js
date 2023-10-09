@@ -1,16 +1,14 @@
 const {AppLayout, render, ipcRenderer, Route, Icons, Log} = require('chuijs');
-const {CreateChatTG} = require("./pages/page");
-const {SettingsMain} = require("./pages/settings/settings_main");
+const {SettingsGoogleCheckPage} = require("./pages/0_page");
 
 class Apps extends AppLayout {
     constructor() {
         super();
         this.setAutoCloseRouteMenu();
         //
-        let main_page = new CreateChatTG();
-        let settings_page = new SettingsMain(main_page);
-        //
-        this.setRoute(main_page)
+        let settings_check_page = new SettingsGoogleCheckPage();
+        //let settings_page = new SettingsMain(main_page);
+        this.setRoute(settings_check_page)
         ipcRenderer.on("sendUserData", (e, user) => {
             this.addToHeader([
                 AppLayout.BUTTON({

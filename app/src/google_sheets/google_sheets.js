@@ -1,22 +1,19 @@
 const {google} = require('googleapis');
-const {Log} = require("chuijs")
+const {Log, store, path} = require("chuijs")
+const {SettingsStoreMarks} = require("../../settings/settings_store_marks");
 
 class GoogleSheets {
     #name = undefined;
     #SHEET_ID = undefined;
     #auth = undefined;
 
-    constructor(SHEET_ID, name, credentials = String()) {
-        try {
-            this.#SHEET_ID = SHEET_ID;
-            this.#name = name;
-            this.#auth = new google.auth.GoogleAuth({
-                keyFile: credentials,
-                scopes: 'https://www.googleapis.com/auth/spreadsheets'
-            })
-        } catch (e) {
-            return null;
-        }
+    constructor(SHEET_ID, name) {
+        this.#SHEET_ID = SHEET_ID;
+        this.#name = name;
+        this.#auth = new google.auth.GoogleAuth({
+            keyFile: path.join(store.get(SettingsStoreMarks.SETTINGS.google.json_key_path)),
+            scopes: 'https://www.googleapis.com/auth/spreadsheets'
+        })
     }
 
     #googleAuth = async () => {
@@ -28,7 +25,7 @@ class GoogleSheets {
             });
             return {sheets}
         } catch (e) {
-            Log.info(e)
+            Log.error(e)
         }
     }
     read = async (range) => {
@@ -40,7 +37,7 @@ class GoogleSheets {
             })
             return response.data.values;
         } catch (e) {
-            Log.info(e)
+            Log.error(e)
         }
     }
     write = async (range, data) => {
@@ -53,7 +50,7 @@ class GoogleSheets {
                 requestBody: {values: [data]}
             })
         } catch (e) {
-            Log.info(e)
+            Log.error(e)
         }
     }
     getLists = async () => {
@@ -63,7 +60,7 @@ class GoogleSheets {
                 spreadsheetId: this.#SHEET_ID
             });
         } catch (e) {
-            Log.info(e)
+            Log.error(e)
         }
     }
     getStatus = async () => {
