@@ -1,4 +1,4 @@
-const {Main, MenuItem, ipcMain, Log} = require('chuijs');
+const {Main, MenuItem, ipcMain} = require('chuijs');
 const {TelegramSrc} = require("./app/TelegramSrc");
 const json = require('./package.json');
 // Main
@@ -21,9 +21,7 @@ main.start({
         new MenuItem().quit('Выход')
     ]
 })
-
 main.enableAutoUpdateApp(3000);
-Log.error("test")
 
 const tgSrc = new TelegramSrc(main);
 

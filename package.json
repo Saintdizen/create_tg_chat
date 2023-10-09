@@ -23,15 +23,18 @@
     "publish": {
       "provider": "github",
       "owner": "saintdizen",
-      "private": true,
+      "private": false,
       "repo": "create_tg_chat",
-      "releaseType": "release",
-      "token": "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"
+      "releaseType": "release"
     },
     "artifactName": "${name}-${os}-${arch}-${version}.${ext}",
     "appId": "com.monitoring.createtelegramchat",
     "linux": {
-      "target": [{"target": "AppImage"}],
+      "target": [
+        {
+          "target": "AppImage"
+        }
+      ],
       "category": "test",
       "desktop": {
         "Name": "Create Chat Telegram",
@@ -40,7 +43,14 @@
     },
     "win": {
       "icon": "resources/icons/app/icon.ico",
-      "target": [{"target": "nsis", "arch": ["x64"]}]
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
