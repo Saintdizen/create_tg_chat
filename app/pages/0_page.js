@@ -1,10 +1,9 @@
 const {
-    Page, Button, Label, fs, store,
-    shell, App, path, TextInput, Route, ipcRenderer, Badge, Log, ContentBlock, Styles
+    Page, Button, Label, fs, store, shell, App, path, TextInput,
+    Route, ipcRenderer, Badge, Log, ContentBlock, Styles
 } = require('chuijs');
 const {SettingsStoreMarks} = require("../settings/settings_store_marks");
 const {AuthMain} = require("./auth/auth");
-//
 const {Tables} = require('../src/google_sheets/tables');
 
 class SettingsGoogleCheckPage extends Page {
