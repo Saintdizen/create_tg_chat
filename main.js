@@ -4,12 +4,13 @@ const json = require('./package.json');
 // Main
 let main = new Main({
     name: `${json.productName} (${json.version})`,
-    width: 900,
-    height: 650,
+    width: 800,
+    height: 645,
     render: `${__dirname}/app/app.js`,
     devTools: false,
     menuBarVisible: false,
     icon: `${__dirname}/resources/icons/app/icon.png`,
+    resizable: false
 });
 main.start({
     tray: [

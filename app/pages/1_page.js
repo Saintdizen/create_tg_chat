@@ -26,10 +26,6 @@ class CreateChatTG extends Page {
     //#spinner_big = new Spinner(Spinner.SIZE.BIG, '10px');
     #help_create_dialog = new CreateHelpDialog();
     #menuBar = new MenuBar({test: true});
-    #info_block = new ContentBlock({
-        direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.WRAP,
-        align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
-    });
     constructor() {
         super();
         // Настройки страницы
@@ -39,10 +35,6 @@ class CreateChatTG extends Page {
         this.setFullHeight();
         this.#enableLogsNotification();
         this.add(this.#help_create_dialog)
-        this.add(this.#info_block)
-        this.#info_block.setHeight(Styles.SIZE.WEBKIT_FILL)
-        this.#info_block.setWidth(Styles.SIZE.WEBKIT_FILL)
-        //this.#info_block.add(this.#spinner_big)
         this.#menuBar = new MenuBar({test: true});
         this.setMenuBar(this.#menuBar)
         this.add(this.#mainBlock())
