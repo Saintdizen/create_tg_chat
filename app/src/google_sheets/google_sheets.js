@@ -11,7 +11,7 @@ class GoogleSheets {
         this.#SHEET_ID = SHEET_ID;
         this.#name = name;
         this.#auth = new google.auth.GoogleAuth({
-            keyFile: path.join(store.get(SettingsStoreMarks.SETTINGS.google.json_key_path)),
+            keyFile: path.join(String(store.get(SettingsStoreMarks.SETTINGS.google.json_key_path))),
             scopes: 'https://www.googleapis.com/auth/spreadsheets'
         })
     }

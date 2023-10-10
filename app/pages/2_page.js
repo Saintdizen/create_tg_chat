@@ -1,25 +1,10 @@
 const {
-    Page,
-    Button,
-    TextInput,
-    ContentBlock,
-    Styles,
-    Notification,
-    ipcRenderer,
-    Dialog,
-    ProgressBar,
-    Label,
-    RadioGroup,
-    Spinner,
-    TextEditor,
-    MenuBar,
-    Route,
-    Icons,
-    Badge,
-    Log
+    Page, Button, TextInput, ContentBlock,
+    Styles, Notification, ipcRenderer, Dialog,
+    ProgressBar, Label, RadioGroup, Spinner,
+    TextEditor, MenuBar, Icons, Log
 } = require('chuijs');
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
-const {AuthMain} = require("./auth/auth");
 const {Tables} = require('../src/google_sheets/tables');
 let tableUsersGroups = new Tables().tableUsersGroups();
 let tableAuthSettings = new Tables().tableAuthSettings();
@@ -38,7 +23,7 @@ let report = {
 
 //
 class CreateChatTG extends Page {
-    #spinner_big = new Spinner(Spinner.SIZE.BIG, '10px');
+    //#spinner_big = new Spinner(Spinner.SIZE.BIG, '10px');
     #help_create_dialog = new CreateHelpDialog();
     #menuBar = new MenuBar({test: true});
     #info_block = new ContentBlock({
@@ -52,65 +37,18 @@ class CreateChatTG extends Page {
         this.setMain(true);
         this.setFullWidth();
         this.setFullHeight();
-        // ===
         this.#enableLogsNotification();
         this.add(this.#help_create_dialog)
         this.add(this.#info_block)
         this.#info_block.setHeight(Styles.SIZE.WEBKIT_FILL)
         this.#info_block.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#info_block.add(this.#spinner_big)
-        //
+        //this.#info_block.add(this.#spinner_big)
         this.#menuBar = new MenuBar({test: true});
         this.setMenuBar(this.#menuBar)
-
-        setTimeout(async () => {
-            let status_1 = await this.checkTable(tableUsersGroups);
-            let status_2 = await this.checkTable(tableAuthSettings);
-            if (status_1.status && status_2.status) {
-                await this.checkAuth();
-            } else {
-                this.#info_block.remove(this.#spinner_big)
-            }
-        }, 200)
+        this.add(this.#mainBlock())
     }
 
-    addBlock(text) {
-        let block = new ContentBlock({
-            direction: Styles.DIRECTION.ROW, wrap: Styles.WRAP.WRAP,
-            align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
-        });
-        block.setWidth(Styles.SIZE.WEBKIT_FILL);
-        block.add(new Label({
-            markdownText: text, wordBreak: Styles.WORD_BREAK.BREAK_ALL
-        }))
-        return block;
-    }
 
-    checkAuth() {
-        ipcRenderer.send("getUser")
-        ipcRenderer.on('sendAuthStatus', async (e, status) => {
-            //this.remove(this.#info_block)
-            if (status) {
-                setTimeout(() => this.add(this.#mainBlock()), 200)
-            } else {
-                setTimeout(() => new Route().go(new AuthMain(this)), 200)
-            }
-        })
-    }
-
-    async checkTable(table) {
-        let block = this.addBlock(`Проверка таблицы **${table.getName()}**`);
-        this.#info_block.add(block)
-        //
-        let status = await table.getStatus()
-        if (status.status) {
-            block.add(new Badge({text: "Успешно", style: Badge.STYLE.SUCCESS}))
-        } else {
-            block.add(new Badge({text: "Ошибка", style: Badge.STYLE.ERROR}))
-            Log.error(status)
-        }
-        return status;
-    }
 
     #mainBlock() {
         let block = new ContentBlock({
