@@ -16,10 +16,19 @@ class SettingsGoogleCheckPage extends Page {
     #path_key = path.join(this.#path_folder, "credentials.json")
     //
     #p1 = undefined;
+    //
+    #main_block = new ContentBlock({
+        direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+        align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
+    });
     constructor(MainPage) {
         super();
         //
         this.#p1 = MainPage;
+        //
+        this.#main_block.setWidth(Styles.SIZE.WEBKIT_FILL)
+        this.#main_block.setHeight(Styles.SIZE.WEBKIT_FILL)
+        this.add(this.#main_block)
         // Настройки страницы
         this.setTitle('Создание чата в Telegram');
         this.setMain(true);
@@ -35,8 +44,8 @@ class SettingsGoogleCheckPage extends Page {
 
         if (key && t1 && t2) {
             let label = new Label({markdownText: "НЕТ КЛЮЧА И ТАБЛИЦ"})
-            this.add(label)
-            this.add(this.#b_open_path, this.#i1, this.#i2, this.#b_save)
+            this.#main_block.add(label)
+            this.#main_block.add(this.#b_open_path, this.#i1, this.#i2, this.#b_save)
         } else {
             setTimeout(async () => {
                 let status_1 = await this.checkTable(new Tables().tableUsersGroups());
@@ -52,6 +61,8 @@ class SettingsGoogleCheckPage extends Page {
             store.set(SettingsStoreMarks.SETTINGS.google.json_key_path, this.#path_key)
             store.set(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id, this.#i1.getValue())
             store.set(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id, this.#i2.getValue())
+            App.get().relaunch()
+            App.get().quit()
         })
     }
 
@@ -69,7 +80,7 @@ class SettingsGoogleCheckPage extends Page {
 
     async checkTable(table) {
         let block = this.addBlock(`Проверка таблицы **${table.getName()}**`);
-        this.add(block)
+        this.#main_block.add(block)
         //
         let status = await table.getStatus()
         if (status.status) {

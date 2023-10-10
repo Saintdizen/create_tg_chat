@@ -1,7 +1,7 @@
 const {AppLayout, render, ipcRenderer, Route, Icons, Log} = require('chuijs');
 const {SettingsGoogleCheckPage} = require("./pages/0_page");
 const {SettingsMain} = require("./pages/settings/settings_main");
-const {CreateChatTG} = require("./pages/2_page");
+const {CreateChatTG} = require("./pages/1_page");
 
 class Apps extends AppLayout {
     constructor() {
