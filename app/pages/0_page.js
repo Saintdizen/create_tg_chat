@@ -7,12 +7,8 @@ const {AuthMain} = require("./auth/auth");
 const {Tables} = require('../src/google_sheets/tables');
 
 class SettingsGoogleCheckPage extends Page {
-    #b_open_path = new Button({title: "Открыть папку"})
-    #i1 = new TextInput({title: 'Идентификатор таблицы: "Группы пользователей"', placeholder: 'Номер инцидента', width: '400px'});
-    #i2 = new TextInput({title: 'Идентификатор таблицы: "Настройки авторизации"', placeholder: 'Номер инцидента', width: '400px'});
-    #b_save = new Button({title: "Сохранить"})
-    #path_folder = path.join(App.userDataPath(), "google")
-    #path_key = path.join(this.#path_folder, "credentials.json")
+    #path_folder = path.join(App.userDataPath(), "google");
+    #path_key = path.join(this.#path_folder, "credentials.json");
     //
     #p1 = undefined;
     //
@@ -20,14 +16,17 @@ class SettingsGoogleCheckPage extends Page {
         direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
         align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
     });
+    //
+    #b1 = undefined;
+    #b2 = undefined;
     constructor(MainPage) {
         super();
         //
         this.#p1 = MainPage;
         //
-        this.#main_block.setWidth(Styles.SIZE.WEBKIT_FILL)
-        this.#main_block.setHeight(Styles.SIZE.WEBKIT_FILL)
-        this.add(this.#main_block)
+        this.#main_block.setWidth(Styles.SIZE.WEBKIT_FILL);
+        this.#main_block.setHeight(Styles.SIZE.WEBKIT_FILL);
+        this.add(this.#main_block);
         // Настройки страницы
         this.setTitle('Создание чата в Telegram');
         this.setMain(true);
@@ -40,29 +39,69 @@ class SettingsGoogleCheckPage extends Page {
         let key = store.get(SettingsStoreMarks.SETTINGS.google.json_key_path) === undefined
         let t1 = store.get(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id) === undefined
         let t2 = store.get(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id) === undefined
-
+        this.#b1 = this.step1Block();
+        this.#b2 = this.step2Block();
         if (key && t1 && t2) {
-            let label = new Label({markdownText: "НЕТ КЛЮЧА И ТАБЛИЦ"})
-            this.#main_block.add(label)
-            this.#main_block.add(this.#b_open_path, this.#i1, this.#i2, this.#b_save)
+            this.#main_block.add(this.#b1);
         } else {
             setTimeout(async () => {
                 let status_1 = await this.checkTable(new Tables().tableUsersGroups());
                 let status_2 = await this.checkTable(new Tables().tableAuthSettings());
-                if (status_1.status && status_2.status) {
-                    await this.checkAuth();
-                }
-            }, 200)
+                if (status_1.status && status_2.status) await this.checkAuth();
+            }, 200);
         }
+    }
 
-        this.#b_open_path.addClickListener(async () => await shell.openPath(this.#path_folder))
-        this.#b_save.addClickListener(async () => {
-            store.set(SettingsStoreMarks.SETTINGS.google.json_key_path, this.#path_key)
-            store.set(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id, this.#i1.getValue())
-            store.set(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id, this.#i2.getValue())
-            App.get().relaunch()
-            App.get().quit()
+    step1Block() {
+        let block1 = new ContentBlock({
+            direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+            align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
+        });
+        let label1 = new Label({markdownText: "Не установлен ключ доступа к Google"});
+        let label2 = new Label({markdownText: "Нажмите кнопку 'Открыть папку' и скопируйте ключ **credentials.json**"});
+        block1.add(label1, label2);
+        let b_open_path = new Button({title: "Открыть папку"});
+        b_open_path.addClickListener(() => shell.openPath(this.#path_folder).then(r => console.log(r)));
+        block1.add(b_open_path);
+        let int1 = setInterval(() => {
+            if (fs.existsSync(this.#path_key)) {
+                block1.remove(b_open_path);
+                let b_next = new Button({title: "Далее"});
+                block1.add(b_next);
+                b_next.addClickListener(() => {
+                    this.#main_block.remove(this.#b1);
+                    this.#main_block.add(this.#b2);
+                })
+                clearInterval(int1);
+            }
+        }, 1);
+        return block1;
+    }
+
+    step2Block() {
+        let block2 = new ContentBlock({
+            direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
+            align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
+        });
+        let label1 = new Label({markdownText: "Установите ключи для доступа к таблицам"});
+        block2.add(label1);
+        let i1 = new TextInput({title: 'Идентификатор таблицы: "Группы пользователей"', placeholder: 'Номер инцидента', width: '400px'});
+        let i2 = new TextInput({title: 'Идентификатор таблицы: "Настройки авторизации"', placeholder: 'Номер инцидента', width: '400px'});
+        block2.add(i1, i2);
+        let b_save = new Button({title: "Сохранить"});
+        b_save.addClickListener(async () => {
+            if (fs.existsSync(this.#path_key) && i1.getValue() !== "" && i2.getValue() !== "") {
+                store.set(SettingsStoreMarks.SETTINGS.google.json_key_path, this.#path_key);
+                store.set(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id, i1.getValue());
+                store.set(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id, i2.getValue());
+                App.get().relaunch();
+                App.get().quit();
+            }
+            if (i1.getValue() === "") i1.setErrorMessage("Устанвите идентификатор таблицы");
+            if (i2.getValue() === "") i2.setErrorMessage("Устанвите идентификатор таблицы");
         })
+        block2.add(b_save);
+        return block2;
     }
 
     addBlock(text) {
