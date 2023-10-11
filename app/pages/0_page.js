@@ -85,8 +85,8 @@ class SettingsGoogleCheckPage extends Page {
                 store.set(SettingsStoreMarks.SETTINGS.google.json_key_path, this.#path_key);
                 store.set(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id, i1.getValue());
                 store.set(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id, i2.getValue());
-                App.get().relaunch();
-                App.get().quit();
+                App.get().relaunch()
+                App.get().exit()
             }
             if (i1.getValue() === "") i1.setErrorMessage("Устанвите идентификатор таблицы");
             if (i2.getValue() === "") i2.setErrorMessage("Устанвите идентификатор таблицы");
