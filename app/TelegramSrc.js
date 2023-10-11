@@ -1,12 +1,10 @@
+const {store, Log, path, fs} = require('chuijs');
 const {TelegramClient, Api} = require("telegram");
+const {transliterate} = require("transliteration");
+const {StringSession} = require("telegram/sessions");
 const json = require("../package.json");
 const os = require("os");
-const path = require("path");
-const {transliterate} = require("transliteration");
-const fs = require("fs");
-const {StringSession} = require("telegram/sessions");
 const request = require('request');
-const {store, Log} = require('chuijs');
 const {SettingsStoreMarks} = require("./settings/settings_store_marks");
 const {Tables} = require('./src/google_sheets/tables');
 let tableAuthSettings = new Tables().tableAuthSettings();
