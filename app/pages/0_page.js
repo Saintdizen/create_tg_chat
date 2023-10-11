@@ -27,9 +27,9 @@ class SettingsGoogleCheckPage extends Page {
         this.setFullHeight();
         this.add(this.#main_block);
         if (!fs.existsSync(this.#path_folder)) fs.mkdirSync(this.#path_folder);
-        let key = store.get(SettingsStoreMarks.SETTINGS.google.json_key_path) === undefined
-        let t1 = store.get(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id) === undefined
-        let t2 = store.get(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id) === undefined
+        let key = store.get(SettingsStoreMarks.SETTINGS.google.json_key_path) === undefined;
+        let t1 = store.get(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id) === undefined;
+        let t2 = store.get(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id) === undefined;
         this.#b1 = this.step1Block();
         this.#b2 = this.step2Block();
         if (key && t1 && t2) {
