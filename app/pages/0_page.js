@@ -9,33 +9,24 @@ const {Tables} = require('../src/google_sheets/tables');
 class SettingsGoogleCheckPage extends Page {
     #path_folder = path.join(App.userDataPath(), "google");
     #path_key = path.join(this.#path_folder, "credentials.json");
-    //
     #p1 = undefined;
-    //
     #main_block = new ContentBlock({
         direction: Styles.DIRECTION.COLUMN, wrap: Styles.WRAP.NOWRAP,
         align: Styles.ALIGN.CENTER, justify: Styles.JUSTIFY.CENTER
     });
-    //
     #b1 = undefined;
     #b2 = undefined;
     constructor(MainPage) {
         super();
-        //
         this.#p1 = MainPage;
-        //
         this.#main_block.setWidth(Styles.SIZE.WEBKIT_FILL);
         this.#main_block.setHeight(Styles.SIZE.WEBKIT_FILL);
-        this.add(this.#main_block);
-        // Настройки страницы
         this.setTitle('Создание чата в Telegram');
         this.setMain(true);
         this.setFullWidth();
         this.setFullHeight();
-        // ===
-        //  СОЗДАНИЕ ПАПОК
+        this.add(this.#main_block);
         if (!fs.existsSync(this.#path_folder)) fs.mkdirSync(this.#path_folder);
-        // ===
         let key = store.get(SettingsStoreMarks.SETTINGS.google.json_key_path) === undefined
         let t1 = store.get(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id) === undefined
         let t2 = store.get(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id) === undefined
