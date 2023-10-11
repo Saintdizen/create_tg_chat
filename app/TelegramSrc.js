@@ -327,7 +327,7 @@ class TelegramSrc {
             // Проверка активации настройки
             if (store.get(SettingsStoreMarks.SETTINGS.atlassian.status)) {
                 // Создание задачи в JIRA
-                if (store.get(SettingsStoreMarks.SETTINGS.jira.create_task.status)) await this.createJiraIssue()
+                if (store.get(SettingsStoreMarks.SETTINGS.atlassian.jira.create_task.status)) await this.createJiraIssue()
             }
         } catch (e) {
             await this.#closeDialog();

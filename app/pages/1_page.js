@@ -165,6 +165,7 @@ class CreateChatTG extends Page {
                         ipcRenderer.on('setProgressLogText', (e, text) => progressBlock.add(new Label(text)))
                         ipcRenderer.send('tg_crt_chat', lists, report)
                     } catch (e) {
+                        Log.error(e)
                         progressBlock.add(new Label(e))
                         new Notification({
                             title: 'Создание чата', text: e,
@@ -238,10 +239,11 @@ class CreateChatTG extends Page {
                     }).show()
                     button_c_chat.setDisabled(false);
                 } catch (e) {
+                    Log.error(e);
                     new Notification({
                         title: 'Список пользователей', text: e,
                         style: Notification.STYLE.ERROR, showTime: 3000
-                    }).show()
+                    }).show();
                 }
             })
             block_radios.clear()
@@ -271,17 +273,13 @@ class CreateChatTG extends Page {
     }
 
     static #format(date) {
-        let day = date.getDate()
-        let month = date.getMonth() + 1
-        let year = date.getFullYear()
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
         //Определение дня и месяца
-        if (day < 10) {
-            day = "0" + day
-        }
-        if (month < 10) {
-            month = "0" + month
-        }
-        return String(day + "-" + month + "-" + year)
+        if (day < 10) day = "0" + day;
+        if (month < 10) month = "0" + month;
+        return String(day + "-" + month + "-" + year);
     }
 }
 

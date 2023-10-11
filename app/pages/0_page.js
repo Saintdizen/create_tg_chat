@@ -52,7 +52,7 @@ class SettingsGoogleCheckPage extends Page {
         let label2 = new Label({markdownText: "Нажмите кнопку 'Открыть папку' и скопируйте ключ **credentials.json**"});
         block1.add(label1, label2);
         let b_open_path = new Button({title: "Открыть папку"});
-        b_open_path.addClickListener(() => shell.openPath(this.#path_folder).then(r => console.log(r)));
+        b_open_path.addClickListener(() => shell.openPath(this.#path_folder).then(r => Log.info(r)));
         block1.add(b_open_path);
         let int1 = setInterval(() => {
             if (fs.existsSync(this.#path_key)) {
@@ -85,8 +85,9 @@ class SettingsGoogleCheckPage extends Page {
                 store.set(SettingsStoreMarks.SETTINGS.google.json_key_path, this.#path_key);
                 store.set(SettingsStoreMarks.SETTINGS.google.tables.users_groups_id, i1.getValue());
                 store.set(SettingsStoreMarks.SETTINGS.google.tables.auth_settings_id, i2.getValue());
-                App.get().relaunch()
-                App.get().exit()
+                let apps = App.get();
+                apps.relaunch()
+                apps.exit(0)
             }
             if (i1.getValue() === "") i1.setErrorMessage("Устанвите идентификатор таблицы");
             if (i2.getValue() === "") i2.setErrorMessage("Устанвите идентификатор таблицы");
