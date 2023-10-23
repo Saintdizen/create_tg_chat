@@ -2,7 +2,7 @@
   "name": "create_tg_chat",
   "productName": "Create Chat Telegram",
   "description": "Create Chat Telegram",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
@@ -80,13 +80,12 @@
   },
   "homepage": "https://github.com/Saintdizen/create_tg_chat#readme",
   "devDependencies": {
-    "electron-builder": "~23.6.0"
+    "electron-builder": "~24.6.4"
   },
   "dependencies": {
-    "chuijs": "~2.0.0",
+    "chuijs": "~2.1.0",
     "googleapis": "~126.0.1",
     "qrcode": "~1.5.3",
-    "request": "~2.88.2",
     "telegram": "~2.19.6",
     "transliteration": "~2.3.5"
   }
