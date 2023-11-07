@@ -2,7 +2,7 @@ const {
     Page, Button, TextInput, ContentBlock,
     Styles, Notification, ipcRenderer, Dialog,
     ProgressBar, Label, RadioGroup, Spinner,
-    TextEditor, MenuBar, Icons, Log
+    TextEditor, MenuBar, Icons, Log, Popup
 } = require('chuijs');
 const {CreateHelpDialog} = require("../src/dialogs/dialogs");
 const {Tables} = require('../src/google_sheets/tables');
@@ -148,35 +148,44 @@ class CreateChatTG extends Page {
             }
         })
         // Кнопка создания чата
+        let pop = new Popup();
         let button_c_chat = new Button({
             primary: true,
             title: "Создать чат",
             clickEvent: async () => {
-                if (lists.length !== 0) {
-                    modal.open()
-                    progressBar.setProgressText('Получение данных...')
-                    report.date = CreateChatTG.#format(new Date());
-                    report.incId = inc_num.getValue();
-                    report.pinMessage = pin_message.getValueAsHTML();
-                    report.description = desc.getValue();
-                    try {
-                        ipcRenderer.on('setProgressValue', (e, value) => progressBar.setValue(value))
-                        ipcRenderer.on('setProgressText', (e, text) => progressBar.setProgressText(text))
-                        ipcRenderer.on('setProgressLogText', (e, text) => progressBlock.add(new Label(text)))
-                        ipcRenderer.send('tg_crt_chat', lists, report)
-                    } catch (e) {
-                        Log.error(e)
-                        progressBlock.add(new Label(e))
+                let confirm_res = await pop.confirm({
+                    title: 'Создание чата',
+                    message: 'Продолжить?',
+                    okText: 'OK',
+                    cancelText: 'Отмена',
+                })
+                if (confirm_res) {
+                    if (lists.length !== 0) {
+                        modal.open()
+                        progressBar.setProgressText('Получение данных...')
+                        report.date = CreateChatTG.#format(new Date());
+                        report.incId = inc_num.getValue();
+                        report.pinMessage = pin_message.getValueAsHTML();
+                        report.description = desc.getValue();
+                        try {
+                            ipcRenderer.on('setProgressValue', (e, value) => progressBar.setValue(value))
+                            ipcRenderer.on('setProgressText', (e, text) => progressBar.setProgressText(text))
+                            ipcRenderer.on('setProgressLogText', (e, text) => progressBlock.add(new Label(text)))
+                            ipcRenderer.send('tg_crt_chat', lists, report)
+                        } catch (e) {
+                            Log.error(e)
+                            progressBlock.add(new Label(e))
+                            new Notification({
+                                title: 'Создание чата', text: e,
+                                style: Notification.STYLE.ERROR, showTime: 3000
+                            }).show()
+                        }
+                    } else {
                         new Notification({
-                            title: 'Создание чата', text: e,
+                            title: 'Создание чата', text: 'Выберите список пользователей',
                             style: Notification.STYLE.ERROR, showTime: 3000
                         }).show()
                     }
-                } else {
-                    new Notification({
-                        title: 'Создание чата', text: 'Выберите список пользователей',
-                        style: Notification.STYLE.ERROR, showTime: 3000
-                    }).show()
                 }
             }
         })
