@@ -1,4 +1,4 @@
-const {AppLayout, render, ipcRenderer, Route, Icons, Log, Popup} = require('chuijs');
+const {AppLayout, render, ipcRenderer, Route, Log, Popup} = require('chuijs');
 const {SettingsGoogleCheckPage} = require("./pages/0_page");
 const {SettingsMain} = require("./pages/settings/settings_main");
 const {CreateChatTG} = require("./pages/1_page");
@@ -30,12 +30,9 @@ class Apps extends AppLayout {
                                 let confirm_res = await pop.confirm({
                                     title: 'Выход из аккаунта Telegram',
                                     message: 'Продолжить?',
-                                    okText: 'OK',
-                                    cancelText: 'Отмена',
+                                    okText: 'OK', cancelText: 'Отмена',
                                 })
-                                if (confirm_res) {
-                                    ipcRenderer.send("LOGOUT")
-                                }
+                                if (confirm_res) ipcRenderer.send("LOGOUT")
                             }
                         })
                     ]

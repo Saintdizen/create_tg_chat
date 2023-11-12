@@ -149,6 +149,38 @@ class CreateChatTG extends Page {
         })
         // Кнопка создания чата
         let pop = new Popup();
+        inc_num.addInputListener(() => button_c_clear.setDisabled(false))
+        desc.addInputListener(() => button_c_clear.setDisabled(false))
+        //pin_message.addInputListener(() => button_c_clear.setDisabled(false))
+        let button_c_clear = new Button({
+            title: "Очистить",
+            clickEvent: async () => {
+                //
+                radioGroup.clear()
+                report.wiki.space = undefined
+                report.wiki.pageId = undefined
+                //
+                inc_num.setValue('IM')
+                //
+                desc.setValue("")
+                //
+                pin_message.setValueAsHTML("<p><b>Описание инцидента:</b></p>\n" +
+                    "<p>--- Данная строка будет автоматически изменена ---</p>\n" +
+                    "<p><b>Статус подготовки отчета:</b> Заполнение отчёта</p>\n" +
+                    "<p><b>Ответственный:</b> Определение ответственного</p>\n" +
+                    "<p><b><br></b></p>\n" +
+                    "<p><b>Время начала:</b></p>\n" +
+                    "<p><b>Время окончания:</b></p>\n" +
+                    "<p><b>Статус:</b> ⚠️ Устранение инцидента</p>")
+                button_c_chat.setDisabled(true);
+                new Notification({
+                    title: 'Создание чата', text: "Форма очищена!",
+                    style: Notification.STYLE.SUCCESS, showTime: 3000
+                }).show()
+                button_c_clear.setDisabled(true)
+            }
+        })
+        button_c_clear.setDisabled(true)
         let button_c_chat = new Button({
             primary: true,
             title: "Создать чат",
@@ -156,8 +188,7 @@ class CreateChatTG extends Page {
                 let confirm_res = await pop.confirm({
                     title: 'Создание чата',
                     message: 'Продолжить?',
-                    okText: 'OK',
-                    cancelText: 'Отмена',
+                    okText: 'OK', cancelText: 'Отмена',
                 })
                 if (confirm_res) {
                     if (lists.length !== 0) {
@@ -197,7 +228,7 @@ class CreateChatTG extends Page {
             clickEvent: () => this.#help_create_dialog.open()
         })
         //
-        this.#menuBar.addMenuItems(button_help, button_c_chat)
+        this.#menuBar.addMenuItems(button_help, button_c_chat, button_c_clear)
         //
         progressBlock.add(progressBar)
         modal.addToBody(progressBlock)
@@ -229,6 +260,7 @@ class CreateChatTG extends Page {
             radioGroup.addChangeListener(async (e) => {
                 try {
                     button_c_chat.setDisabled(true);
+                    button_c_clear.setDisabled(true);
                     // Чтение таблиц
                     let report_list = await tableAuthSettings.read(`REPORTS!A1:D`);
                     let users_list = await tableUsersGroups.read(`${e.target.value}!A1:A`).catch(err => Log.error(err));
@@ -247,6 +279,7 @@ class CreateChatTG extends Page {
                         style: Notification.STYLE.SUCCESS, showTime: 3000
                     }).show()
                     button_c_chat.setDisabled(false);
+                    button_c_clear.setDisabled(false);
                 } catch (e) {
                     Log.error(e);
                     new Notification({
