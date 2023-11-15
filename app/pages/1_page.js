@@ -151,6 +151,7 @@ class CreateChatTG extends Page {
         let pop = new Popup();
         inc_num.addInputListener(() => button_c_clear.setDisabled(false))
         desc.addInputListener(() => button_c_clear.setDisabled(false))
+        pin_message.addInputListener(() => button_c_clear.setDisabled(false))
         //pin_message.addInputListener(() => button_c_clear.setDisabled(false))
         let button_c_clear = new Button({
             title: "Очистить",
