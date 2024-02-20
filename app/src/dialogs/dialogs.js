@@ -1,7 +1,7 @@
 const {Image, Styles, Dialog, ContentBlock, Label, Button, TreeView, Icons} = require("chuijs");
 
 class AuthHelpDialog {
-    #dialog = new Dialog({width: "85%", height: Styles.SIZE.WEBKIT_FILL, closeOutSideClick: false})
+    #dialog = new Dialog({width: Styles.SIZE.WEBKIT_FILL, height: Styles.SIZE.WEBKIT_FILL, closeOutSideClick: false})
     #header_dialog = new ContentBlock({
         direction: Styles.DIRECTION.ROW,
         wrap: Styles.WRAP.NOWRAP,
@@ -51,7 +51,7 @@ class AuthHelpDialog {
 exports.AuthHelpDialog = AuthHelpDialog
 
 class CreateHelpDialog {
-    #dialog = new Dialog({width: "85%", height: "80%", closeOutSideClick: false})
+    #dialog = new Dialog({width: Styles.SIZE.WEBKIT_FILL, height: Styles.SIZE.WEBKIT_FILL, closeOutSideClick: false})
     #header_dialog = new ContentBlock({
         direction: Styles.DIRECTION.ROW,
         wrap: Styles.WRAP.NOWRAP,
