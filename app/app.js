@@ -15,7 +15,7 @@ class Apps extends AppLayout {
         this.disableAppMenu();
         let pop = new Popup();
         ipcRenderer.on("sendUserData", (e, user) => {
-            this.addToHeader([
+            this.addToHeaderRight([
                 AppLayout.USER_PROFILE({
                     username: `${user.firstName} ${user.lastName}`,
                     image: {noImage: true},
