@@ -5,6 +5,7 @@ const {StringSession} = require("telegram/sessions");
 const json = require("../package.json");
 const {SettingsStoreMarks} = require("./settings/settings_store_marks");
 const {Tables} = require('./src/google_sheets/tables');
+const {Platform} = require("electron-builder");
 let tableAuthSettings = new Tables().tableAuthSettings();
 
 class TelegramSrc {
@@ -22,16 +23,19 @@ class TelegramSrc {
     constructor(mainApp) {
         this.#mainApp = mainApp;
         this.#createSessionDir();
+
+        // os.type().toString() os.version()
         if (fs.existsSync(this.#fullSessionPath)) this.#stringSession = new StringSession(require(this.#fullSessionPath).session);
-        this.#client = new TelegramClient(this.#stringSession, 5030579, "c414e180e62df5a8d8078b8e263be014", {
-            appVersion: json.version,
-            deviceModel: `${os.hostname().toUpperCase()} ${os.platform().toUpperCase()}`,
+        this.#client = new TelegramClient(this.#stringSession, 2040, "b18441a1ff607e10a989891a5462e627", {
+            appVersion: `${json.version} ${os.machine()}`,
+            deviceModel: os.hostname(),
+            systemVersion: "Windows 10",
+            connectionRetries: 5,
             langCode: 'ru',
-            systemVersion: os.release().toString(),
-            systemLangCode: 'ru',
-            connectionRetries: 5
+            systemLangCode: 'ru-RU'
         });
         this.#client.session.setDC(2, "149.154.167.41", 443);
+        console.log(os.type().toString())
     }
 
     format(date) {
