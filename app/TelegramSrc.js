@@ -23,8 +23,6 @@ class TelegramSrc {
     constructor(mainApp) {
         this.#mainApp = mainApp;
         this.#createSessionDir();
-
-        // os.type().toString() os.version()
         if (fs.existsSync(this.#fullSessionPath)) this.#stringSession = new StringSession(require(this.#fullSessionPath).session);
         this.#client = new TelegramClient(this.#stringSession, 2040, "b18441a1ff607e10a989891a5462e627", {
             appVersion: `${json.version} ${os.machine()}`,
@@ -35,7 +33,6 @@ class TelegramSrc {
             systemLangCode: 'ru-RU'
         });
         this.#client.session.setDC(2, "149.154.167.41", 443);
-        console.log(os.type().toString())
     }
 
     format(date) {
