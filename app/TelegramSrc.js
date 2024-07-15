@@ -5,7 +5,6 @@ const {StringSession} = require("telegram/sessions");
 const json = require("../package.json");
 const {SettingsStoreMarks} = require("./settings/settings_store_marks");
 const {Tables} = require('./src/google_sheets/tables');
-const {Platform} = require("electron-builder");
 let tableAuthSettings = new Tables().tableAuthSettings();
 
 class TelegramSrc {
