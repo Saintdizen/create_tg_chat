@@ -202,7 +202,8 @@ class TelegramSrc {
             //Создать группу
             await this.#setProgressText('Создание группы...')
             await this.#setProgressValue(25)
-            this.#test_title = this.format(new Date()) + " - " + report.description + " - " + report.incId
+            let is_name = report.is.replace(/[(){}\]\[\d]+/gm, "").toString().trim()
+            this.#test_title = this.format(new Date()) + " - " + is_name + " - " + report.description + " - " + report.incId
             let test_t = `‼ ${this.#test_title}`
             let test_a = `Создан чат по проблеме ${this.#test_title}`
             const res_cr_chat = await this.#client.invoke(new Api.channels.CreateChannel({

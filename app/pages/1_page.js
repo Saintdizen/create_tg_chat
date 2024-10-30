@@ -15,6 +15,7 @@ let report = {
     incId: String(undefined),
     pinMessage: String(undefined),
     description: String(undefined),
+    is: String(undefined),
     wiki: {
         space: String(undefined),
         pageId: Number(undefined)
@@ -160,6 +161,7 @@ class CreateChatTG extends Page {
                 radioGroup.clear()
                 report.wiki.space = undefined
                 report.wiki.pageId = undefined
+                report.is = undefined
                 //
                 inc_num.setValue('IM')
                 //
@@ -199,6 +201,7 @@ class CreateChatTG extends Page {
                         report.incId = inc_num.getValue();
                         report.pinMessage = pin_message.getValueAsHTML();
                         report.description = desc.getValue();
+                        report.is = radioGroup.getValue()
                         try {
                             ipcRenderer.on('setProgressValue', (e, value) => progressBar.setValue(value))
                             ipcRenderer.on('setProgressText', (e, text) => progressBar.setProgressText(text))
